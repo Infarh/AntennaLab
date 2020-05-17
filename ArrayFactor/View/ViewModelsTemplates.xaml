@@ -1,0 +1,30 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:l="clr-namespace:ArrayFactor"
+                    xmlns:v="clr-namespace:ArrayFactor.View"
+                    xmlns:m="clr-namespace:ArrayFactor.View.Models">
+    <DataTemplate DataType="{x:Type m:IndexPageModel}">
+        <v:IndexPageView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type m:WelcomePageModel}">
+        <v:WelcomePageVew/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type m:RegistrationPageModel}">
+        <v:RegistrationPageView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type m:IntroductionPageModel}">
+        <v:IntroductionPageView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type m:BeamPatternParametersPageModel}">
+        <v:BeamPatternParametersPageView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type m:RawDataPageModel}">
+        <v:RawDataPageView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type m:AntennaArrayPropertiesPageModel}">
+        <v:AntennaArrayPropertiesPageView/>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type m:ArrayGeometryPageModel}">
+        <v:ArrayGeometryPageView/>
+    </DataTemplate>
+</ResourceDictionary>

@@ -1,0 +1,139 @@
+﻿<UserControl x:Class="ArrayFactor.Service.Controls.SmithChart"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:s="clr-namespace:System;assembly=mscorlib"
+             xmlns:ms="clr-namespace:MathCore;assembly=MathCore"
+             xmlns:sc="clr-namespace:ArrayFactor.Service.Converters.SmithChartConverters"
+             xmlns:c="clr-namespace:ArrayFactor.Service.Converters"
+             mc:Ignorable="d" 
+             Background="White"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid Name="GraphGrid" Margin="15">
+            <Grid.Resources>
+                <Style x:Key="GridLinesItemControl" TargetType="ItemsControl">
+                    <Setter Property="CacheMode">
+                        <Setter.Value>
+                            <BitmapCache SnapsToDevicePixels="True" RenderAtScale="2"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="ItemsPanel">
+                        <Setter.Value>
+                            <ItemsPanelTemplate>
+                                <Grid/>
+                            </ItemsPanelTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Clip" Value="{Binding RenderedGeometry, ElementName=Border}"/>
+                </Style>
+            </Grid.Resources>
+            <Line Name="HorizontalAxeLine" X2="1" Stroke="Black" StrokeThickness="2" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <Line.RenderTransform>
+                    <ScaleTransform ScaleX="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+                </Line.RenderTransform>
+            </Line>
+            <Line Name="VerticalAxeLine" Y2="1" Stroke="Black" StrokeThickness="2" VerticalAlignment="Top" HorizontalAlignment="Center">
+                <Line.LayoutTransform>
+                    <ScaleTransform ScaleY="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+                </Line.LayoutTransform>
+            </Line>
+            <Ellipse Name="Border" Stroke="DarkBlue" StrokeThickness="2" Visibility="Hidden"/>
+            <ItemsControl Name="RealGridLines" Style="{StaticResource GridLinesItemControl}">
+                <ItemsControl.ItemsSource>
+                    <x:Array Type="s:Double">
+                        <s:Double>0.125</s:Double>
+                        <s:Double>0.25</s:Double>
+                        <s:Double>0.5</s:Double>
+                        <s:Double>1</s:Double>
+                        <s:Double>2</s:Double>
+                        <s:Double>4</s:Double>
+                        <s:Double>8</s:Double>
+                    </x:Array>
+                </ItemsControl.ItemsSource>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="s:Double">
+                        <Ellipse Stroke="Red" StrokeThickness="1" RenderTransformOrigin="0.5,0.5">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="{Binding Converter={sc:RealGridLineRadius}}" ScaleY="{Binding Converter={sc:RealGridLineRadius}}"/>
+                                    <TranslateTransform>
+                                        <TranslateTransform.Y>
+                                            <MultiBinding Converter="{sc:RealGridLineOffset}">
+                                                <Binding ElementName="RealGridLines" Path="ActualHeight"/>
+                                                <Binding/>
+                                            </MultiBinding>
+                                        </TranslateTransform.Y>
+                                    </TranslateTransform>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl Name="ImagenGridLines" Style="{StaticResource GridLinesItemControl}" Clip="{x:Null}">
+                <ItemsControl.ItemsSource>
+                    <x:Array Type="s:Double">
+                        <!--<s:Double>-2</s:Double>
+                        <s:Double>-1</s:Double>
+                        <s:Double>-0.5</s:Double>
+                        <s:Double>-0.25</s:Double>
+                        <s:Double>0.25</s:Double>-->
+                        <!--<s:Double>0.5</s:Double>-->
+                        <!--<s:Double>1</s:Double>-->
+                        <s:Double>2</s:Double>
+                    </x:Array>
+                </ItemsControl.ItemsSource>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="s:Double">
+                        <Path Stroke="Blue" StrokeThickness="1">
+                            <Path.Data>
+                                <GeometryGroup>
+                                    <EllipseGeometry 
+                                    RadiusX="{Binding ActualWidth, ElementName=ImagenGridLines, Converter={c:Divide 2}}"
+                                    RadiusY="{Binding ActualHeight, ElementName=ImagenGridLines, Converter={c:Divide 2}}">
+                                        <EllipseGeometry.Transform>
+                                            <TranslateTransform 
+                                                X="{Binding RadiusX, RelativeSource={RelativeSource AncestorType=EllipseGeometry}}"
+                                                Y="{Binding RadiusY, RelativeSource={RelativeSource AncestorType=EllipseGeometry}}"/>
+                                        </EllipseGeometry.Transform>
+                                    </EllipseGeometry>
+                                    <GeometryGroup.Transform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleX="{Binding Converter={sc:ImagenGridLineRadius}}" ScaleY="{Binding Converter={sc:ImagenGridLineRadius}}"/>
+                                            <TranslateTransform Y="{Binding ActualWidth, ElementName=ImagenGridLines, Converter={c:Multiply 0.5}}">
+                                                <TranslateTransform.X>
+                                                    <MultiBinding Converter="{sc:ImagenGridLineXOffset}">
+                                                        <Binding ElementName="ImagenGridLines" Path="ActualWidth"/>
+                                                        <Binding/>
+                                                    </MultiBinding>
+                                                </TranslateTransform.X>
+                                            </TranslateTransform>
+                                        </TransformGroup>
+                                    </GeometryGroup.Transform>
+                                </GeometryGroup>
+                            </Path.Data>
+                        </Path>
+
+                        <!--<Ellipse Stroke="Blue" StrokeThickness="0.5" RenderTransformOrigin="0.5,0.5">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="{Binding Converter={sc:ImagenGridLineRadius}}" ScaleY="{Binding Converter={sc:ImagenGridLineRadius}}"/>
+                                    <TranslateTransform Y="{Binding ActualWidth, ElementName=ImagenGridLines, Converter={c:Multiply 0.5}}">
+                                        <TranslateTransform.X>
+                                            <MultiBinding Converter="{sc:ImagenGridLineXOffset}">
+                                                <Binding ElementName="ImagenGridLines" Path="ActualWidth"/>
+                                                <Binding/>
+                                            </MultiBinding>
+                                        </TranslateTransform.X>
+                                    </TranslateTransform>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>-->
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </Grid>
+</UserControl>

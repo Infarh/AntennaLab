@@ -1,0 +1,867 @@
+﻿<Window x:Class="ArrayFactor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:a="clr-namespace:Antennas;assembly=AntennaLib"
+        xmlns:M="clr-namespace:MathCore;assembly=MathCore"
+        xmlns:l="clr-namespace:ArrayFactor" 
+        xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+        xmlns:ad="clr-namespace:ArrayFactor.Service.AmplitudeDistributions"
+        Title="Расчёт парметров ФАР" Height="620" Width="1000">
+    <Window.DataContext>
+        <l:MainWindowModel Nx="8" Ny="8" dx="10" dy="10"/>
+    </Window.DataContext>
+    <Window.Resources>
+        <Style TargetType="ToolTip">
+            <Style.Resources>
+                <SolidColorBrush x:Key="WhiteSmokeBrush" Color="WhiteSmoke" po:Freeze="true"/>
+            </Style.Resources>
+            <Setter Property="Background" Value="{StaticResource WhiteSmokeBrush}"/>
+        </Style>
+    </Window.Resources>
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+           
+        </StatusBar>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100*" MinWidth="300" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="300*" />
+            </Grid.ColumnDefinitions>
+            <GridSplitter Grid.Column="1" Width="2" VerticalAlignment="Stretch" HorizontalAlignment="Center" />
+            <Grid Grid.Column="0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel>
+                        <Expander IsExpanded="True" Header="Параметры АР">
+                            <StackPanel Orientation="Horizontal">
+                                <GroupBox Header="Решётка" Padding="3" ToolTip="Параметры решётки">
+                                    <StackPanel Margin="2">
+                                        <StackPanel.Resources>
+                                            <Style TargetType="TextBox" BasedOn="{StaticResource Field}" />
+                                            <Style TargetType="ScrollBar" BasedOn="{StaticResource UpDown}" />
+                                        </StackPanel.Resources>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Количество антенных элементов по оси OX">
+                                            <TextBlock Width="15">
+                                                <Run>N</Run><Run BaselineAlignment="Subscript">x</Run>
+                                            </TextBlock>
+                                            <TextBox Text="{Binding Nx, FallbackValue='--'}" />
+                                            <ScrollBar Value="{Binding Nx}" Minimum="1" Maximum="128"
+                                                       Style="{StaticResource UpDown}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Количество антенных элементов по оси OY">
+                                            <TextBlock Width="15">
+                                                <Run>N</Run><Run BaselineAlignment="Subscript">y</Run>
+                                            </TextBlock>
+                                            <TextBox Text="{Binding Ny, FallbackValue='--'}" />
+                                            <ScrollBar Value="{Binding Ny}" Minimum="1" Maximum="128" SmallChange="1" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Шаг между антенными элементами по оси OX">
+                                            <TextBlock Width="15">
+                                                <Run>d</Run><Run BaselineAlignment="Subscript">x</Run>
+                                            </TextBlock>
+                                            <TextBox Text="{Binding dx, FallbackValue='-.-'}" />
+                                            <ScrollBar Value="{Binding dx}" Minimum="1" Maximum="1000" />
+                                            <TextBlock Text="см" Margin="5,0,0,0" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Шаг между антенными элементами по оси OY">
+                                            <TextBlock Width="15">
+                                                <Run>d</Run><Run BaselineAlignment="Subscript">y</Run>
+                                            </TextBlock>
+                                            <TextBox Text="{Binding dy, FallbackValue='-.-'}" />
+                                            <ScrollBar Value="{Binding dy}" Minimum="0.1" Maximum="1000" SmallChange="1" />
+                                            <TextBlock Text="см" Margin="5,0,0,0" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Угол отклонения луча от нормали">
+                                            <TextBlock Width="15">
+                                                <Run>θ</Run><Run BaselineAlignment="Subscript">0</Run>
+                                            </TextBlock>
+                                            <TextBox Text="{Binding θ0, FallbackValue='-.-'}" />
+                                            <ScrollBar Value="{Binding θ0}" Minimum="-180" Maximum="180" SmallChange="1" />
+                                            <TextBlock Text="°" Margin="5,0,0,0" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                                <GroupBox Header="Общее" Padding="3" ToolTip="Параметры сигнала и характеристики решётки">
+                                    <StackPanel Orientation="Vertical" Margin="2">
+                                        <StackPanel.Resources>
+                                            <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource Field}" />
+                                            <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource UpDown}" />
+                                        </StackPanel.Resources>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Частота">
+                                            <TextBlock Text="f" />
+                                            <TextBlock Text="0" Margin="0,0,5,0" VerticalAlignment="Bottom" />
+                                            <TextBox Text="{Binding f0, StringFormat={}{0:0.##}, FallbackValue='-.-'}" />
+                                            <ScrollBar Minimum="0.1" Maximum="20" SmallChange="0.1" Value="{Binding f0}" />
+                                            <TextBlock Text="ГГц" Margin="5,0" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Длина волны">
+                                            <TextBlock Text="λ" />
+                                            <TextBlock Text="0" Margin="0,0,5,0" VerticalAlignment="Bottom" />
+                                            <TextBox Text="{Binding λ0, StringFormat={}{0:0.##}, FallbackValue='-.-'}" />
+                                            <ScrollBar Minimum="0.1" Maximum="300" SmallChange="0.1" LargeChange="5" Value="{Binding λ0}" />
+                                            <TextBlock Text="см" Margin="5,0" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <StackPanel Margin="2.5,0">
+                                                <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Размер апертуры по оси OX">
+                                                    <TextBlock Text="L" />
+                                                    <TextBlock Text="x" VerticalAlignment="Bottom" FontSize="9" />
+                                                    <TextBlock Text="=" />
+                                                    <TextBlock Text="{Binding Lx, StringFormat='{}{0:0.##}м', FallbackValue='-.-'}" Margin="2.5,0" />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Размер апертуры по оси OY">
+                                                    <TextBlock Text="L" />
+                                                    <TextBlock Text="y" VerticalAlignment="Bottom" FontSize="9" />
+                                                    <TextBlock Text="=" />
+                                                    <TextBlock Text="{Binding Ly, StringFormat='{}{0:0.##}м', FallbackValue='-.-'}" Margin="2.5,0" />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Максимальный угол отклонения луча ДН оси OX">
+                                                    <TextBlock Text="θ" />
+                                                    <TextBlock Text="x" VerticalAlignment="Bottom" FontSize="9" />
+                                                    <TextBlock Text="max" VerticalAlignment="Top" FontSize="9" />
+                                                    <TextBlock Text="=" />
+                                                    <TextBlock Text="{Binding θmax_x, StringFormat='{}{0:0.##}°', FallbackValue='-.-'}" Margin="2.5,0">
+                                                        <TextBlock.ToolTip>
+                                                            <ToolTip>
+                                                                <StackPanel Orientation="Vertical">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="При выходе луча из сектора ±" />
+                                                                        <TextBlock Text="{Binding θmax_x, StringFormat='{}{0:0.##}°', FallbackValue='-.-'}" />
+                                                                        <TextBlock Text=" в плоскости OX начнёт появляться дифракционный максимум" />
+                                                                    </StackPanel>
+                                                                    <TextBlock>
+                                                                        что приведёт к<Bold>существенному</Bold>
+                                                                        увеличению УБЛ
+                                                                    </TextBlock>
+                                                                </StackPanel>
+                                                            </ToolTip>
+                                                        </TextBlock.ToolTip>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Коэффициент усиления просранственной ДН">
+                                                    <TextBlock Text="КУ=" />
+                                                    <TextBlock Text="{Binding Gain, StringFormat='{}{0:0.##}дБ', FallbackValue='-.-'}">
+                                                        <TextBlock.ToolTip>
+                                                            <ToolTip>
+                                                                <TextBlock Text="{Binding Gain, Converter={dB Invert=True}, StringFormat='{}{0:0.##}', FallbackValue='-.-'}" />
+                                                            </ToolTip>
+                                                        </TextBlock.ToolTip>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" ToolTip="Ширина луча по уровню 1/√2">
+                                                    <TextBlock Text="2θ" />
+                                                    <TextBlock Text="07" VerticalAlignment="Bottom" FontSize="9" />
+                                                    <TextBlock Text="=" />
+                                                    <TextBlock Text="{Binding BeamWidth07, StringFormat='{}{0:0.##}°', FallbackValue='-.-'}" />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" ToolTip="Уровень боковых лепестков">
+                                                    <TextBlock Text="УБЛ=" />
+                                                    <TextBlock Text="{Binding SSL_Value, StringFormat='{}{0:0.#}дБ', FallbackValue='-.-'}" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                            <StackPanel Margin="2.5,0">
+                                                <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Ширина луча ДН оси OX">
+                                                    <TextBlock Text="2θ" />
+                                                    <TextBlock Text="0.707" VerticalAlignment="Bottom" FontSize="9" />
+                                                    <TextBlock Text="x" VerticalAlignment="Top" FontSize="9" />
+                                                    <TextBlock Text="=" />
+                                                    <TextBlock Text="{Binding θ2_07_x, StringFormat='{}{0:0.##}°', FallbackValue='-.-'}" Margin="2.5,0" />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Ширина луча ДН оси OY">
+                                                    <TextBlock Text="2θ" />
+                                                    <TextBlock Text="0.707" VerticalAlignment="Bottom" FontSize="9" />
+                                                    <TextBlock Text="y" VerticalAlignment="Top" FontSize="9" />
+                                                    <TextBlock Text="=" />
+                                                    <TextBlock Text="{Binding θ2_07_y, StringFormat='{}{0:0.##}°', FallbackValue='-.-'}" Margin="2.5,0" />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Максимальный угол отклонения луча ДН оси OY">
+                                                    <TextBlock Text="θ" />
+                                                    <TextBlock Text="y" VerticalAlignment="Bottom" FontSize="9" />
+                                                    <TextBlock Text="max" VerticalAlignment="Top" FontSize="9" />
+                                                    <TextBlock Text="=" />
+                                                    <TextBlock Text="{Binding θmax_y, StringFormat='{}{0:0.##}°', FallbackValue='-.-'}" Margin="2.5,0">
+                                                        <TextBlock.ToolTip>
+                                                            <ToolTip>
+                                                                <StackPanel Orientation="Vertical">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="При выходе луча из сектора ±" />
+                                                                        <TextBlock Text="{Binding θmax_y, StringFormat='{}{0:0.##}°', FallbackValue='-.-'}" />
+                                                                        <TextBlock Text="в плоскости OX начнёт появляться дифракционный максимум" />
+                                                                    </StackPanel>
+                                                                    <TextBlock>что приведёт к<Bold>существенному</Bold> увеличению УБЛ
+                                                                    </TextBlock>
+                                                                </StackPanel>
+                                                            </ToolTip>
+                                                        </TextBlock.ToolTip>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <Grid>
+                                                    <Rectangle Visibility="Collapsed">
+                                                        <Rectangle.Style>
+                                                            <Style TargetType="{x:Type Rectangle}">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding PatternComplite}" Value="1">
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Rectangle.Style>
+                                                        <Rectangle.Stroke>
+                                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                                <LinearGradientBrush.RelativeTransform>
+                                                                    <RotateTransform Angle="-90"/>
+                                                                </LinearGradientBrush.RelativeTransform>
+                                                                <GradientStop Color="Blue" Offset="0"/>
+                                                                <GradientStop Color="#00000000" Offset="0.447"/>
+                                                            </LinearGradientBrush>
+                                                        </Rectangle.Stroke>
+                                                        <Rectangle.Fill>
+                                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                                <LinearGradientBrush.RelativeTransform>
+                                                                    <RotateTransform Angle="90" CenterY="0.5" CenterX="0.5"/>
+                                                                </LinearGradientBrush.RelativeTransform>
+                                                                <GradientStop Color="Blue" Offset="0.080"/>
+                                                                <GradientStop Offset="0.25" Color="#00000000"/>
+                                                            </LinearGradientBrush>
+                                                        </Rectangle.Fill>
+                                                        <Rectangle.RenderTransform>
+                                                            <ScaleTransform ScaleX="{Binding PatternComplite}"/>
+                                                        </Rectangle.RenderTransform>
+                                                    </Rectangle>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="КНД в дБ в плоскости сечения ДН">
+                                                        <!--<StackPanel.Style>
+                                                            <Style TargetType="StackPanel">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding PatternComplite}" Value="1">
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </StackPanel.Style>-->
+                                                        <TextBlock Text="D" />
+                                                        <TextBlock Text="φ" FontSize="9" VerticalAlignment="Bottom" />
+                                                        <TextBlock Text="=" />
+                                                        <TextBlock Text="{Binding D0, Converter={dB}, StringFormat='{}{0:0.##}дБ', FallbackValue='-.-'}" />
+                                                    </StackPanel>
+                                                    <!--<StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="КНД в дБ в плоскости сечения ДН">
+                                                        <StackPanel.Style>
+                                                            <Style TargetType="StackPanel">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding PatternComplite}" Value="1">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </StackPanel.Style>
+                                                        <TextBlock Text="D" />
+                                                        <TextBlock Text="0" FontSize="9" VerticalAlignment="Bottom" />
+                                                        <TextBlock Text="=" />
+                                                        <TextBlock Text="{Binding D0_Total, StringFormat='{}{0:0.##}дБ', FallbackValue='-.-'}" />
+                                                    </StackPanel>-->
+                                                </Grid>
+                                                <StackPanel Orientation="Horizontal" ToolTip="Ширина луча по уровню 0">
+                                                    <TextBlock Text="2θ" />
+                                                    <TextBlock Text="0" VerticalAlignment="Bottom" FontSize="9" />
+                                                    <TextBlock Text="=" />
+                                                    <TextBlock Text="{Binding BeamWidth0, StringFormat='{}{0:0.##}°', FallbackValue='-.-'}" />
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" ToolTip="Средний УБЛ">
+                                                    <TextBlock Text="УБЛ" />
+                                                    <TextBlock Text="ср" FontSize="9" VerticalAlignment="Bottom" />
+                                                    <TextBlock Text="=" />
+                                                    <TextBlock Text="{Binding MeanSSL_Value, StringFormat='{}{0:0.#}дБ', FallbackValue='-.-'}" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                            </StackPanel>
+                        </Expander>
+                        <Expander IsExpanded="True" Header="Параметры антенного элемента">
+                            <GroupBox ToolTip="Тип элементарного излучателя решётки" Margin="5" Padding="0,3,0,0"
+                                      HorizontalAlignment="Left">
+                                <GroupBox.Header>
+                                    <ComboBox SelectedIndex="1" Background="Transparent"
+                                              SelectedItem="{Binding ElementaryAntenna, Mode=TwoWay}"
+                                              BorderBrush="{x:Null}">
+                                        <ComboBox.Resources>
+                                            <DataTemplate DataType="{x:Type a:UniformAntenna}">
+                                                <TextBlock>Всенаправленная антенна</TextBlock>
+                                            </DataTemplate>
+                                            <DataTemplate DataType="{x:Type a:Vibrator}">
+                                                <TextBlock Text="Вибратор">
+                                                    <TextBlock.ToolTip>
+                                                        <GroupBox Header="Длина">
+                                                            <TextBlock Text="{Binding Length, StringFormat='{}{0:0.##}см', Converter={Multiply 100}}" />
+                                                        </GroupBox>
+                                                    </TextBlock.ToolTip>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                            <DataTemplate DataType="{x:Type a:AntennaItem}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <ContentControl Content="{Binding Element}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ComboBox.Resources>
+                                        <ComboBox.ItemsSource>
+                                            <x:Array Type="{x:Type a:Antenna}">
+                                                <a:UniformAntenna />
+                                                <a:AntennaItem Direction="-90,0" Name="Вибратор">
+                                                    <a:AntennaItem.Element>
+                                                        <a:Vibrator Length="0.1" />
+                                                    </a:AntennaItem.Element>
+                                                </a:AntennaItem>
+                                                <a:AntennaItem Direction="0,0" Name="Вибратор">
+                                                    <a:AntennaItem.Element>
+                                                        <a:Dipole />
+                                                    </a:AntennaItem.Element>
+                                                </a:AntennaItem>
+                                                <a:AntennaItem Direction="0,0" Name="Вибратор">
+                                                    <a:AntennaItem.Element>
+                                                        <a:Guigens />
+                                                    </a:AntennaItem.Element>
+                                                </a:AntennaItem>
+                                            </x:Array>
+                                        </ComboBox.ItemsSource>
+                                    </ComboBox>
+                                </GroupBox.Header>
+                                <Grid>
+                                    <Grid.Resources>
+                                        <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource UpDown}" />
+                                        <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource Field}" />
+                                        <DataTemplate DataType="{x:Type a:UniformAntenna}" />
+                                        <DataTemplate DataType="{x:Type a:Guigens}" />
+                                        <DataTemplate DataType="{x:Type a:Dipole}" />
+                                        <DataTemplate DataType="{x:Type a:Vibrator}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="Длина:" Margin="0,0,3,0"/>
+                                                <TextBox Text="{Binding Length, Converter={Multiply 100}}" Width="30" HorizontalContentAlignment="Right" />
+                                                <ScrollBar Minimum="0.01" Maximum="1" Value="{Binding Length}" SmallChange="0.01" />
+                                                <TextBlock Text="см" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type a:AntennaItem}">
+                                            <DockPanel>
+                                                <GroupBox Header="Расположение" DockPanel.Dock="Top"
+                                                          Visibility="Collapsed">
+                                                    <StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="X = " />
+                                                            <TextBox Text="{Binding LocationX, Converter={Multiply 100}}" Width="30" HorizontalContentAlignment="Right" />
+                                                            <ScrollBar Value="{Binding LocationX}" Minimum="-100" Maximum="100" SmallChange="0.1" />
+                                                            <TextBlock Text="см" />
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Y = " />
+                                                            <TextBox Text="{Binding LocationY, Converter={Multiply 100}}" Width="30" HorizontalContentAlignment="Right" />
+                                                            <ScrollBar Value="{Binding LocationY}" Minimum="-100" Maximum="100" SmallChange="0.1" />
+                                                            <TextBlock Text="см" />
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Z = " />
+                                                            <TextBox Text="{Binding LocationZ, Converter={Multiply 100}}" Width="30" HorizontalContentAlignment="Right" />
+                                                            <ScrollBar Value="{Binding LocationZ}" Minimum="-100" Maximum="100" SmallChange="0.1" />
+                                                            <TextBlock Text="см" />
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="θ = " />
+                                                            <TextBox Text="{Binding ThetaDeg}" Width="30" HorizontalContentAlignment="Right" />
+                                                            <ScrollBar Value="{Binding ThetaDeg}" Minimum="-180" Maximum="180" SmallChange="0.1" />
+                                                            <TextBlock Text="°" />
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="φ = " />
+                                                            <TextBox Text="{Binding PhiDeg}" Width="30" HorizontalContentAlignment="Right" />
+                                                            <ScrollBar Value="{Binding PhiDeg}" Minimum="-180" Maximum="180" SmallChange="0.1" />
+                                                            <TextBlock Text="°" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </GroupBox>
+                                                <ContentControl Content="{Binding Element}" />
+                                            </DockPanel>
+                                        </DataTemplate>
+                                    </Grid.Resources>
+                                    <ContentControl Content="{Binding ElementaryAntenna}" />
+                                </Grid>
+                            </GroupBox>
+                        </Expander>
+                        <Expander IsExpanded="True" Header="Параметры амплитудного распределения">
+                            <GroupBox Padding="3">
+                                <GroupBox.Header>
+                                    <ComboBox SelectedIndex="1" VerticalAlignment="Top" Background="Transparent"
+                                              SelectedItem="{Binding Distribution}" BorderThickness="0"
+                                              BorderBrush="{x:Null}">
+                                        <ComboBox.Resources>
+                                            <DataTemplate DataType="{x:Type ad:Uniform}">
+                                                <TextBlock Text="Равномерное" />
+                                            </DataTemplate>
+                                            <DataTemplate DataType="{x:Type ad:CosOnDelta}">
+                                                <TextBlock Text="Косинус на пьедестале" />
+                                            </DataTemplate>
+                                            <DataTemplate DataType="{x:Type ad:Chebishew}">
+                                                <TextBlock Text="Чебышевское" />
+                                            </DataTemplate>
+                                            <DataTemplate DataType="{x:Type ad:Triangle}">
+                                                <TextBlock Text="Треугольное" />
+                                            </DataTemplate>
+                                        </ComboBox.Resources>
+                                        <ComboBox.ItemsSource>
+                                            <x:Array Type="{x:Type ad:Distribution}">
+                                                <ad:Uniform />
+                                                <ad:CosOnDelta Dx="0.7" Nx="2" Dy="0.7" Ny="2" />
+                                                <ad:Chebishew Dx="0.7" Dy="0.7" />
+                                                <ad:Triangle />
+                                            </x:Array>
+                                        </ComboBox.ItemsSource>
+                                    </ComboBox>
+                                </GroupBox.Header>
+                                <DockPanel>
+                                    <DockPanel.Resources>
+                                        <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource Field}" />
+                                        <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource UpDown}" />
+                                        <DataTemplate DataType="{x:Type ad:Uniform}" />
+                                        <DataTemplate DataType="{x:Type ad:CosOnDelta}">
+                                            <GroupBox Header="Подставка" Margin="0,0,0,4" HorizontalAlignment="Left">
+                                                <!--<StackPanel Orientation="Horizontal">
+                                                    <StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="n" VerticalAlignment="Center" />
+                                                            <TextBlock Text="x" VerticalAlignment="Bottom" />
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Δ" VerticalAlignment="Center" />
+                                                            <TextBlock Text="x" VerticalAlignment="Bottom" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <StackPanel>
+                                                        <TextBox Text="{Binding Nx}" />
+                                                        <TextBox Text="{Binding Dx}" />
+                                                    </StackPanel>
+                                                    <StackPanel>
+                                                        <ScrollBar Minimum="1" Maximum="10" Value="{Binding Nx}" />
+                                                        <ScrollBar Minimum="0" Maximum="1" Value="{Binding Dx}"
+                                                                   SmallChange="0.01" LargeChange="0.1" />
+                                                    </StackPanel>
+                                                    <StackPanel Margin="5,0,0,0">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="n" VerticalAlignment="Center" />
+                                                            <TextBlock Text="y" VerticalAlignment="Bottom" />
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Δ" VerticalAlignment="Center" />
+                                                            <TextBlock Text="y" VerticalAlignment="Bottom" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <StackPanel>
+                                                        <TextBox Text="{Binding Ny}" />
+                                                        <TextBox Text="{Binding Dy}" />
+                                                    </StackPanel>
+                                                    <StackPanel>
+                                                        <ScrollBar Minimum="1" Maximum="10" Value="{Binding Ny}" />
+                                                        <ScrollBar Minimum="0" Maximum="1" Value="{Binding Dy}" SmallChange="0.01" LargeChange="0.1" />
+                                                    </StackPanel>
+                                                </StackPanel>-->
+                                                <UniformGrid Columns="2">
+                                                    <DockPanel Margin="3,0,0,0">
+                                                        <TextBlock Text="nx" VerticalAlignment="Center"/>
+                                                        <ScrollBar DockPanel.Dock="Right" Minimum="1" Maximum="10" Value="{Binding Nx}" />
+                                                        <TextBox Text="{Binding Nx}" />
+                                                    </DockPanel>
+                                                    <DockPanel Margin="3,0,0,0">
+                                                        <TextBlock Text="ny" VerticalAlignment="Center"/>
+                                                        <ScrollBar DockPanel.Dock="Right" Minimum="1" Maximum="10" Value="{Binding Ny}" />
+                                                        <TextBox Text="{Binding Ny}" />
+                                                    </DockPanel>
+                                                    <DockPanel Margin="3,0,0,0">
+                                                        <TextBlock Text="Δx" VerticalAlignment="Center"/>
+                                                        <ScrollBar DockPanel.Dock="Right" Minimum="0" Maximum="1" Value="{Binding Dx}" SmallChange="0.01" LargeChange="0.1" />
+                                                        <TextBox Text="{Binding Dx}"/>
+                                                    </DockPanel>
+                                                    <DockPanel Margin="3,0,0,0">
+                                                        <TextBlock Text="Δy" VerticalAlignment="Center"/>
+                                                        <ScrollBar DockPanel.Dock="Right" Minimum="0" Maximum="1" Value="{Binding Dy}" SmallChange="0.01" LargeChange="0.1" />
+                                                        <TextBox Text="{Binding Dy}" />
+                                                    </DockPanel>
+                                                </UniformGrid>
+                                            </GroupBox>
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type ad:Chebishew}">
+                                            <GroupBox Header="Подставка" Margin="0,0,0,4" HorizontalAlignment="Left">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Δ" VerticalAlignment="Center" />
+                                                            <TextBlock Text="x" VerticalAlignment="Bottom" />
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="Δ" VerticalAlignment="Center" />
+                                                            <TextBlock Text="y" VerticalAlignment="Bottom" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <StackPanel>
+                                                        <TextBox Text="{Binding Dx}" />
+                                                        <TextBox Text="{Binding Dy}" />
+                                                    </StackPanel>
+                                                    <StackPanel>
+                                                        <ScrollBar Minimum="0" Maximum="1" Value="{Binding Dx}" SmallChange="0.01" LargeChange="0.1" />
+                                                        <ScrollBar Minimum="0" Maximum="1" Value="{Binding Dy}" SmallChange="0.01" LargeChange="0.1" />
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </GroupBox>
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type ad:Triangle}">
+                                            <!--<GroupBox Header="Подставка" Margin="0,0,0,4" HorizontalAlignment="Left">
+                                            <StackPanel Orientation="Horizontal">
+                                                <StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Δ" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="x" VerticalAlignment="Bottom"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Δ" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="y" VerticalAlignment="Bottom"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                <StackPanel>
+                                                    <TextBox Text="{Binding Dx}"/>
+                                                    <TextBox Text="{Binding Dy}"/>
+                                                </StackPanel>
+                                                <StackPanel>
+                                                    <ScrollBar Minimum="0" Maximum="1" Value="{Binding Dx}" SmallChange="0.01" LargeChange="0.1"/>
+                                                    <ScrollBar Minimum="0" Maximum="1" Value="{Binding Dy}" SmallChange="0.01" LargeChange="0.1"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </GroupBox>-->
+                                        </DataTemplate>
+                                    </DockPanel.Resources>
+                                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                                        <TextBlock Text="КИП = "/>
+                                        <TextBlock Text="0.7"/>
+                                    </StackPanel>
+                                    <ContentControl DockPanel.Dock="Top" Content="{Binding Distribution}" />
+                                    <oxy:Plot Margin="0,3,0,0" Padding="0" IsMouseWheelEnabled="False"
+                                              IsLegendVisible="False" Height="150">
+                                        <oxy:Plot.Axes>
+                                            <oxy:LinearAxis Position="Bottom" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="-0.55" Maximum="0.55" />
+                                            <oxy:LinearAxis Position="Left" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IntervalLength="20" />
+                                        </oxy:Plot.Axes>
+                                        <oxy:Plot.Series>
+                                            <oxy:LineSeries StrokeThickness="2" Color="Blue" CanTrackerInterpolatePoints="True" ItemsSource="{Binding DistributionData}" />
+                                        </oxy:Plot.Series>
+                                    </oxy:Plot>
+                                </DockPanel>
+                            </GroupBox>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+            <GroupBox Grid.Column="2">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal" ToolTip="Угол сечения пространственной ДН">
+                        <StackPanel.Resources>
+                            <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource Field}" />
+                            <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource UpDown}">
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </Style>
+                        </StackPanel.Resources>
+                        <TextBlock Text="ДН решётки в плоскости" Margin="0,0,5,0" VerticalAlignment="Center" />
+                        <TextBlock Text="φ =" Margin="0,0,5,0" VerticalAlignment="Center" />
+                        <TextBox Text="{Binding PhiView, FallbackValue='-.-'}" HorizontalContentAlignment="Center" Margin="1,0,-1,0" VerticalAlignment="Center" Height="19" />
+                        <ScrollBar Value="{Binding PhiView}" Minimum="0" Maximum="90" SmallChange="1" />
+                        <TextBlock Text="°" FontSize="17" VerticalAlignment="Center" />
+                        <TextBlock Text="dθ =" Margin="5,0,5,0" VerticalAlignment="Center" />
+                        <TextBox Text="{Binding dθ, FallbackValue='-.-'}" HorizontalContentAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="1,0,-1,0" Height="19"/>
+                        <ScrollBar Value="{Binding dθ}" Minimum="0.1" Maximum="5" SmallChange="0.1" LargeChange="1" />
+                        <TextBlock Text="°" FontSize="17" VerticalAlignment="Center" />
+                    </StackPanel>
+                </GroupBox.Header>
+                <TabControl TabStripPlacement="Bottom">
+                    <TabItem Header="Декартова">
+                        <Grid>
+                            <Grid.Resources>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="Width" Value="35" />
+                                </Style>
+                            </Grid.Resources>
+                            <oxy:Plot IsLegendVisible="True"
+                                      LegendPosition="TopLeft"
+                                      LegendBackground="#8BFFFFFF"
+                                      LegendBorder="Gray"
+                                      LegendSymbolPlacement="Right"
+                                      LegendSymbolLength="20">
+                                <oxy:Plot.Resources>
+                                    <x:Array x:Key="Dashes" Type="{x:Type sys:Double}">
+                                        <sys:Double>5</sys:Double>
+                                        <sys:Double>4</sys:Double>
+                                    </x:Array>
+                                </oxy:Plot.Resources>
+                                <oxy:Plot.Axes>
+                                    <oxy:LinearAxis Title="θ" x:Name="PatternGraph_AngleAxis"
+                                                    AxisDistance="1"
+                                                    Minimum="-100" Maximum="100"
+                                                    FractionUnitSymbol="°"
+                                                    FractionUnit="1"
+                                                    FormatAsFractions="True"
+                                                    Unit="°"
+                                                    Position="Top"
+                                                    MajorGridlineStyle="Solid"
+                                                    MinorGridlineStyle="Dot" />
+                                    <oxy:LinearAxis Title="20log|F(θ)|"
+                                                    Minimum="-20"
+                                                    Unit="дБ"
+                                                    AxisDistance="1"
+                                                    x:Name="PatternGraph_ValueAxis"
+                                                    Position="Left"
+                                                    MajorGridlineStyle="Solid"
+                                                    MinorGridlineStyle="Dot" />
+                                </oxy:Plot.Axes>
+                                <oxy:Plot.Annotations>
+                                    <oxy:LineAnnotation Color="Red"
+                                                        StrokeThickness="2"
+                                                        Type="Horizontal"
+                                                        Y="{Binding Gain}"
+                                                        Text="{Binding Gain, StringFormat='Усиление {0:0.##}дБ'}" />
+                                    <oxy:LineAnnotation Color="Red"
+                                                        StrokeThickness="2"
+                                                        Type="Horizontal"
+                                                        Text="{Binding SSL_Value, StringFormat='УБЛ={0:0.#}дБ'}"
+                                                        Y="{Binding SSL}" />
+                                    <oxy:LineAnnotation Color="DarkRed"
+                                                        StrokeThickness="2"
+                                                        Type="Horizontal"
+                                                        Text="{Binding MeanSSL_Value, StringFormat='Средний УБЛ={0:0.#}дБ'}"
+                                                        Y="{Binding MeanSSL}" />
+                                    <oxy:LineAnnotation Color="Red"
+                                                        StrokeThickness="2"
+                                                        Type="Horizontal"
+                                                        Text="-3дБ"
+                                                        Y="{Binding Gain, Converter={Subtraction 3}}"
+                                                        MinimumX="{Binding BeamLeftAdge07}"
+                                                        MaximumX="{Binding BeamRightAdge07, Converter={Addition 5}}"
+                                                        TextHorizontalAlignment="Left"
+                                                        TextMargin="0" />
+                                    <oxy:LineAnnotation Color="Blue"
+                                                        StrokeThickness="2"
+                                                        Type="Vertical"
+                                                        X="{Binding BeamLeftAdge07}"
+                                                        MaximumY="{Binding Gain}"
+                                                        MinimumY="{Binding Gain, Converter={Subtraction 3}}"
+                                                        Text="{Binding BeamWidth07, StringFormat='2θ07={0:0.##}°'}"
+                                                        TextOrientation="Horizontal"
+                                                        TextHorizontalAlignment="Right"
+                                                        TextVerticalAlignment="Top" />
+                                    <oxy:LineAnnotation Color="Blue"
+                                                        StrokeThickness="2"
+                                                        Type="Vertical"
+                                                        X="{Binding BeamRightAdge07}"
+                                                        MaximumY="{Binding Gain}"
+                                                        MinimumY="{Binding Gain, Converter={Subtraction 3}}" />
+                                </oxy:Plot.Annotations>
+                                <oxy:LineSeries Title="ДН решётки"
+                                                ItemsSource="{Binding BeamData}"
+                                                DataFieldX="AngleDeg"
+                                                DataFieldY="ValueIndB"
+                                                StrokeThickness="2"
+                                                Color="Blue"
+                                                CanTrackerInterpolatePoints="True"
+                                                TrackerFormatString="{}{0}&#xA;{1}: {2:0.##}&#xA;{3}: {4:0.##}дБ" />
+                                <oxy:LineSeries Title="ДН излучателя"
+                                                ItemsSource="{Binding Beam0Data}"
+                                                DataFieldX="AngleDeg"
+                                                DataFieldY="ValueIndB"
+                                                StrokeThickness="1"
+                                                Color="Black"
+                                                CanTrackerInterpolatePoints="True"
+                                                Dashes="{StaticResource Dashes}"
+                                                TrackerFormatString="{}{0}&#xA;{1}: {2:0.##}&#xA;{3}: {4:0.##}°" />
+                            </oxy:Plot>
+                            <TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,10" Text="{Binding Minimum, ElementName=PatternGraph_AngleAxis}" />
+                            <TextBox HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10" Text="{Binding Maximum, ElementName=PatternGraph_AngleAxis}" />
+                            <TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2,30" Text="{Binding Maximum, ElementName=PatternGraph_ValueAxis}" />
+                            <TextBox HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="2,18" Text="{Binding Minimum, ElementName=PatternGraph_ValueAxis}" />
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Полярная">
+                        <Grid>
+                            <Grid.Resources>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    <Setter Property="Width" Value="35" />
+                                </Style>
+                            </Grid.Resources>
+                            <oxy:Plot PlotAreaBorderThickness="0"
+                                      PlotType="Polar"
+                                      IsLegendVisible="True"
+                                      LegendPosition="TopLeft"
+                                      LegendBackground="#8BFFFFFF"
+                                      LegendBorder="Gray"
+                                      LegendSymbolPlacement="Right"
+                                      LegendSymbolLength="20">
+                                <oxy:Plot.Resources>
+                                    <x:Array x:Key="Dashes" Type="{x:Type sys:Double}">
+                                        <sys:Double>5</sys:Double>
+                                        <sys:Double>4</sys:Double>
+                                    </x:Array>
+                                </oxy:Plot.Resources>
+                                <oxy:Plot.Axes>
+                                    <oxy:AngleAxis Title="θ"
+                                                   Unit="°"
+                                                   Minimum="-180"
+                                                   Maximum="180"
+                                                   MajorStep="15"
+                                                   MinorStep="5"
+                                                   FractionUnit="1"
+                                                   FormatAsFractions="True"
+                                                   FractionUnitSymbol="{x:Static M:Consts.deg_name}"
+                                                   MajorGridlineStyle="Automatic"
+                                                   MinorGridlineStyle="Automatic"
+                                                   MajorGridlineThickness="1"
+                                                   IsAxisVisible="True"
+                                                   MajorGridlineColor="DarkGray"
+                                                   MinorGridlineColor="LightGray"
+                                                   StartAngle="-180"
+                                                   EndAngle="180"
+                                                   AxislineStyle="Solid" />
+                                    <oxy:MagnitudeAxis x:Name="PatternPolarGraph_ValueAxis"
+                                                       Title="20lg|f(θ)|"
+                                                       MajorGridlineStyle="Automatic"
+                                                       MinorGridlineStyle="Automatic"
+                                                       MajorGridlineThickness="2"
+                                                       MajorStep="10"
+                                                       MinorStep="1"
+                                                       FractionUnit="1"
+                                                       FormatAsFractions="True"
+                                                       FractionUnitSymbol="дБ"
+                                                       MajorGridlineColor="DarkGray"
+                                                       MinorGridlineColor="LightGray"
+                                                       Angle="90"
+                                                       AxislineStyle="Solid" />
+                                </oxy:Plot.Axes>
+                                <oxy:Plot.Annotations>
+                                    <oxy:LineAnnotation Intercept="{Binding BeamRightAdge07}" Color="Red" />
+                                    <oxy:LineAnnotation Intercept="{Binding BeamLeftAdge07}" Color="Red" />
+                                </oxy:Plot.Annotations>
+                                <oxy:LineSeries Title="ДН решётки"
+                                                ItemsSource="{Binding BeamData}"
+                                                DataFieldX="ValueIndB"
+                                                DataFieldY="AngleDeg"
+                                                StrokeThickness="2"
+                                                Color="Blue"
+                                                CanTrackerInterpolatePoints="True"
+                                                TrackerFormatString="{}{0}&#xA;{1}: {2:0.##}&#xA;{3}: {4:0.##}°" />
+                                <oxy:LineSeries Title="ДН излучателя"
+                                                ItemsSource="{Binding Beam0Data}"
+                                                DataFieldX="ValueIndB"
+                                                DataFieldY="AngleDeg"
+                                                StrokeThickness="2"
+                                                Color="Black"
+                                                CanTrackerInterpolatePoints="True"
+                                                TrackerFormatString="{}{0}&#xA;{1}: {2:0.##}&#xA;{3}: {4:0.##}°"
+                                                Dashes="{StaticResource Dashes}" />
+                            </oxy:Plot>
+                            <!--<TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,10" Text="{Binding Minimum, ElementName=PatternPolarGraph_AngleAxis}"/>
+                        <TextBox HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10" Text="{Binding Maximum, ElementName=PatternPolarGraph_AngleAxis}"/>
+                        <TextBox HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2,30" Text="{Binding Maximum, ElementName=PatternPolarGraph_ValueAxis}"/>-->
+                            <TextBox HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="2,18" Text="{Binding Minimum, ElementName=PatternPolarGraph_ValueAxis}" />
+                        </Grid>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <Grid>       
+                                <Rectangle Fill="LightBlue" Margin="-2">
+                                    <Rectangle.Style>
+                                        <Style TargetType="Rectangle">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding PatternComplite}" Value="1">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding PatternComplite}" Value="0">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Rectangle.Style>
+                                    <Rectangle.RenderTransform>
+                                        <ScaleTransform ScaleX="{Binding PatternComplite}"/>
+                                    </Rectangle.RenderTransform>
+                                </Rectangle>
+                                <TextBlock Text="Тепловая карта"/>
+                            </Grid>
+                        </TabItem.Header>
+                        <oxy:Plot Background="Black" TitleColor="White" Title="Тепловая карта ДН решётки">
+                            <oxy:Plot.Axes>
+                                <oxy:LinearColorAxis Position="Right" InvalidNumberColor="Black" 
+                                                     AxisTickToLabelDistance="4"
+                                                     MajorStep="20" 
+                                                     PaletteSize="50"  
+                                                     Title="|F(θ,φ)|^2"
+                                                     Minimum="-80"
+                                                     Maximum="0"  
+                                                     TextColor="White"
+                                                     AxislineColor="White"
+                                                     TitleColor="White"
+                                                     MajorGridlineColor="LightGray"
+                                                     MinorGridlineColor="Gray"
+                                                     TicklineColor="White"
+                                                     ExtraGridlineColor="White"
+                                                     MajorTickSize="20"
+                                                     MinorTickSize="7"
+                                                     MinorGridlineThickness="1"
+                                                     MajorGridlineThickness="2"
+                                                     HighColor="DarkRed" 
+                                                     LowColor="Black"
+                                                     TitleFontWeight="Bold" IntervalLength="30" AxislineStyle="Solid">
+                                    <GradientStop Color="DarkRed" Offset="-2"/>
+                                    <GradientStop Color="Red" Offset="-3"/>
+                                    <GradientStop Color="Yellow" Offset="-13"/>
+                                    <GradientStop Color="Lime" Offset="-25"/>
+                                    <GradientStop Color="Blue" Offset="-50"/>
+                                    <GradientStop Color="DarkBlue" Offset="-60"/>
+                                    <GradientStop Color="Black" Offset="-80"/>
+                                </oxy:LinearColorAxis>
+                                <oxy:LinearAxis Position="Bottom" Minimum="-180" Maximum="180"    
+                                                TextColor="White" 
+                                                AxislineColor="White" 
+                                                TicklineColor="White" 
+                                                MajorGridlineStyle="Dash" 
+                                                MinorGridlineStyle="Dot" 
+                                                MajorGridlineColor="DarkGray"
+                                                MinorGridlineColor="DimGray" 
+                                                MajorStep="30"
+                                                MinorStep="15"
+                                                Title="θ" TitlePosition="1.02" TitleColor="White"
+                                                AxisTickToLabelDistance="1"
+                                                AxisTitleDistance="0"
+                                                TitleFontWeight="Bold"
+                                                Layer="AboveSeries" 
+                                                PositionAtZeroCrossing="True" AxislineStyle="Solid"/>
+                                <oxy:LinearAxis Position="Left" Minimum="-180" Maximum="180"
+                                                TextColor="White"
+                                                AxislineColor="White"
+                                                TicklineColor="White" 
+                                                MajorGridlineStyle="Dash" 
+                                                MinorGridlineStyle="Dot"
+                                                MajorGridlineColor="DarkGray"
+                                                MinorGridlineColor="DimGray"
+                                                MajorStep="30"
+                                                MinorStep="15"
+                                                Title="θ" TitlePosition="1.03" TitleColor="White"
+                                                AxisTickToLabelDistance="1"
+                                                AxisTitleDistance="3"
+                                                TitleFontWeight="Bold" 
+                                                Layer="AboveSeries"
+                                                PositionAtZeroCrossing="True"
+                                                AxislineStyle="Solid"/>
+                            </oxy:Plot.Axes>
+                            <oxy:HeatMapSeries Data="{Binding PatternData}" X0="-180" X1="180" Y0="-180" Y1="180"/> 
+                        </oxy:Plot>
+                    </TabItem>
+                </TabControl>
+            </GroupBox>
+        </Grid>
+    </DockPanel>
+</Window>

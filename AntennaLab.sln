@@ -1,0 +1,90 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30104.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AntennaLib", "AntennaLib\AntennaLib.csproj", "{AFAA45C4-C24D-49AC-8A78-1BFE8FE6E7CA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArrayFactor", "ArrayFactor\ArrayFactor.csproj", "{E85AB662-5629-47BF-A5EE-858477F174A7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5A2276CB-ADEB-45D2-B4E3-35663F5DD776}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsolePolygon", "Tests\ConsolePolygon\ConsolePolygon.csproj", "{4DF65617-644A-4F30-B474-6DF3F2BAC3B4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AFAA45C4-C24D-49AC-8A78-1BFE8FE6E7CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFAA45C4-C24D-49AC-8A78-1BFE8FE6E7CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFAA45C4-C24D-49AC-8A78-1BFE8FE6E7CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFAA45C4-C24D-49AC-8A78-1BFE8FE6E7CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E85AB662-5629-47BF-A5EE-858477F174A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E85AB662-5629-47BF-A5EE-858477F174A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E85AB662-5629-47BF-A5EE-858477F174A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E85AB662-5629-47BF-A5EE-858477F174A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DF65617-644A-4F30-B474-6DF3F2BAC3B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DF65617-644A-4F30-B474-6DF3F2BAC3B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DF65617-644A-4F30-B474-6DF3F2BAC3B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DF65617-644A-4F30-B474-6DF3F2BAC3B4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4DF65617-644A-4F30-B474-6DF3F2BAC3B4} = {5A2276CB-ADEB-45D2-B4E3-35663F5DD776}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CF9ED8B3-139F-4264-9EB0-F33DF25CBC40}
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+	GlobalSection(HgVSProperties) = preSolution
+		SolutionIsControlled = True
+		SolutionBindings = <Solution Location In Database>
+	EndGlobalSection
+EndGlobal

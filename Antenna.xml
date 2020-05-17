@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Antenna>
+  <Antenna X="0" Y="0" Z="0" Thetta="0" Phi="0" Type="Uniform"/>
+  <Antenna A="1" X="1" Y="0" Z="0" Thetta="0" Phi="0" Type="Uniform"/>
+  <Antenna A="1" X="2" Y="0" Z="0" Thetta="0" Phi="0" Type="Uniform"/>
+  <Antenna A="1" X="3" Y="0" Z="0" Thetta="0" Phi="0" Type="Rupor"/>
+  <Antenna A="0.5+2i" X="4" Y="2" Z="3" Thetta="30" Phi="60" Type="Array">
+    <Antenna A="1" X="1" Y="0" Thetta="10" Phi="12" Type="File">AntennaArray.xml</Antenna>
+    <Antenna A="1" X="2" Y="0" Thetta="10" Phi="12" Type="File">AntennaArray.xml</Antenna>
+    <Antenna A="1" X="3" Y="0" Thetta="10" Phi="12" Type="File">AntennaArray.xml</Antenna>
+    <Antenna A="1" X="4" Y="0" Thetta="10" Phi="12" Type="File">AntennaArray.xml</Antenna>
+  </Antenna>
+  <Antenna A="1" X="5" Y="2" Z="3" Thetta="30" Phi="60" Type="Array">
+    <Antenna A="1" X="1" Y="0" Thetta="10" Phi="12" Type="File">VivaldiBeam.xml</Antenna>
+    <Antenna A="1" X="2" Y="0" Thetta="10" Phi="12" Type="File">VivaldiBeam.xml</Antenna>
+    <Antenna A="1" X="3" Y="0" Thetta="10" Phi="12" Type="File">VivaldiBeam.xml</Antenna>
+    <Antenna A="1" X="4" Y="0" Thetta="10" Phi="12" Type="File">VivaldiBeam.xml</Antenna>
+  </Antenna>
+  <Antenna A="1" X="6" Y="2" Z="3" Thetta="30" Phi="60" Type="Array">
+    <Antenna A="1" X="1" Y="0" Thetta="10" Phi="12" Type="File">VibratorBeam.xml</Antenna>
+    <Antenna A="1" X="2" Y="0" Thetta="10" Phi="12" Type="File">VibratorBeam.xml</Antenna>
+    <Antenna A="1" X="3" Y="0" Thetta="10" Phi="12" Type="File">VibratorBeam.xml</Antenna>
+    <Antenna A="1" X="4" Y="0" Thetta="10" Phi="12" Type="File">VibratorBeam.xml</Antenna>
+  </Antenna>
+</Antenna>
+
+
