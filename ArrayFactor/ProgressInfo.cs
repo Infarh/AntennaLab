@@ -7,7 +7,7 @@ namespace ArrayFactor
     {
         private DateTime _LastTime = DateTime.Now;
         private const int c_AverageSpeedCount = 100;
-        private AverageValue _AverageSpeed = new AverageValue(c_AverageSpeedCount);
+        private AverageValue _AverageSpeed = new(c_AverageSpeedCount);
 
         public double Value { get; private set; }
 

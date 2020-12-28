@@ -11,8 +11,8 @@ namespace ArrayFactor.View.Models
     {
         private string _UserGroupName;
         private string _UserName;
-        private readonly Dictionary<int, string> _KnownGroups = new Dictionary<int, string>();
-        private readonly Dictionary<int, string> _KnownUsers = new Dictionary<int, string>();
+        private readonly Dictionary<int, string> _KnownGroups = new();
+        private readonly Dictionary<int, string> _KnownUsers = new();
 
         public string UserGroupName
         {

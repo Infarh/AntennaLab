@@ -10,10 +10,10 @@ namespace ArrayFactor.Service.AmplitudeDistributions
 {
     internal class UserDistribution : Distribution
     {
-        private static readonly ExpressionParser __Parser = new ExpressionParser();
+        private static readonly ExpressionParser __Parser = new();
 
         private MathExpression _DistributionExpression;
-        private readonly ObservableCollection<ExpressionVariable> _Variables = new ObservableCollection<ExpressionVariable>();
+        private readonly ObservableCollection<ExpressionVariable> _Variables = new();
 
         public string DestributionExpression { get => Get<string>(); set => Set(value); }
 

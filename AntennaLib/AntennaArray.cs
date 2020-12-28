@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -26,12 +27,12 @@ namespace Antennas
         /// <param name="antennas">Массив антенных элементов</param>
         /// <param name="step">Шаг размещения</param>
         /// <param name="A">Амплитудно-фазовое распределение</param>
-        /// <returns>Антенная решётка с линейно размещёнными в пространстве антенными эламентами</returns>
+        /// <returns>Антенная решётка с линейно размещёнными в пространстве антенными элементами</returns>
         public static AntennaArray CreateLinearArray(Antenna[] antennas, double step, Func<Vector3D, Complex> A = null)
         {
             var n = antennas.Length;
             var l05 = step * (n - 1) / 2;
-            A ??= v => 1;
+            A ??= _ => 1;
             var items = antennas.Select((a, i) => new { a, v = new Vector3D(i * step - l05), o = new SpaceAngle() })
                         .Select(a => new { a.a, a.v, a.o, A = A(a.v) })
                         .Select(a => new AntennaItem(a.a, a.v, a.o, a.A))
@@ -44,7 +45,7 @@ namespace Antennas
         /// <param name="antennas">Массив антенных элементов</param>
         /// <param name="dx">Шаг по оси OX</param>
         /// <param name="dy">ШАг по оси OY</param>
-        /// <returns>Антенная решётка с размещеинем антеных элементов в плоскости XOY</returns>
+        /// <returns>Антенная решётка с размещением антенных элементов в плоскости XOY</returns>
         public static AntennaArray CreateFlatArray(Antenna[,] antennas, double dx, double dy)
         {
             var nx = antennas.GetLength(0);
@@ -161,7 +162,7 @@ namespace Antennas
                 throw new ArgumentException(@"Произведена попытка добавить саму антенную решётку к себе в список антенных элементов", nameof(item));
             var new_items = new AntennaItem[_Items.Length + 1];
             Array.Copy(_Items, new_items, _Items.Length);
-            new_items[new_items.Length - 1] = item;
+            new_items[^1] = item;
             _Items = new_items;
         }
 
@@ -190,6 +191,7 @@ namespace Antennas
         /// <param name="index">Индекс (с нуля), по которому следует вставить параметр <paramref name="item"/>.</param><param name="item">Объект, вставляемый в <see cref="T:System.Collections.Generic.IList`1"/>.</param><exception cref="T:System.ArgumentOutOfRangeException">Значение параметра <paramref name="index"/> не является допустимым индексом в <see cref="T:System.Collections.Generic.IList`1"/>.</exception><exception cref="T:System.NotSupportedException">Объект <see cref="T:System.Collections.Generic.IList`1"/> доступен только для чтения.</exception>
         public void Insert(int index, AntennaItem item)
         {
+            Debug.Assert(item != null, nameof(item) + " != null");
             if(ReferenceEquals(item.Element, this) || Array.Exists(_Items, i => ReferenceEquals(i, item)))
                 throw new InvalidOperationException();
             var items = _Items.ToList();

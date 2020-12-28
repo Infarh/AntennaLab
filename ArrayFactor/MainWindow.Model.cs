@@ -51,7 +51,7 @@ namespace ArrayFactor
         private double _φ0;
 
         /// <summary>Антенная решётка</summary>
-        private readonly RectangularAntennaArray _AntennaArray = new RectangularAntennaArray(16, 1, 0.15, 0.15, new UniformAntenna(), (x, y) => 1);
+        private readonly RectangularAntennaArray _AntennaArray = new(16, 1, 0.15, 0.15, new UniformAntenna(), (_, _) => 1);
 
         /// <summary>Угол сечения пространственной ДН решётки</summary>
         private double _PhiView;
@@ -59,7 +59,7 @@ namespace ArrayFactor
         /// <summary>Параллельный запрос, выдающий значения аргумента для расчёта значений амплитудного распределения</summary>
         private readonly ParallelQuery<double> _NormX;
 
-        /// <summary>Объект амплитудного распреления</summary>
+        /// <summary>Объект амплитудного распределения</summary>
         private Distribution _Distribution;
 
         /// <summary>Функция амплитудного распределения</summary>
@@ -117,13 +117,13 @@ namespace ArrayFactor
         private CancellationTokenSource _ComputePatternCancellationTokenSource;
 
         /// <summary>Информатор прогрессе вычисления полного КНД трёхмерной ДН</summary>
-        private IProgress<double?> _PatternProcessProgressReporter;
+        private readonly IProgress<double?> _PatternProcessProgressReporter;
 
         /// <summary>Массив значений тепловой карты трёхмерной ДН</summary>
         private double[,] _PatternData;
 
         /// <summary>Значение прогресса вычисления полного КНД трёхмерной ДН антенной решётки</summary>
-        private double? _PatternComplite;
+        private double? _PatternComplete;
 
         #endregion
 
@@ -139,7 +139,11 @@ namespace ArrayFactor
         public double[,] PatternData { get => _PatternData; set => Set(ref _PatternData, value); }
 
         /// <summary>Прогресс вычисления полного КНД</summary>
-        public double? PatternComplite { get => _PatternComplite; private set => Set(ref _PatternComplite, value, v => v is null || v >= 0 && v <= 1); }
+        public double? PatternComplete
+        {
+            get => _PatternComplete;
+            private set => Set(ref _PatternComplete, value, v => v is null || v >= 0 && v <= 1);
+        }
 
         /// <summary>Полный КНД прространственной ДН</summary>
         public double D0_Total { get => Get<double>(); private set => Set(value); }
@@ -164,13 +168,13 @@ namespace ArrayFactor
             }
         }
 
-        /// <summary>Расчитанные дначения амплитудного распределения</summary>
+        /// <summary>Рассчитанные значения амплитудного распределения</summary>
         [ChangedHandler(nameof(ComputePatternAsync))]
         public IEnumerable<DataPoint> DistributionData
         {
             get
             {
-                Func<double, double> A = x => _A(x * Math.Cos(_PhiView * c_ToRad), x * Math.Sin(_PhiView * c_ToRad));
+                double A(double x) => _A(x * Math.Cos(_PhiView * c_ToRad), x * Math.Sin(_PhiView * c_ToRad));
                 return _NormX.Select(x => new DataPoint(x, A(x)));
             }
         }
@@ -202,7 +206,7 @@ namespace ArrayFactor
         /// <summary>Ширина луча по уровню -3дБ</summary>
         public double BeamWidth07 { get => _BeamWidth07; private set => Set(ref _BeamWidth07, value); }
 
-        /// <summary>Расчитанное положение луча</summary>
+        /// <summary>Рассчитанное положение луча</summary>
         public double BeamPos { get => _BeamPos; private set => Set(ref _BeamPos, value); }
 
         /// <summary>Левая граница луча по уровню -3дБ</summary>
@@ -435,7 +439,7 @@ namespace ArrayFactor
 
         /// <summary>Метод изменения значения прогресса вычисления полного КНД</summary>
         /// <param name="progress">Значение прогресса от 0 до 1 включительно</param>
-        private void OnD0ProgressReport(double? progress) => PatternComplite = progress;
+        private void OnD0ProgressReport(double? progress) => PatternComplete = progress;
 
         /// <summary>Обработчик событий внутри объекта амплитудного распределения, вызывающий перерасчёт значений амплитудного распределения</summary>
         /// <param name="sender">Источник события - экземпляр амплитудного распределения</param>
@@ -472,7 +476,7 @@ namespace ArrayFactor
             return Task.Run(() => _AntennaArray.GetPatternValuesParallel(_f0 * c_GHz, _PhiView * c_ToRad, th_min, th_max, _dθ * Consts.ToRad, Cancel), Cancel);
         }
 
-        /// <summary>Расчитать диаграмму направленности антенны (асинхронно)</summary>
+        /// <summary>Раcсчитать диаграмму направленности антенны (асинхронно)</summary>
         private async void ComputePatternAsync()
         {
             _ComputePatternCancellationTokenSource?.Cancel();
@@ -487,7 +491,7 @@ namespace ArrayFactor
                 var beam_heatmap_task = ComputeBeamPatternHeatMapAsync(cancel);
                 if (cancel.IsCancellationRequested) return;
                 var beam_data_points = await beam_task.ConfigureAwait(true);
-                var analyse_pattern_task = AnalysePatternAsync(beam_data_points, cancel);
+                var analyses_pattern_task = AnalysisPatternAsync(beam_data_points, cancel);
                 if (cancel.IsCancellationRequested) return;
                 var beam_0_data_points = await beam0_task.ConfigureAwait(true);
                 if (cancel.IsCancellationRequested) return;
@@ -498,7 +502,7 @@ namespace ArrayFactor
                 if (cancel.IsCancellationRequested) return;
                 Beam0Data = beam0;
                 if (cancel.IsCancellationRequested) return;
-                await Task.WhenAll(analyse_pattern_task/*, compute_d0_taks*/, beam_heatmap_task).ConfigureAwait(false);
+                await Task.WhenAll(analyses_pattern_task/*, compute_d0_task*/, beam_heatmap_task).ConfigureAwait(false);
             }
             catch (TaskCanceledException)
             {
@@ -507,7 +511,7 @@ namespace ArrayFactor
             catch (OperationCanceledException) { }
         }
 
-        /// <summary>Расчитать полный КНД трёхмерной ДН антенной решётки</summary>
+        /// <summary>Рассчитать полный КНД трёхмерной ДН антенной решётки</summary>
         /// <param name="F">Функция ДН решётки</param>
         /// <param name="f">Частота вычисления ДН решётки</param>
         /// <param name="Progress">Информатор об изменении прогресса вычисления КНД</param>
@@ -527,7 +531,7 @@ namespace ArrayFactor
                 const int M_th = (int)((th2 - th1) / da) + 1;
                 var pattern_data = new double[N_phi, M_th];
 
-                var D0 = await Task.Factory.StartNew(() =>
+                var D0 = await Task.Run(() =>
                 {
                     Progress?.Report(null);
 
@@ -557,7 +561,7 @@ namespace ArrayFactor
                 Cancel.ThrowIfCancellationRequested();
                 D0_Total = D0.In_dB_byPower();
 
-                PatternData = await Task.Factory.StartNew(() =>
+                PatternData = await Task.Run(() =>
                 {
                     var max = pattern_data.Max2D();
                     for (var i = 0; i < N_phi; i++)
@@ -574,10 +578,10 @@ namespace ArrayFactor
         }
 
         /// <summary>Асинхронный прцоцесс анализа ДН антенной решётки</summary>
-        /// <param name="pattern">Массив значений расчитанной ДН</param>
+        /// <param name="pattern">Массив значений рассчитанной ДН</param>
         /// <param name="Cancel">Признак отмены асинхронной операции</param>
         /// <returns>Задача асинхронного анализа ДН антенной решётки</returns>
-        private async Task AnalysePatternAsync(PatternValue[] pattern, CancellationToken Cancel)
+        private async Task AnalysisPatternAsync(PatternValue[] pattern, CancellationToken Cancel)
         {
             var result = await Task.Factory.StartNew(p => ((PatternValue[])p).Analyse(), pattern, Cancel).ConfigureAwait(true);
             MaxPos = result.MaxIndex;
@@ -599,9 +603,9 @@ namespace ArrayFactor
             BeamRightAdge07 = result.Th07Right.ToDeg();
         }
 
-        /// <summary>Обработчик событий изменеий параметров антенного элемента</summary>
+        /// <summary>Обработчик событий изменений параметров антенного элемента</summary>
         /// <param name="sender">Источник события - антенный элемент</param>
-        /// <param name="args">Аргумент соыбтия, несущий имя изменившегося свойства</param>
+        /// <param name="args">Аргумент события, несущий имя изменившегося свойства</param>
         private void OnElementaryAntennaChanged(object sender, PropertyChangedEventArgs args) => OnPropertyChanged(nameof(ElementaryAntenna));
 
         /// <summary>Метод установки амплитудного распределения</summary>
@@ -632,8 +636,8 @@ namespace ArrayFactor
         /// <summary>Получение функции фазового распределения апертуры для заданной частоты</summary>
         /// <param name="Theta">Угол места фазирования антенной решётки</param>
         /// <param name="Phi">Угол азимута фазирования антенной решётки</param>
-        /// <param name="f">Частота расчёта фазовго распределения</param>
-        /// <returns>Функция фазовго распределения</returns>
+        /// <param name="f">Частота расчёта фазового распределения</param>
+        /// <returns>Функция фазового распределения</returns>
         private static Func<double, double, double> GetPhaseDistribution(double Theta, double Phi, double f)
         {
             var sinTh = Math.Sin(Theta) * (Consts.pi2 / Consts.SpeedOfLight * f);

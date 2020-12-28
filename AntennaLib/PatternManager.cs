@@ -14,7 +14,7 @@ namespace Antennas
         private readonly double _dth0;
         private readonly double _Phi;
 
-        private readonly ObservableLinkedList<PatternValue> _Values = new ObservableLinkedList<PatternValue>();
+        private readonly ObservableLinkedList<PatternValue> _Values = new();
 
         public double Th1 => _Th1;
         public double Th2 => _Th2;

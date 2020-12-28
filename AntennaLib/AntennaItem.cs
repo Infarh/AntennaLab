@@ -33,7 +33,7 @@ namespace Antennas
                 {
                     if (_Element is INotifyPropertyChanged property_changed_obj)
                         property_changed_obj.PropertyChanged -= OnElementPropertyChanged;
-                }   
+                }
                 _Element = value;
                 {
                     if (value is INotifyPropertyChanged property_changed_obj)
@@ -90,7 +90,7 @@ namespace Antennas
 
         public AntennaItem() : this(new UniformAntenna(), Vector3D.Empty, SpaceAngle.k, Complex.Real) { }
 
-        /// <summary>Инициализация нового антеннойго элемента антенной решётки</summary>
+        /// <summary>Инициализация нового антенного элемента антенной решётки</summary>
         /// <param name="a">Антенный элемент</param>
         /// <param name="r">Вектор размещения</param>
         /// <param name="angle">Угол поворота</param>
@@ -161,7 +161,7 @@ namespace Antennas
                 angle_empty = empty = false;
             }
 
-            if (!empty && angle_empty) result.Append("]");
+            if (!empty && angle_empty) result.Append(']');
 
             return _K == 0 
                 ? empty 

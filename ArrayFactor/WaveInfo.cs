@@ -8,7 +8,7 @@ namespace ArrayFactor
         private double _Frequency = 1e9;
         private double _Bandwidth = 0.015;
         private double _Length = 30e-2;
-        private readonly object _SyncRoot = new object();
+        private readonly object _SyncRoot = new();
 
         public double Frequency
         {

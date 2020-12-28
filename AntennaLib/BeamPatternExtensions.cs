@@ -171,7 +171,7 @@ namespace Antennas
                 d += (ff[i].Argument - ff[i - 1].Argument) * (f + last) / 2;
                 last = f;
             }
-            var a = ff[ff.Length - 1].Argument - ff[0].Argument;
+            var a = ff[^1].Argument - ff[0].Argument;
             return a * a / d;
         }
 

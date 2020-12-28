@@ -45,11 +45,11 @@
             <Paragraph TextAlignment="Center" FontSize="36">
                 Параметры Вашего задания в лабораторной работе:    
             </Paragraph>
-            <Paragraph Margin="Auto,Auto,Auto,10" >
+            <Paragraph Margin="0,0,0,10" >
                 Предположим, что требуется спроектировать прямоугольную ФАР, лежащую в плоскости XOY. 
                 При этом она должна формировать излучение со следующими параметрами:
             </Paragraph>
-            <List MarkerStyle="Box" Margin="Auto,0">
+            <List MarkerStyle="Box" Margin="0,0">
                 <ListItem>
                     <Paragraph>
                         <Run Style="{StaticResource Hint}" Text="{Binding BaseModel.Wave.Frequency, Converter={c:Divide 1000000000}, StringFormat='Частота {0} ГГц'}">
@@ -65,7 +65,7 @@
                     <Paragraph>
                         Ширина сектора сканирования:
                     </Paragraph>     
-                    <List MarkerStyle="Disc" Margin="Auto,0">
+                    <List MarkerStyle="Disc" Margin="0,0">
                         <ListItem>
                             <Paragraph>
                                 <Run Text="{Binding BeamWidthOX, Mode=OneTime, StringFormat='В плоскости OX: {0}°'}"/>
@@ -80,9 +80,9 @@
                 </ListItem>
                 <ListItem>
                     <Paragraph>
-                        Сектор сканированя:
+                        Сектор сканирования:
                     </Paragraph>
-                    <List MarkerStyle="Disc" Margin="Auto,0">
+                    <List MarkerStyle="Disc" Margin="0,0">
                         <ListItem>
                             <Paragraph>
                                 <Run Text="{Binding ScanSectorWidthOX, Mode=OneTime, StringFormat='В плоскости OX: {0}°'}"/>
@@ -96,10 +96,10 @@
                     </List>
                 </ListItem>
             </List>
-            <Paragraph Margin="Auto,Auto,Auto,10">
-                На первом этапе Вам необходимо расчитать    
+            <Paragraph Margin="0,0,0,10">
+                На первом этапе Вам необходимо рассчитать    
             </Paragraph>
-            <List MarkerStyle="Decimal" Margin="Auto,0">
+            <List MarkerStyle="Decimal" Margin="0,0">
                 <ListItem>
                     <Paragraph>Линейные размеры апертуры, способной сформировать излучение в требуемом секторе углов</Paragraph>
                 </ListItem>

@@ -12,7 +12,7 @@ namespace ConsolePolygon
             var t = 0d;
             var dt = 0.001;
             var g = 9.8;
-            Vector3D F0(double time) => new Vector3D(time <= 0.2 ? 1000 - g * m : -m * g, 0, 0);
+            Vector3D F0(double time) => new(time <= 0.2 ? 1000 - g * m : -m * g, 0, 0);
             const double mu = 1.002;
             var k1 = 6 * Math.PI * mu * obj.Radius;
             const double c = 0.4;
@@ -67,9 +67,9 @@ namespace ConsolePolygon
         (
             double Mass,
             double Radius,
-            Vector3D Position = new Vector3D(),
-            Vector3D Speed = new Vector3D(),
-            Vector3D Axeleration = new Vector3D()
+            Vector3D Position = new(),
+            Vector3D Speed = new(),
+            Vector3D Axeleration = new()
         )
         {
             _Mass = Mass;

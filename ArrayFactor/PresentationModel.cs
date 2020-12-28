@@ -21,9 +21,9 @@ namespace ArrayFactor
         private readonly List<PageModel> _PagesSequence;
         private int _CurrentModelIndex = 1;
 
-        private readonly Random _Random = new Random();
+        private readonly Random _Random = new();
         private AntennaArray _AntennaArray;
-        private readonly WaveInfo _Wave = new WaveInfo();
+        private readonly WaveInfo _Wave = new();
 
         #region Команды переходов
 
@@ -67,7 +67,7 @@ namespace ArrayFactor
             }
         }
 
-        private readonly object _ModelChangeSyncRoot = new object();
+        private readonly object _ModelChangeSyncRoot = new();
         public PageModel CurrentModel
         {
             get => _CurrentModel;
@@ -106,7 +106,7 @@ namespace ArrayFactor
 
         public string Target =>
             "Знакомство и закрепление теоретических сведений о методах " +
-            "формирования направленных свйоств фазированных антенных решёток";
+            "формирования направленных свойств фазированных антенных решёток";
 
 
         public PresentationModel()

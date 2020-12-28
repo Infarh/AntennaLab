@@ -32,7 +32,7 @@ namespace ConsolePolygon
             x_max = x;
         }
 
-        public static SamplingResult SamplingAdaptive(this Func<double, double> f, double x1, double x2, double eps) => new SamplingResult(f, x1, x2, eps);
+        public static SamplingResult SamplingAdaptive(this Func<double, double> f, double x1, double x2, double eps) => new(f, x1, x2, eps);
 
         public class SamplingResult
         {

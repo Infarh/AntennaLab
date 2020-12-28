@@ -8,7 +8,7 @@
         xmlns:l="clr-namespace:ArrayFactor" 
         xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
         xmlns:ad="clr-namespace:ArrayFactor.Service.AmplitudeDistributions"
-        Title="Расчёт парметров ФАР" Height="620" Width="1000">
+        Title="Расчёт параметров ФАР" Height="620" Width="1000">
     <Window.DataContext>
         <l:MainWindowModel Nx="8" Ny="8" dx="10" dy="10"/>
     </Window.DataContext>
@@ -202,7 +202,7 @@
                                                         <Rectangle.Style>
                                                             <Style TargetType="{x:Type Rectangle}">
                                                                 <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding PatternComplite}" Value="1">
+                                                                    <DataTrigger Binding="{Binding PatternComplete}" Value="1">
                                                                         <Setter Property="Visibility" Value="Collapsed"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
@@ -227,7 +227,7 @@
                                                             </LinearGradientBrush>
                                                         </Rectangle.Fill>
                                                         <Rectangle.RenderTransform>
-                                                            <ScaleTransform ScaleX="{Binding PatternComplite}"/>
+                                                            <ScaleTransform ScaleX="{Binding PatternComplete}"/>
                                                         </Rectangle.RenderTransform>
                                                     </Rectangle>
                                                     <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="КНД в дБ в плоскости сечения ДН">
@@ -776,17 +776,17 @@
                                     <Rectangle.Style>
                                         <Style TargetType="Rectangle">
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding PatternComplite}" Value="1">
+                                                <DataTrigger Binding="{Binding PatternComplete}" Value="1">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding PatternComplite}" Value="0">
+                                                <DataTrigger Binding="{Binding PatternComplete}" Value="0">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Rectangle.Style>
                                     <Rectangle.RenderTransform>
-                                        <ScaleTransform ScaleX="{Binding PatternComplite}"/>
+                                        <ScaleTransform ScaleX="{Binding PatternComplete}"/>
                                     </Rectangle.RenderTransform>
                                 </Rectangle>
                                 <TextBlock Text="Тепловая карта"/>

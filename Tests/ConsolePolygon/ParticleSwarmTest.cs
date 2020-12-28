@@ -59,7 +59,7 @@ namespace ConsolePolygon
             }
         }
 
-        private static readonly Random sf_Random = new Random();
+        private static readonly Random sf_Random = new();
 
         /// <summary>Размер роя</summary>
         private readonly int f_ParticleCount;
@@ -198,7 +198,7 @@ namespace ConsolePolygon
             }
         }
 
-        private static readonly Random sf_Random = new Random();
+        private static readonly Random sf_Random = new();
 
         private readonly int f_ParticleCount;
 
@@ -307,7 +307,7 @@ namespace ConsolePolygon
             }
         }
 
-        private static readonly Random sf_Random = new Random();
+        private static readonly Random sf_Random = new();
 
         private readonly int f_ParticleCount;
 

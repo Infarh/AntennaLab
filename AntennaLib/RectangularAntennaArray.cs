@@ -49,7 +49,6 @@ namespace Antennas
         /// <summary>Распределение</summary>
         private Distribution _Distribution;
 
-
         /// <summary>Число элементов по оси X</summary>
         public int Nx
         {

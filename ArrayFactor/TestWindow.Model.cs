@@ -27,7 +27,7 @@ namespace ArrayFactor
         public ICommand DecreseEpsCommand { get; }
         public ICommand ResetCommand { get; }
 
-        public ProgressInfo ComputeProgress { get; } = new ProgressInfo();
+        public ProgressInfo ComputeProgress { get; } = new();
 
         public TestWindowModel()
         {
@@ -41,7 +41,7 @@ namespace ArrayFactor
 
         private bool CanDecreaseEps(object Arg) => Manager.Eps0 > 1e-7;
 
-        private CancellationTokenSource _DecreaseEpsCancellationTokenSource = new CancellationTokenSource();
+        private CancellationTokenSource _DecreaseEpsCancellationTokenSource = new();
         private async void DecreaseEpsAsync()
         {
             _DecreaseEpsCancellationTokenSource.Cancel();

@@ -51,6 +51,6 @@ namespace ArrayFactor.Service.Shapes
             return geometry;
         }
 
-        private Point PointAt(double angle) => new Point((RenderSize.Width - StrokeThickness) / 2 * (1 + Math.Cos(angle * (Math.PI / 180))), (RenderSize.Height - StrokeThickness) / 2 * (1 - Math.Sin(angle * (Math.PI / 180))));
+        private Point PointAt(double angle) => new((RenderSize.Width - StrokeThickness) / 2 * (1 + Math.Cos(angle * (Math.PI / 180))), (RenderSize.Height - StrokeThickness) / 2 * (1 - Math.Sin(angle * (Math.PI / 180))));
     }
 }
