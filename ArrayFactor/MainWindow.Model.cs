@@ -7,13 +7,19 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Markup;
+
 using Antennas;
+
 using ArrayFactor.Service.AmplitudeDistributions;
+
 using MathCore;
 using MathCore.WPF.ViewModels;
+
 using OxyPlot;
+
 using static System.Math;
 using static MathCore.Consts;
+
 using Distribution = ArrayFactor.Service.AmplitudeDistributions.Distribution;
 
 namespace ArrayFactor;
@@ -371,9 +377,9 @@ internal class MainWindowModel : ViewModel
     /// <summary>Инициализация нового экземпляра <see cref="MainWindowModel"/></summary>
     public MainWindowModel()
     {
-        _NormX                          = GetXRange().AsParallel().AsOrdered();
-        Distribution                    = new Uniform();
-        D0_Total                        = double.NaN;
+        _NormX = GetXRange().AsParallel().AsOrdered();
+        Distribution = new Uniform();
+        D0_Total = double.NaN;
         _PatternProcessProgressReporter = new Progress<double?>(OnD0ProgressReport);
         Nx++;
     }
@@ -393,9 +399,9 @@ internal class MainWindowModel : ViewModel
     private double[,] ComputeBeamPatternHeatMap(IProgress<double?>? progress = null, CancellationToken cancel = default)
     {
         const double th_max = 90;
-        const double dth    = 0.5;
-        const int    N      = 2 * (int)(th_max / dth);
-        var          data   = new double[N, N];
+        const double dth = 0.5;
+        const int N = 2 * (int)(th_max / dth);
+        var data = new double[N, N];
 
         Antenna antenna = _AntennaArray;
 
@@ -408,31 +414,33 @@ internal class MainWindowModel : ViewModel
             for (var j = 0; j < N; j++)
             {
                 var angle = new Complex(N / 2 - i, j - N / 2);
-                var th    = angle.Abs * dth;
+                var th = angle.Abs * dth;
                 if (th > 90)
                 {
                     data[i, j] = double.NaN;
                     continue;
                 }
 
-                cancel.ThrowIfCancellationRequested();
-                var F = antenna.Pattern(th * ToRad, angle.Arg, f0);
-                cancel.ThrowIfCancellationRequested();
-                var f = F.Power.In_dB_byPower();
-                data[i, j] = f;
-                if (f > max) max = f;
+                var f = antenna.Pattern(th * ToRad, angle.Arg, f0).Power.In_dB_byPower();
+                (data[i, j], max) = (f, Max(f, max));
             }
 
+            cancel.ThrowIfCancellationRequested();
             progress?.Report((double)i / N);
         }
 
         const double min = -80;
-        for (var i = 0; i < N; i++)
+        for (var (i, is_nan) = (0, true); i < N; i++, is_nan = true)
             for (var j = 0; j < N; j++)
             {
-                data[i, j] -= max;
-                if (data[i, j] < min)
-                    data[i, j] = min;
+                var value = data[i, j];
+                if (!is_nan && value is double.NaN)
+                    continue;
+
+                if (is_nan && value is double.NaN)
+                    is_nan = false;
+
+                data[i, j] = Max(value - max, min);
             }
 
         progress?.Report(cancel.IsCancellationRequested ? 0 : 1);
@@ -490,12 +498,12 @@ internal class MainWindowModel : ViewModel
         try
         {
             //var compute_d0_taks = ComputeD0Async(_AntennaArray.Pattern, _f0 * c_GHz, _D0ProgressReporter, cancel);
-            var beam_task         = GetBeamDataAsync(cancel);
-            var beam0_task        = GetBeam0DataAsync(cancel);
+            var beam_task = GetBeamDataAsync(cancel);
+            var beam0_task = GetBeam0DataAsync(cancel);
             var beam_heatmap_task = ComputeBeamPatternHeatMapAsync(cancel);
             if (cancel.IsCancellationRequested) return;
 
-            var beam_data_points     = await beam_task.ConfigureAwait(true);
+            var beam_data_points = await beam_task.ConfigureAwait(true);
             var analyse_pattern_task = AnalysePatternAsync(beam_data_points, cancel);
             if (cancel.IsCancellationRequested) return;
 
@@ -530,22 +538,22 @@ internal class MainWindowModel : ViewModel
     {
         try
         {
-            const double th1  = pi05neg;
-            const double th2  = pi05;
+            const double th1 = pi05neg;
+            const double th2 = pi05;
             const double phi1 = 0;
             const double phi2 = pi2;
-            const double da   = 1 * ToRad;
+            const double da = 1 * ToRad;
             //const double Dphi = phi2 - phi1;
-            const int N_phi        = (int)((phi2 - phi1) / da) + 1;
-            const int M_th         = (int)((th2 - th1) / da) + 1;
-            var       pattern_data = new double[N_phi, M_th];
+            const int N_phi = (int)((phi2 - phi1) / da) + 1;
+            const int M_th = (int)((th2 - th1) / da) + 1;
+            var pattern_data = new double[N_phi, M_th];
 
             var D0 = await Task.Run(
                     () =>
                     {
                         Progress?.Report(null);
 
-                        var d0  = 0d;
+                        var d0 = 0d;
                         var max = double.NegativeInfinity;
 
                         for (var i = 0; i < N_phi; i++)
@@ -558,7 +566,7 @@ internal class MainWindowModel : ViewModel
                                 var v = F(th, phi, f).Power;
                                 pattern_data[i, j] = v;
                                 if (v > max) max = v;
-                                var d1           = v * Cos(th);
+                                var d1 = v * Cos(th);
                                 d0 += d1;
                             }
 
@@ -603,19 +611,19 @@ internal class MainWindowModel : ViewModel
         MaxPos = result.MaxIndex;
         var gain = result.Max.In_dB();
         Gain = gain;
-        D0   = result.D0.In_dB();
+        D0 = result.D0.In_dB();
         var ssl = result.SSL.In_dB();
-        SSL       = ssl;
+        SSL = ssl;
         SSL_Value = ssl - gain;
         var maean_ssl = result.MeanSLL.In_dB();
-        MeanSSL       = maean_ssl;
+        MeanSSL = maean_ssl;
         MeanSSL_Value = MeanSSL - gain;
 
-        BeamPos     = result.MaxAngle.ToDeg();
+        BeamPos = result.MaxAngle.ToDeg();
         BeamWidth07 = (result.Th07Right - result.Th07Left).ToDeg();
-        BeamWidth0  = (result.Th0Right - result.Th0Left).ToDeg();
+        BeamWidth0 = (result.Th0Right - result.Th0Left).ToDeg();
 
-        BeamLeftAdge07  = result.Th07Left.ToDeg();
+        BeamLeftAdge07 = result.Th07Left.ToDeg();
         BeamRightAdge07 = result.Th07Right.ToDeg();
     }
 
@@ -628,12 +636,12 @@ internal class MainWindowModel : ViewModel
     private void SetDestribution()
     {
         var phase = GetPhaseDistribution(_θ0 * c_ToRad, _φ0 * c_ToRad, _f0 * c_GHz);
-        var lx    = Lx;
-        var ly    = Ly;
-        var infx  = lx == 0;
-        var infy  = ly == 0;
-        var ilx   = 1 / lx;
-        var ily   = 1 / ly;
+        var lx = Lx;
+        var ly = Ly;
+        var infx = lx == 0;
+        var infy = ly == 0;
+        var ilx = 1 / lx;
+        var ily = 1 / ly;
         switch (infx)
         {
             case false when !infy:
@@ -646,11 +654,11 @@ internal class MainWindowModel : ViewModel
                 _AntennaArray.Distribution = (x, _) => Complex.Exp(_A(x * ilx, 0), phase(x, 0));
                 break;
             default:
-            {
-                var A = _A(0, 0);
-                _AntennaArray.Distribution = (_, _) => A;
-                break;
-            }
+                {
+                    var A = _A(0, 0);
+                    _AntennaArray.Distribution = (_, _) => A;
+                    break;
+                }
         }
 
         OnPropertyChanged(nameof(DistributionData));

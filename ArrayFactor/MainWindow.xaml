@@ -45,7 +45,7 @@
                                             <Style TargetType="ScrollBar" BasedOn="{StaticResource UpDown}" />
                                         </StackPanel.Resources>
                                         <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Количество антенных элементов по оси OX">
-                                            <TextBlock Width="15">
+                                            <TextBlock Width="15" Margin="0,0,5,0">
                                                 <Run>N</Run><Run BaselineAlignment="Subscript">x</Run>
                                             </TextBlock>
                                             <TextBox Text="{Binding Nx, FallbackValue='--'}" />
@@ -53,14 +53,14 @@
                                                        Style="{StaticResource UpDown}" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Количество антенных элементов по оси OY">
-                                            <TextBlock Width="15">
+                                            <TextBlock Width="15" Margin="0,0,5,0">
                                                 <Run>N</Run><Run BaselineAlignment="Subscript">y</Run>
                                             </TextBlock>
                                             <TextBox Text="{Binding Ny, FallbackValue='--'}" />
                                             <ScrollBar Value="{Binding Ny}" Minimum="1" Maximum="128" SmallChange="1" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Шаг между антенными элементами по оси OX">
-                                            <TextBlock Width="15">
+                                            <TextBlock Width="15" Margin="0,0,5,0">
                                                 <Run>d</Run><Run BaselineAlignment="Subscript">x</Run>
                                             </TextBlock>
                                             <TextBox Text="{Binding dx, FallbackValue='-.-'}" />
@@ -68,7 +68,7 @@
                                             <TextBlock Text="см" Margin="5,0,0,0" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Шаг между антенными элементами по оси OY">
-                                            <TextBlock Width="15">
+                                            <TextBlock Width="15" Margin="0,0,5,0">
                                                 <Run>d</Run><Run BaselineAlignment="Subscript">y</Run>
                                             </TextBlock>
                                             <TextBox Text="{Binding dy, FallbackValue='-.-'}" />
@@ -76,7 +76,7 @@
                                             <TextBlock Text="см" Margin="5,0,0,0" />
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="Угол отклонения луча от нормали">
-                                            <TextBlock Width="15">
+                                            <TextBlock Width="15" Margin="0,0,5,0">
                                                 <Run>θ</Run><Run BaselineAlignment="Subscript">0</Run>
                                             </TextBlock>
                                             <TextBox Text="{Binding θ0, FallbackValue='-.-'}" />
@@ -342,7 +342,7 @@
                                                 <TextBlock Text="Длина:" Margin="0,0,3,0"/>
                                                 <TextBox Text="{Binding Length, Converter={Multiply 100}}" Width="30" HorizontalContentAlignment="Right" />
                                                 <ScrollBar Minimum="0.01" Maximum="1" Value="{Binding Length}" SmallChange="0.01" />
-                                                <TextBlock Text="см" />
+                                                <TextBlock Text="см" Margin="3,0,0,0"/>
                                             </StackPanel>
                                         </DataTemplate>
                                         <DataTemplate DataType="{x:Type a:AntennaItem}">
@@ -468,22 +468,22 @@
                                                 </StackPanel>-->
                                                 <UniformGrid Columns="2">
                                                     <DockPanel Margin="3,0,0,0">
-                                                        <TextBlock Text="nx" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="nx" VerticalAlignment="Center" Margin="0,0,5,0"/>
                                                         <ScrollBar DockPanel.Dock="Right" Minimum="1" Maximum="10" Value="{Binding Nx}" />
                                                         <TextBox Text="{Binding Nx}" />
                                                     </DockPanel>
                                                     <DockPanel Margin="3,0,0,0">
-                                                        <TextBlock Text="ny" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="ny" VerticalAlignment="Center" Margin="0,0,5,0"/>
                                                         <ScrollBar DockPanel.Dock="Right" Minimum="1" Maximum="10" Value="{Binding Ny}" />
                                                         <TextBox Text="{Binding Ny}" />
                                                     </DockPanel>
                                                     <DockPanel Margin="3,0,0,0">
-                                                        <TextBlock Text="Δx" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="Δx" VerticalAlignment="Center" Margin="0,0,5,0"/>
                                                         <ScrollBar DockPanel.Dock="Right" Minimum="0" Maximum="1" Value="{Binding Dx}" SmallChange="0.01" LargeChange="0.1" />
                                                         <TextBox Text="{Binding Dx}"/>
                                                     </DockPanel>
                                                     <DockPanel Margin="3,0,0,0">
-                                                        <TextBlock Text="Δy" VerticalAlignment="Center"/>
+                                                        <TextBlock Text="Δy" VerticalAlignment="Center" Margin="0,0,5,0"/>
                                                         <ScrollBar DockPanel.Dock="Right" Minimum="0" Maximum="1" Value="{Binding Dy}" SmallChange="0.01" LargeChange="0.1" />
                                                         <TextBox Text="{Binding Dy}" />
                                                     </DockPanel>
@@ -588,12 +588,6 @@
                                     <Setter Property="Width" Value="35" />
                                 </Style>
                             </Grid.Resources>
-                            <!--IsLegendVisible="True"
-                            LegendPosition="TopLeft"
-                            LegendBackground="#8BFFFFFF"
-                            LegendBorder="Gray"
-                            LegendSymbolPlacement="Right"
-                            LegendSymbolLength="20"-->
                             <oxy:Plot>
                                 <oxy:Plot.Resources>
                                     <x:Array x:Key="Dashes" Type="{x:Type sys:Double}">
@@ -601,6 +595,13 @@
                                         <sys:Double>4</sys:Double>
                                     </x:Array>
                                 </oxy:Plot.Resources>
+                                <oxy:Plot.Legends>
+                                    <oxy:Legend LegendPosition="LeftTop"
+                                                LegendBackground="#5CFFFFFF"
+                                                LegendBorder="Gray"
+                                                LegendSymbolPlacement="Right"
+                                                LegendSymbolLength="20"/>
+                                </oxy:Plot.Legends>
                                 <oxy:Plot.Axes>
                                     <oxy:LinearAxis Title="θ" x:Name="PatternGraph_AngleAxis"
                                                     AxisDistance="1"
@@ -696,13 +697,6 @@
                                 </Style>
                             </Grid.Resources>
 
-                            <!--IsLegendVisible="True"
-                            LegendPosition="TopLeft"
-                            LegendBackground="#8BFFFFFF"
-                            LegendBorder="Gray"
-                            LegendSymbolPlacement="Right"
-                            LegendSymbolLength="20"-->
-
                             <oxy:Plot PlotAreaBorderThickness="0" PlotType="Polar">
                                 <oxy:Plot.Resources>
                                     <x:Array x:Key="Dashes" Type="{x:Type sys:Double}">
@@ -710,6 +704,13 @@
                                         <sys:Double>4</sys:Double>
                                     </x:Array>
                                 </oxy:Plot.Resources>
+                                <oxy:Plot.Legends>
+                                    <oxy:Legend LegendPosition="LeftTop"
+                                                LegendBackground="#5CFFFFFF"
+                                                LegendBorder="Gray"
+                                                LegendSymbolPlacement="Right"
+                                                LegendSymbolLength="20"/>
+                                </oxy:Plot.Legends>
                                 <oxy:Plot.Axes>
                                     <oxy:AngleAxis Title="θ"
                                                    Unit="°"
