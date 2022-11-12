@@ -1,15 +1,15 @@
-﻿using System.Windows.Controls;
+﻿#nullable enable
+using System.Windows.Controls;
 
-namespace ArrayFactor.Service.Controls
+namespace ArrayFactor.Service.Controls;
+
+/// <summary>
+/// Логика взаимодействия для SmithChart.xaml
+/// </summary>
+public partial class SmithChart : UserControl
 {
-    /// <summary>
-    /// Логика взаимодействия для SmithChart.xaml
-    /// </summary>
-    public partial class SmithChart : UserControl
+    public SmithChart()
     {
-        public SmithChart()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }
