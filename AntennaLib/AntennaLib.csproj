@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <RootNamespace>Antennas</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathCore" Version="0.0.24" />
+    <PackageReference Include="MathCore" Version="0.0.81.1" />
   </ItemGroup>
  
 </Project>

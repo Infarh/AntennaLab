@@ -1,7 +1,7 @@
 ﻿<Window x:Class="ArrayFactor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:oxy="http://oxyplot.org/wpf"
+        xmlns:oxy="http://oxyplot.org/wpf/contrib"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:a="clr-namespace:Antennas;assembly=AntennaLib"
         xmlns:M="clr-namespace:MathCore;assembly=MathCore"
@@ -202,7 +202,7 @@
                                                         <Rectangle.Style>
                                                             <Style TargetType="{x:Type Rectangle}">
                                                                 <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding PatternComplite}" Value="1">
+                                                                    <DataTrigger Binding="{Binding PatternComplete}" Value="1">
                                                                         <Setter Property="Visibility" Value="Collapsed"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
@@ -227,7 +227,7 @@
                                                             </LinearGradientBrush>
                                                         </Rectangle.Fill>
                                                         <Rectangle.RenderTransform>
-                                                            <ScaleTransform ScaleX="{Binding PatternComplite}"/>
+                                                            <ScaleTransform ScaleX="{Binding PatternComplete}"/>
                                                         </Rectangle.RenderTransform>
                                                     </Rectangle>
                                                     <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="КНД в дБ в плоскости сечения ДН">
@@ -542,8 +542,7 @@
                                         <TextBlock Text="0.7"/>
                                     </StackPanel>
                                     <ContentControl DockPanel.Dock="Top" Content="{Binding Distribution}" />
-                                    <oxy:Plot Margin="0,3,0,0" Padding="0" IsMouseWheelEnabled="False"
-                                              IsLegendVisible="False" Height="150">
+                                    <oxy:Plot Margin="0,3,0,0" Padding="0" IsMouseWheelEnabled="False" Height="150">
                                         <oxy:Plot.Axes>
                                             <oxy:LinearAxis Position="Bottom" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" Minimum="-0.55" Maximum="0.55" />
                                             <oxy:LinearAxis Position="Left" MajorGridlineStyle="Solid" MinorGridlineStyle="Dot" IntervalLength="20" />
@@ -587,12 +586,13 @@
                                     <Setter Property="Width" Value="35" />
                                 </Style>
                             </Grid.Resources>
-                            <oxy:Plot IsLegendVisible="True"
-                                      LegendPosition="TopLeft"
-                                      LegendBackground="#8BFFFFFF"
-                                      LegendBorder="Gray"
-                                      LegendSymbolPlacement="Right"
-                                      LegendSymbolLength="20">
+                            <!--IsLegendVisible="True"
+                            LegendPosition="TopLeft"
+                            LegendBackground="#8BFFFFFF"
+                            LegendBorder="Gray"
+                            LegendSymbolPlacement="Right"
+                            LegendSymbolLength="20"-->
+                            <oxy:Plot>
                                 <oxy:Plot.Resources>
                                     <x:Array x:Key="Dashes" Type="{x:Type sys:Double}">
                                         <sys:Double>5</sys:Double>
@@ -693,14 +693,15 @@
                                     <Setter Property="Width" Value="35" />
                                 </Style>
                             </Grid.Resources>
-                            <oxy:Plot PlotAreaBorderThickness="0"
-                                      PlotType="Polar"
-                                      IsLegendVisible="True"
-                                      LegendPosition="TopLeft"
-                                      LegendBackground="#8BFFFFFF"
-                                      LegendBorder="Gray"
-                                      LegendSymbolPlacement="Right"
-                                      LegendSymbolLength="20">
+
+                            <!--IsLegendVisible="True"
+                            LegendPosition="TopLeft"
+                            LegendBackground="#8BFFFFFF"
+                            LegendBorder="Gray"
+                            LegendSymbolPlacement="Right"
+                            LegendSymbolLength="20"-->
+
+                            <oxy:Plot PlotAreaBorderThickness="0" PlotType="Polar">
                                 <oxy:Plot.Resources>
                                     <x:Array x:Key="Dashes" Type="{x:Type sys:Double}">
                                         <sys:Double>5</sys:Double>
@@ -776,17 +777,17 @@
                                     <Rectangle.Style>
                                         <Style TargetType="Rectangle">
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding PatternComplite}" Value="1">
+                                                <DataTrigger Binding="{Binding PatternComplete}" Value="1">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
-                                                <DataTrigger Binding="{Binding PatternComplite}" Value="0">
+                                                <DataTrigger Binding="{Binding PatternComplete}" Value="0">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Rectangle.Style>
                                     <Rectangle.RenderTransform>
-                                        <ScaleTransform ScaleX="{Binding PatternComplite}"/>
+                                        <ScaleTransform ScaleX="{Binding PatternComplete}"/>
                                     </Rectangle.RenderTransform>
                                 </Rectangle>
                                 <TextBlock Text="Тепловая карта"/>

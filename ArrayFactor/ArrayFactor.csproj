@@ -2,14 +2,16 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <LangVersion>preview</LangVersion>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathCore" Version="0.0.24" />
-    <PackageReference Include="MathCore.WPF" Version="0.0.1" />
-    <PackageReference Include="OxyPlot.Wpf" Version="2.0.0" />
+    <PackageReference Include="MathCore" Version="0.0.81.1" />
+    <PackageReference Include="MathCore.WPF" Version="0.0.38" />
+    <PackageReference Include="OxyPlot.Contrib.Wpf" Version="2.1.0" />
+    <PackageReference Include="OxyPlot.Wpf" Version="2.1.0" />
   </ItemGroup>  
 
   <ItemGroup>

@@ -1,7 +1,7 @@
-﻿namespace ArrayFactor.Service
+﻿#nullable enable
+namespace ArrayFactor.Service;
+
+public partial class TestWindow
 {
-    public partial class TestWindow
-    {
-        public TestWindow() => InitializeComponent();
-    }
+    public TestWindow() => InitializeComponent();
 }
