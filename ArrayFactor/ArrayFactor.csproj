@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-  </PropertyGroup>  
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MathCore" Version="0.0.24" />
@@ -14,10 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AntennaLib\AntennaLib.csproj" />
-  </ItemGroup>  
-
-  <ItemGroup>
-    <Folder Include="View\" />
   </ItemGroup>
 
 </Project>
