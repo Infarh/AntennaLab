@@ -28,10 +28,13 @@ internal class MainWindowModel : ViewModel
 
     /// <summary>Значение числа Пи</summary>
     private const double c_Pi = pi;
+
     /// <summary>Значение числа Пи/2</summary>
     private const double c_Pi05 = pi05;
+
     /// <summary>Константа мультипликативного преобразования углового значения из градусов в радианы</summary>
     private const double c_ToRad = Geometry.ToRad;
+
     /// <summary>Гигагерцы x10^9</summary>
     private const double c_GHz = 1e9;
 
@@ -159,6 +162,7 @@ internal class MainWindowModel : ViewModel
         set
         {
             if (Equals(_Distribution, value) || value is null) return;
+
             if (_Distribution != null) _Distribution.PropertyChanged -= OnDistributionPropertyChanged;
             _Distribution = value;
             if (_Distribution != null) _Distribution.PropertyChanged += OnDistributionPropertyChanged;
@@ -230,10 +234,24 @@ internal class MainWindowModel : ViewModel
 
     /// <summary>Частота</summary>
     [ChangedHandler(nameof(SetDestribution))]
-    public double f0 { get => _f0; set { if (Set(ref _f0, value, f => f > 0)) Set(ref _λ0, 30 / value, l => l > 0, PropertyName: nameof(λ0)); } }
+    public double f0
+    {
+        get => _f0;
+        set
+        {
+            if (Set(ref _f0, value, f => f > 0)) Set(ref _λ0, 30 / value, l => l > 0, PropertyName: nameof(λ0));
+        }
+    }
 
     /// <summary>Длина волны</summary>
-    public double λ0 { get => _λ0; set { if (Set(ref _λ0, value, l => l > 0)) Set(ref _f0, 30 / value, f => f > 0, PropertyName: nameof(f0)); } }
+    public double λ0
+    {
+        get => _λ0;
+        set
+        {
+            if (Set(ref _λ0, value, l => l > 0)) Set(ref _f0, 30 / value, f => f > 0, PropertyName: nameof(f0));
+        }
+    }
 
     /// <summary></summary>
     [ChangedHandler(nameof(SetDestribution))]
@@ -243,6 +261,7 @@ internal class MainWindowModel : ViewModel
         set
         {
             if (_AntennaArray.Nx.Equals(value)) return;
+
             _AntennaArray.Nx = value;
             OnPropertyChanged();
         }
@@ -256,6 +275,7 @@ internal class MainWindowModel : ViewModel
         set
         {
             if (_AntennaArray.Ny.Equals(value)) return;
+
             _AntennaArray.Ny = value;
             OnPropertyChanged();
         }
@@ -270,6 +290,7 @@ internal class MainWindowModel : ViewModel
         {
             value /= 100;
             if (_AntennaArray.dx.Equals(value)) return;
+
             _AntennaArray.dx = value;
             OnPropertyChanged();
         }
@@ -284,6 +305,7 @@ internal class MainWindowModel : ViewModel
         {
             value /= 100;
             if (_AntennaArray.dy.Equals(value)) return;
+
             _AntennaArray.dy = value;
             OnPropertyChanged();
         }
@@ -321,6 +343,7 @@ internal class MainWindowModel : ViewModel
         set
         {
             if (ReferenceEquals(_AntennaArray.Element, value)) return;
+
             var old_value = _AntennaArray.Element;
             {
                 if (old_value is INotifyPropertyChanged changed_notify_obj)
@@ -364,10 +387,10 @@ internal class MainWindowModel : ViewModel
     private async Task ComputeBeamPatternHeatMapAsync(CancellationToken cancel)
     {
         PatternData = null;
-        PatternData = await Task.Run(() => ComputeBeamPatternHeatMap(cancel, _PatternProcessProgressReporter), cancel).ConfigureAwait(true);
+        PatternData = await Task.Run(() => ComputeBeamPatternHeatMap(_PatternProcessProgressReporter, cancel), cancel).ConfigureAwait(true);
     }
 
-    private double[,] ComputeBeamPatternHeatMap(CancellationToken cancel, IProgress<double?>? progress)
+    private double[,] ComputeBeamPatternHeatMap(IProgress<double?>? progress = null, CancellationToken cancel = default)
     {
         const double th_max = 90;
         const double dth    = 0.5;
@@ -375,31 +398,10 @@ internal class MainWindowModel : ViewModel
         var          data   = new double[N, N];
 
         Antenna antenna = _AntennaArray;
-        var     f0      = _f0 * c_GHz;
+
+        var f0 = _f0 * c_GHz;
         progress?.Report(0);
         var max = double.NegativeInfinity;
-
-        //var options = new ParallelOptions { CancellationToken = cancel, MaxDegreeOfParallelism = Environment.ProcessorCount * 2 };
-        //Parallel.For(0, N, options, i =>
-        //{
-        //    for (var j = 0; j < N; j++)
-        //    {
-        //        var angle = new Complex(N / 2 - i, j - N / 2);
-        //        var th = angle.Abs * dth;
-        //        if (th > 90)
-        //        {
-        //            data[i, j] = double.NaN;
-        //            continue;
-        //        }
-        //        cancel.ThrowIfCancellationRequested();
-        //        var F = antenna.Pattern(th * Consts.ToRad, angle.Arg, f0);
-        //        cancel.ThrowIfCancellationRequested();
-        //        var f = F.Power.In_dB_byPower();
-        //        data[i, j] = f;
-        //        if (f > max) max = f;
-        //    }
-        //    progress?.Report((double)i / N);
-        //});
 
         for (var i = 0; i < N; i++)
         {
@@ -412,6 +414,7 @@ internal class MainWindowModel : ViewModel
                     data[i, j] = double.NaN;
                     continue;
                 }
+
                 cancel.ThrowIfCancellationRequested();
                 var F = antenna.Pattern(th * ToRad, angle.Arg, f0);
                 cancel.ThrowIfCancellationRequested();
@@ -419,8 +422,10 @@ internal class MainWindowModel : ViewModel
                 data[i, j] = f;
                 if (f > max) max = f;
             }
+
             progress?.Report((double)i / N);
         }
+
         const double min = -80;
         for (var i = 0; i < N; i++)
             for (var j = 0; j < N; j++)
@@ -428,7 +433,6 @@ internal class MainWindowModel : ViewModel
                 data[i, j] -= max;
                 if (data[i, j] < min)
                     data[i, j] = min;
-
             }
 
         progress?.Report(cancel.IsCancellationRequested ? 0 : 1);
@@ -452,6 +456,7 @@ internal class MainWindowModel : ViewModel
         var dx = _dx;
         for (var x = -0.5; x < 0.5; x += dx)
             yield return x;
+
         yield return 0.5;
     }
 
@@ -489,19 +494,24 @@ internal class MainWindowModel : ViewModel
             var beam0_task        = GetBeam0DataAsync(cancel);
             var beam_heatmap_task = ComputeBeamPatternHeatMapAsync(cancel);
             if (cancel.IsCancellationRequested) return;
+
             var beam_data_points     = await beam_task.ConfigureAwait(true);
             var analyse_pattern_task = AnalysePatternAsync(beam_data_points, cancel);
             if (cancel.IsCancellationRequested) return;
+
             var beam_0_data_points = await beam0_task.ConfigureAwait(true);
             if (cancel.IsCancellationRequested is true or true) return;
 
             var beam0 = beam_0_data_points.ToArray();
             if (cancel.IsCancellationRequested) return;
+
             BeamData = beam_data_points;
             if (cancel.IsCancellationRequested) return;
+
             Beam0Data = beam0;
             if (cancel.IsCancellationRequested) return;
-            await Task.WhenAll(analyse_pattern_task/*, compute_d0_taks*/, beam_heatmap_task).ConfigureAwait(false);
+
+            await Task.WhenAll(analyse_pattern_task /*, compute_d0_taks*/, beam_heatmap_task).ConfigureAwait(false);
         }
         catch (TaskCanceledException)
         {
@@ -530,44 +540,51 @@ internal class MainWindowModel : ViewModel
             const int M_th         = (int)((th2 - th1) / da) + 1;
             var       pattern_data = new double[N_phi, M_th];
 
-            var D0 = await Task.Run(() =>
-            {
-                Progress?.Report(null);
-
-                var d0  = 0d;
-                var max = double.NegativeInfinity;
-
-                for (var i = 0; i < N_phi; i++)
-                {
-                    var phi = i * da + phi1;
-                    for (var j = 0; j < M_th; j++)
+            var D0 = await Task.Run(
+                    () =>
                     {
-                        var th = j * da + th1;
-                        Cancel.ThrowIfCancellationRequested();
-                        var v = F(th, phi, f).Power;
-                        pattern_data[i, j] = v;
-                        if (v > max) max = v;
-                        var d1           = v * Cos(th);
-                        d0 += d1;
-                    }
-                    Progress?.Report((double)i / N_phi);
-                }
+                        Progress?.Report(null);
 
-                Cancel.ThrowIfCancellationRequested();
-                Progress?.Report(1d);
-                return 4 * PI * max * da / d0;
-            }, Cancel).ConfigureAwait(true);
+                        var d0  = 0d;
+                        var max = double.NegativeInfinity;
+
+                        for (var i = 0; i < N_phi; i++)
+                        {
+                            var phi = i * da + phi1;
+                            for (var j = 0; j < M_th; j++)
+                            {
+                                var th = j * da + th1;
+                                Cancel.ThrowIfCancellationRequested();
+                                var v = F(th, phi, f).Power;
+                                pattern_data[i, j] = v;
+                                if (v > max) max = v;
+                                var d1           = v * Cos(th);
+                                d0 += d1;
+                            }
+
+                            Progress?.Report((double)i / N_phi);
+                        }
+
+                        Cancel.ThrowIfCancellationRequested();
+                        Progress?.Report(1d);
+                        return 4 * PI * max * da / d0;
+                    },
+                    Cancel)
+               .ConfigureAwait(true);
             Cancel.ThrowIfCancellationRequested();
             D0_Total = D0.In_dB_byPower();
 
-            PatternData = await Task.Run(() =>
-            {
-                var max = pattern_data.Max2D();
-                for (var i = 0; i < N_phi; i++)
-                    for (var j = 0; j < M_th; j++)
-                        pattern_data[i, j] = (pattern_data[i, j] / max).In_dB_byPower();
-                return pattern_data;
-            }, Cancel).ConfigureAwait(true);
+            PatternData = await Task.Run(
+                    () =>
+                    {
+                        var max = pattern_data.Max2D();
+                        for (var i = 0; i < N_phi; i++)
+                            for (var j = 0; j < M_th; j++)
+                                pattern_data[i, j] = (pattern_data[i, j] / max).In_dB_byPower();
+                        return pattern_data;
+                    },
+                    Cancel)
+               .ConfigureAwait(true);
         }
         catch (OperationCanceledException e)
         {
@@ -619,11 +636,14 @@ internal class MainWindowModel : ViewModel
         var ily   = 1 / ly;
         switch (infx)
         {
-            case false when !infy: _AntennaArray.Distribution = (x, y) => Complex.Exp(_A(x * ilx, y * ily), phase(x, y));
+            case false when !infy:
+                _AntennaArray.Distribution = (x, y) => Complex.Exp(_A(x * ilx, y * ily), phase(x, y));
                 break;
-            case true when !infy:  _AntennaArray.Distribution = (_, y) => Complex.Exp(_A(0, y * ily), phase(0, y));
+            case true when !infy:
+                _AntennaArray.Distribution = (_, y) => Complex.Exp(_A(0, y * ily), phase(0, y));
                 break;
-            case false when infy:  _AntennaArray.Distribution = (x, _) => Complex.Exp(_A(x * ilx, 0), phase(x, 0));
+            case false when infy:
+                _AntennaArray.Distribution = (x, _) => Complex.Exp(_A(x * ilx, 0), phase(x, 0));
                 break;
             default:
             {

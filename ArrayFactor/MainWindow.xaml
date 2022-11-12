@@ -8,7 +8,9 @@
         xmlns:l="clr-namespace:ArrayFactor" 
         xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
         xmlns:ad="clr-namespace:ArrayFactor.Service.AmplitudeDistributions"
-        Title="Расчёт парметров ФАР" Height="620" Width="1000">
+        Title="Расчёт параметров ФАР"
+        Width="1000" Height="630"
+        MinWidth="1000" MinHeight="630">
     <Window.DataContext>
         <l:MainWindowModel Nx="8" Ny="8" dx="10" dy="10"/>
     </Window.DataContext>
@@ -797,17 +799,18 @@
                             <oxy:Plot.Axes>
                                 <oxy:LinearColorAxis Position="Right" InvalidNumberColor="Black" 
                                                      AxisTickToLabelDistance="4"
-                                                     MajorStep="20" 
-                                                     PaletteSize="50"  
+                                                     MajorStep="5" 
+                                                     PaletteSize="50"
                                                      Title="|F(θ,φ)|^2"
                                                      Minimum="-80"
-                                                     Maximum="0"  
+                                                     Maximum="0"
                                                      TextColor="White"
                                                      AxislineColor="White"
                                                      TitleColor="White"
                                                      MajorGridlineColor="LightGray"
                                                      MinorGridlineColor="Gray"
-                                                     TicklineColor="White"
+                                                     TicklineColor="LightGray"
+                                                     MinorTicklineColor="Gray"
                                                      ExtraGridlineColor="White"
                                                      MajorTickSize="20"
                                                      MinorTickSize="7"
@@ -815,7 +818,9 @@
                                                      MajorGridlineThickness="2"
                                                      HighColor="DarkRed" 
                                                      LowColor="Black"
-                                                     TitleFontWeight="Bold" IntervalLength="30" AxislineStyle="Solid">
+                                                     TitleFontWeight="Bold" 
+                                                     IntervalLength="30" 
+                                                     AxislineStyle="Solid">
                                     <GradientStop Color="DarkRed" Offset="-2"/>
                                     <GradientStop Color="Red" Offset="-3"/>
                                     <GradientStop Color="Yellow" Offset="-13"/>
@@ -824,7 +829,7 @@
                                     <GradientStop Color="DarkBlue" Offset="-60"/>
                                     <GradientStop Color="Black" Offset="-80"/>
                                 </oxy:LinearColorAxis>
-                                <oxy:LinearAxis Position="Bottom" Minimum="-180" Maximum="180"    
+                                <oxy:LinearAxis Position="Bottom" Minimum="-90" Maximum="90"
                                                 TextColor="White" 
                                                 AxislineColor="White" 
                                                 TicklineColor="White" 
@@ -840,7 +845,7 @@
                                                 TitleFontWeight="Bold"
                                                 Layer="AboveSeries" 
                                                 PositionAtZeroCrossing="True" AxislineStyle="Solid"/>
-                                <oxy:LinearAxis Position="Left" Minimum="-180" Maximum="180"
+                                <oxy:LinearAxis Position="Left" Minimum="-90" Maximum="90"
                                                 TextColor="White"
                                                 AxislineColor="White"
                                                 TicklineColor="White" 
@@ -858,7 +863,7 @@
                                                 PositionAtZeroCrossing="True"
                                                 AxislineStyle="Solid"/>
                             </oxy:Plot.Axes>
-                            <oxy:HeatMapSeries Data="{Binding PatternData}" X0="-180" X1="180" Y0="-180" Y1="180"/> 
+                            <oxy:HeatMapSeries Data="{Binding PatternData}" X0="-90" X1="90" Y0="-90" Y1="90"/> 
                         </oxy:Plot>
                     </TabItem>
                 </TabControl>
