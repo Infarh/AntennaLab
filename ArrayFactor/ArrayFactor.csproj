@@ -4,8 +4,22 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
     <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>img\Antenna.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="img\Radar.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="img\Antenna.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="img\Radar.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MathCore" Version="0.0.81.1" />

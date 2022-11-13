@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace ConsolePolygon;
+﻿namespace ConsolePolygon;
 
 public static class Program
 {

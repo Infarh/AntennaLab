@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace ArrayFactor.Service.AmplitudeDistributions;
+﻿namespace ArrayFactor.Service.AmplitudeDistributions;
 
 public class Uniform : Distribution
 {

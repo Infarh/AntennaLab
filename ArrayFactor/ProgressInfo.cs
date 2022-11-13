@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using MathCore.Values;
 // ReSharper disable EventNeverSubscribedTo.Global
 

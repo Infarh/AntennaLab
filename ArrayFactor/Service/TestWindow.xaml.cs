@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace ArrayFactor.Service;
+﻿namespace ArrayFactor.Service;
 
 public partial class TestWindow
 {

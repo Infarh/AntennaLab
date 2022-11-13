@@ -1,5 +1,4 @@
-﻿#nullable enable
-using MathCore;
+﻿using MathCore;
 using MathCore.Vectors;
 using Task = System.Threading.Tasks.Task;
 

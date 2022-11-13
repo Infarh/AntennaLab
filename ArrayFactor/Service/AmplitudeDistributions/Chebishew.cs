@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace ArrayFactor.Service.AmplitudeDistributions;
+﻿namespace ArrayFactor.Service.AmplitudeDistributions;
 
 /// <summary>Чебышевское распределение</summary>
 public class Chebishew : Distribution

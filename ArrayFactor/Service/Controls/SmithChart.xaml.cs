@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 namespace ArrayFactor.Service.Controls;
 

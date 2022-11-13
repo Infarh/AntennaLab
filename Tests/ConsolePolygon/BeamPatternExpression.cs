@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Antennas;
+﻿using Antennas;
 using MathCore;
 
 namespace ConsolePolygon;

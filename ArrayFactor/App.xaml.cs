@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace ArrayFactor;
+﻿namespace ArrayFactor;
 
 public partial class App
 {

@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace ConsolePolygon;
+﻿namespace ConsolePolygon;
 
 internal static class FDTD
 {

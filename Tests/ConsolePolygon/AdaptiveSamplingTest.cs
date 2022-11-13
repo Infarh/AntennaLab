@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using MathCore;
 using MathCore.Vectors;
 
