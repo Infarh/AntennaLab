@@ -47,11 +47,11 @@ public class AntennaItem : Antenna
     /// <summary>Вектор расположения антенного элемента решётки относительно её фазового центра</summary>
     public Vector3D Location { get => _Location; set => Set(ref _Location, value); }
 
-    public double LocationX { get => _Location.X; set => Location = new Vector3D(value, LocationY, LocationZ); }
+    public double LocationX { get => _Location.X; set => Location = new(value, LocationY, LocationZ); }
 
-    public double LocationY { get => _Location.Y; set => Location = new Vector3D(LocationX, value, LocationZ); }
+    public double LocationY { get => _Location.Y; set => Location = new(LocationX, value, LocationZ); }
 
-    public double LocationZ { get => _Location.Z; set => Location = new Vector3D(LocationX, LocationY, value); }
+    public double LocationZ { get => _Location.Z; set => Location = new(LocationX, LocationY, value); }
 
     /// <summary>Пространственный угол поворота антенного элемента относительно фазового центра антенного элемента</summary>
     public SpaceAngle Direction
@@ -68,28 +68,28 @@ public class AntennaItem : Antenna
         }
     }
 
-    public double Theta { get => _Direction.InRad.Theta; set => Direction = new SpaceAngle(value, Phi); }
+    public double Theta { get => _Direction.InRad.Theta; set => Direction = new(value, Phi); }
 
     public double ThetaDeg { get => Theta / Consts.ToRad; set => Theta = value * Consts.ToRad; }
 
-    public double Phi { get => _Direction.InRad.Phi; set => Direction = new SpaceAngle(Theta, value); }
+    public double Phi { get => _Direction.InRad.Phi; set => Direction = new(Theta, value); }
 
     public double PhiDeg { get => Phi / Consts.ToRad; set => Phi = value * Consts.ToRad; }
 
-    /// <summary>Комплексный коэффициент передачи антенного эелмента</summary>
+    /// <summary>Комплексный коэффициент передачи антенного элемента</summary>
     public Complex K { get => _K; set => Set(ref _K, value); }
 
     public double AbsK { get => K.Abs; set => K = Complex.Exp(value, ArgK); }
 
     public double ArgK { get => K.Abs; set => K = Complex.Exp(AbsK, value); }
 
-    public double ReK { get => K.Re; set => K = new Complex(value, ImK); }
+    public double ReK { get => K.Re; set => K = new(value, ImK); }
 
-    public double ImK { get => K.Im; set => K = new Complex(ReK, value); }
+    public double ImK { get => K.Im; set => K = new(ReK, value); }
 
     public AntennaItem() : this(new UniformAntenna(), Vector3D.Empty, SpaceAngle.k, Complex.Real) { }
 
-    /// <summary>Инициализация нового антеннойго элемента антенной решётки</summary>
+    /// <summary>Инициализация нового антенного элемента антенной решётки</summary>
     /// <param name="a">Антенный элемент</param>
     /// <param name="r">Вектор размещения</param>
     /// <param name="angle">Угол поворота</param>
@@ -131,7 +131,7 @@ public class AntennaItem : Antenna
     {
         if (_Rotator != null) a = Expression.Invoke(_Rotator.ToExpression(), a);
         var kl                  = (-__PiC).ToExpression().Multiply(f);
-        var projection_info     = typeof(Vector3D).GetMethod(nameof(Vector3D.GetProjectionTo), new[] { typeof(SpaceAngle) }, null);
+        var projection_info     = typeof(Vector3D).GetMethod(nameof(Vector3D.GetProjectionTo), [typeof(SpaceAngle)], null).NotNull();
         var projection          = Call(Location, projection_info, a);
         var kr                  = kl.Multiply(projection);
         var exp                 = ((Func<double, Complex>)Complex.Exp).GetCallExpression(kr);
@@ -148,7 +148,7 @@ public class AntennaItem : Antenna
         if (r != 0)
         {
             empty = false;
-            result.AppendFormat("[loc:{0}", r);
+            result.Append($"[loc:{r}");
         }
 
         var a           = _Direction;

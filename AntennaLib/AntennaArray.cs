@@ -21,7 +21,7 @@ public class AntennaArray : Antenna, IList<AntennaItem>
     /// <param name="antennas">Массив антенных элементов</param>
     /// <param name="step">Шаг размещения</param>
     /// <param name="A">Амплитудно-фазовое распределение</param>
-    /// <returns>Антенная решётка с линейно размещёнными в пространстве антенными эламентами</returns>
+    /// <returns>Антенная решётка с линейно размещёнными в пространстве антенными элементами</returns>
     public static AntennaArray CreateLinearArray(Antenna[] antennas, double step, Func<Vector3D, Complex>? A = null)
     {
         var n   = antennas.Length;
@@ -32,14 +32,14 @@ public class AntennaArray : Antenna, IList<AntennaItem>
            .Select(a => new AntennaItem(a.a, a.v, a.o, a.A))
            .ToArray();
 
-        return new AntennaArray(items);
+        return new(items);
     }
 
     /// <summary>Создать плоскую антенную решётку</summary>
     /// <param name="antennas">Массив антенных элементов</param>
     /// <param name="dx">Шаг по оси OX</param>
-    /// <param name="dy">ШАг по оси OY</param>
-    /// <returns>Антенная решётка с размещеинем антенных элементов в плоскости XOY</returns>
+    /// <param name="dy">Шаг по оси OY</param>
+    /// <returns>Антенная решётка с размещением антенных элементов в плоскости XOY</returns>
     public static AntennaArray CreateFlatArray(Antenna[,] antennas, double dx, double dy)
     {
         var nx    = antennas.GetLength(0);
@@ -49,8 +49,8 @@ public class AntennaArray : Antenna, IList<AntennaItem>
         var items = new AntennaItem[nx * ny];
         for(int i = 0, ii = 0; i < nx; i++)
             for(var j = 0; j < ny; j++)
-                items[ii++] = new AntennaItem(antennas[i, j], new Vector3D(i * dx - lx05, j * dy - ly05), new SpaceAngle(), 1);
-        return new AntennaArray(items);
+                items[ii++] = new(antennas[i, j], new(i * dx - lx05, j * dy - ly05), new(), 1);
+        return new(items);
     }
 
     /// <summary>Список антенных элементов</summary>
@@ -77,19 +77,25 @@ public class AntennaArray : Antenna, IList<AntennaItem>
         }, I => I.Interval.Length);
 
     /// <summary>Размер апертуры по оси OY</summary>
-    public double L_y => _Items.Aggregate(new MinMaxValue(), (I, i) =>
-    {
-        I.AddValue(i.Location.Y);
-        return I;
-    }, I => I.Interval.Length);
+    public double L_y => _Items
+        .Aggregate(
+            new MinMaxValue(), 
+            (I, i) =>
+            {
+                I.AddValue(i.Location.Y);
+                return I;
+            },
+            I => I.Interval.Length);
 
     /// <summary>Размер апертуры по оси OZ</summary>
     public double L_z =>
-        _Items.Aggregate(new MinMaxValue(), (I, i) =>
-        {
-            I.AddValue(i.Location.Z);
-            return I;
-        }, I => I.Interval.Length);
+        _Items.Aggregate(
+            new MinMaxValue(), (I, i) =>
+            {
+                I.AddValue(i.Location.Z);
+                return I;
+            }, 
+            I => I.Interval.Length);
 
     /// <summary>Инициализация новой антенной решётки</summary>
     /// <param name="items">Перечисление антенных элементов</param>
@@ -161,7 +167,7 @@ public class AntennaArray : Antenna, IList<AntennaItem>
     }
 
     /// <summary>Удаляет все элементы из интерфейса <see cref="T:System.Collections.Generic.ICollection`1"/>.</summary>
-    public virtual void Clear() => _Items = Array.Empty<AntennaItem>();
+    public virtual void Clear() => _Items = [];
 
     public virtual bool Contains(AntennaItem? item) => item != null && _Items.Contains(item);
 
@@ -171,7 +177,7 @@ public class AntennaArray : Antenna, IList<AntennaItem>
     {
         var new_items      = _Items.ToList();
         var result         = new_items.Remove(item);
-        if (result) _Items = new_items.ToArray();
+        if (result) _Items = [.. new_items];
         return result;
     }
 
@@ -189,7 +195,7 @@ public class AntennaArray : Antenna, IList<AntennaItem>
             throw new InvalidOperationException();
         var items = _Items.ToList();
         items.Insert(index, item);
-        _Items = items.ToArray();
+        _Items = [.. items];
     }
 
     /// <summary>Удаляет элемент <see cref="T:System.Collections.Generic.IList`1"/> по указанному индексу.</summary>
@@ -198,7 +204,7 @@ public class AntennaArray : Antenna, IList<AntennaItem>
     {
         var new_items = _Items.ToList();
         new_items.RemoveAt(index);
-        _Items = new_items.ToArray();
+        _Items = [.. new_items];
     }
 
     /// <summary>Получает или задает элемент по указанному индексу.</summary>

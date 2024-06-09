@@ -43,7 +43,7 @@ internal static class AdaptiveSamplingTest
             if (dx <= 0) throw new ArgumentOutOfRangeException(nameof(dx), $"Error: {nameof(dx)} <= 0");
 
             _F    = f.NotNull();
-            _List = new LinkedList<Vector2D>();
+            _List = new();
             Arrange(ref x1, ref x2);
 
             var x    = x1;
@@ -107,7 +107,7 @@ internal static class AdaptiveSamplingTest
 
         public Vector2D[] GetValues()
         {
-            lock (_List) return _List.OrderBy(v => v.X).ToArray();
+            lock (_List) return [.. _List.OrderBy(v => v.X)];
         }
 
         public static implicit operator Vector2D[](SamplingResult result) => result.GetValues();
@@ -136,7 +136,7 @@ internal static class AdaptiveSamplingTest
         while (x + dx < x2);
 
         //Console.WriteLine($"Accuracy:{accuracy}");
-        return result.ToArray();
+        return [.. result];
     }
 
     public static Vector2D[] SamplingAdaptive_HalfDivision(this Func<double, double> f, double x1, double x2, double eps)
@@ -178,6 +178,6 @@ internal static class AdaptiveSamplingTest
         }
         while (node?.Next != null);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

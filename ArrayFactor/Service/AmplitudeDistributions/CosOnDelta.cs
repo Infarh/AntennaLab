@@ -17,7 +17,7 @@ public class CosOnDelta : Distribution
     public int Nx { get => _Nx; set => Set(ref _Nx, value, n => n > 0); }
     public int Ny { get => _Ny; set => Set(ref _Ny, value, n => n > 0); }
 
-    private static double A(double x, double D, int n) { var cos = Cos(Consts.pi * x); return D + (1 - D) * Pow(cos, n); }
+    private static double A(double x, double D, int n) { var cos = Cos(Consts.pi * x); return D + (1 - D) * cos.Pow(n); }
 
     public override double Value(double x, double y, double z) => A(x, _Dx, _Nx) * A(y, _Dy, _Ny);
 

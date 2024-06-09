@@ -1,17 +1,15 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
 
 namespace ArrayFactor.Service.Converters;
 
 [ValueConversion(typeof(double), typeof(double))]
-internal class Divide : MarkupExtension, IValueConverter
+internal class Divide(double k) : MarkupExtension, IValueConverter
 {
-    public double K { get; set; }
+    public Divide() : this(1) { }
 
-    public Divide() { K         = 1; }
-    public Divide(double k) { K = k; }
+    public double K { get; set; } = k;
 
     public override object? ProvideValue(IServiceProvider sp) => this;
 

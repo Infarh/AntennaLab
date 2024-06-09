@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ArrayFactor.Service;
+﻿namespace ArrayFactor.Service;
 
 internal static class Extensions
 {
@@ -13,7 +11,7 @@ internal static class Extensions
         if(provider.GetService(typeof(T)) is T t) action(t);
     }
 
-    public static Q UseService<T, Q>(this IServiceProvider provider, Func<T, Q> action, Q Default = default)
+    public static Q? UseService<T, Q>(this IServiceProvider provider, Func<T, Q> action, Q? Default = default)
         where T : class =>
         provider.GetService(typeof(T)) is T t ? action(t) : Default;
 }

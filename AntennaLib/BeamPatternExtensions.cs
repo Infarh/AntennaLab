@@ -6,25 +6,29 @@ namespace Antennas;
 
 public static class BeamPatternExtensions
 {
-    public class BeamAnalysandResult
+    public class BeamAnalysandResult(
+        FuncExtensions.SamplingResult<Complex>.Result[] Samples,
+        int MaximumIndex,
+        int Left07Index,
+        int Right07Index,
+        int LeftSLLIndex,
+        int RightSLLIndex,
+        double LeftAverageSLL,
+        double RightAverageSLL,
+        double Directivity,
+        double Accuracy)
     {
-        private readonly FuncExtensions.SamplingResult<Complex>.Result[] _Samples;
-        private readonly int _Left07Index;
-        private readonly int _Right07Index;
-        private readonly int _LeftSllIndex;
-        private readonly int _RightSllIndex;
+        public int MaximumIndex { get; } = MaximumIndex;
 
-        public int MaximumIndex { get; }
+        public double AngleOfMaximum => Samples[MaximumIndex].Argument;
 
-        public double AngleOfMaximum => _Samples[MaximumIndex].Argument;
+        public Complex ValueOfMaxMaximum => Samples[MaximumIndex].Value;
 
-        public Complex ValueOfMaxMaximum => _Samples[MaximumIndex].Value;
+        public (double, Complex) Maximum => Samples[MaximumIndex];
 
-        public (double, Complex) Maximum => _Samples[MaximumIndex];
+        public double BeamWidth => Samples[Right07Index].Argument - Samples[Left07Index].Argument;
 
-        public double BeamWidth => _Samples[_Right07Index].Argument - _Samples[_Left07Index].Argument;
-
-        public double BeamCenterAngle => (_Samples[_Right07Index].Argument + _Samples[_Left07Index].Argument) / 2;
+        public double BeamCenterAngle => (Samples[Right07Index].Argument + Samples[Left07Index].Argument) / 2;
 
         public double Simetry
         {
@@ -35,39 +39,17 @@ public static class BeamPatternExtensions
             }
         }
 
-        public (double, Complex) LeftSideLobe => _Samples[_LeftSllIndex];
+        public (double, Complex) LeftSideLobe => Samples[LeftSLLIndex];
 
-        public (double, Complex) RightSideLobe => _Samples[_RightSllIndex];
+        public (double, Complex) RightSideLobe => Samples[RightSLLIndex];
 
-        public double LeftAverageSideLobLevel { get; }
+        public double LeftAverageSideLobLevel { get; } = LeftAverageSLL;
 
-        public double RightAverageSideLobLevel { get; }
+        public double RightAverageSideLobLevel { get; } = RightAverageSLL;
 
-        public double Directivity { get; }
+        public double Directivity { get; } = Directivity;
 
-        public double Accuracy { get; }
-
-        public BeamAnalysandResult(
-            FuncExtensions.SamplingResult<Complex>.Result[] Samples,
-            int MaximumIndex,
-            int Left07Index,
-            int Right07Index,
-            int LeftSLLIndex, int RightSLLIndex,
-            double LeftAverageSLL, double RightAverageSLL,
-            double Directivity,
-            double Accuracy)
-        {
-            _Samples                 = Samples;
-            this.MaximumIndex        = MaximumIndex;
-            _Left07Index             = Left07Index;
-            _Right07Index            = Right07Index;
-            _LeftSllIndex            = LeftSLLIndex;
-            _RightSllIndex           = RightSLLIndex;
-            LeftAverageSideLobLevel  = LeftAverageSLL;
-            RightAverageSideLobLevel = RightAverageSLL;
-            this.Directivity         = Directivity;
-            this.Accuracy            = Accuracy;
-        }
+        public double Accuracy { get; } = Accuracy;
     }
 
     public static BeamAnalysandResult Analyze(
@@ -146,8 +128,7 @@ public static class BeamPatternExtensions
         }
         sll_right_average /= length - index;
 
-        return new BeamAnalysandResult
-        (
+        return new(
             ff, max_pos,
             index_07_left, index_07_right,
             sll_left_max_index, sll_right_max_index,
@@ -171,12 +152,12 @@ public static class BeamPatternExtensions
         return a * a / d;
     }
 
-    public static Func<double, Complex> ToThetaPattern(Func<SpaceAngle, Complex> f, double Phi) => Theta => f(new SpaceAngle(Theta, Phi));
+    public static Func<double, Complex> ToThetaPattern(Func<SpaceAngle, Complex> f, double Phi) => Theta => f(new(Theta, Phi));
 
-    public static Func<double, Complex> ToPhiPattern(Func<SpaceAngle, Complex> f, double Theta) => Phi => f(new SpaceAngle(Theta, Phi));
+    public static Func<double, Complex> ToPhiPattern(Func<SpaceAngle, Complex> f, double Theta) => Phi => f(new(Theta, Phi));
 
     public static double GetDirectivity(this Func<SpaceAngle, Complex> F, Action<double>? Complite = null) =>
-        GetDirectivity((th, phi) => F(new SpaceAngle(th, phi)), Complite);
+        GetDirectivity((th, phi) => F(new(th, phi)), Complite);
 
     public static double GetDirectivity(this Func<double, double, Complex> F, Action<double>? Complite = null)
     {
@@ -202,7 +183,7 @@ public static class BeamPatternExtensions
     }
 
     public static double GetDirectivityBuffered(this Func<SpaceAngle, Complex> F, Action<double>? Complite = null) =>
-        GetDirectivityBuffered((th, phi) => F(new SpaceAngle(th, phi)), Complite);
+        GetDirectivityBuffered((th, phi) => F(new(th, phi)), Complite);
 
     public static double GetDirectivityBuffered(this Func<double, double, Complex> F, Action<double>? Complite = null)
     {
@@ -214,7 +195,7 @@ public static class BeamPatternExtensions
         var f = Complite != null
             ? (Func<double, double>)(p =>
             {
-                var b = buffer.GetValueOrAddNew(p, () => new Dictionary<double, double>(360));
+                var b = buffer.GetValueOrAddNew(p, () => new(360));
                 i_p++;
                 Func<double, double> f0 = t => b.GetValueOrAddNew(t, th => F(th, p).Power * Math.Sin(th));
                 var                  I1 = f0.GetIntegralValue(0, Consts.pi, Consts.pi / N_t);
@@ -223,7 +204,7 @@ public static class BeamPatternExtensions
             })
             : p =>
             {
-                var                  b  = buffer.GetValueOrAddNew(p, () => new Dictionary<double, double>(360));
+                var                  b  = buffer.GetValueOrAddNew(p, () => new(360));
                 Func<double, double> f0 = t => b.GetValueOrAddNew(t, th => F(th, p).Power * Math.Sin(th));
                 return f0.GetIntegralValue(0, Consts.pi, Consts.pi / N_t);
             };

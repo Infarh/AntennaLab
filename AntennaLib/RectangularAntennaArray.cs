@@ -30,7 +30,7 @@ public class RectangularAntennaArray : AntennaArray
                 var x = ix * dx - x0;
                 var y = iy * dy - y0;
                 var k = Distribution(x, y);
-                yield return new AntennaItem(Element, new(x, y), angle, k);
+                yield return new(Element, new(x, y), angle, k);
             }
     }
 

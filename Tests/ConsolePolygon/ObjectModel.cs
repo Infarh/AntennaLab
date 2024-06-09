@@ -69,14 +69,14 @@ internal class ObjectModel
         double Radius,
         Vector3D Position = new(),
         Vector3D Speed = new(),
-        Vector3D Axeleration = new()
+        Vector3D Acceleration = new()
     )
     {
         _Mass             = Mass;
         _Radius           = Radius;
         _LastPosition     = _Position     = Position;
         _LastSpeed        = _Speed        = Speed;
-        _LastAcceleration = _Acceleration = Axeleration;
+        _LastAcceleration = _Acceleration = Acceleration;
     }
 
     public void CheckPosition(double dt, Vector3D Force)

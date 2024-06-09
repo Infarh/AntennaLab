@@ -19,7 +19,7 @@ internal static class ParticleSwarmTest
 }
 
 /// <summary>Рой двумерных частиц</summary>
-public class Swarm2D
+public class Swarm2D(int ParticleCount = 100)
 {
     /// <summary>Вес инерции</summary>
     [Hyperlink("http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=00870279")]
@@ -32,14 +32,20 @@ public class Swarm2D
     private const double c2 = 1.49445; // social/global weight
 
     /// <summary>Частица</summary>
-    private class Particle2D
+    private class Particle2D(
+        double X,
+        double Y,
+        double Value,
+        double BestX,
+        double BestY,
+        double BestValue)
     {
-        public double BestValue;
-        public double BestX;
-        public double BestY;
-        public double Value;
-        public double X;
-        public double Y;
+        public double BestValue = BestValue;
+        public double BestX = BestX;
+        public double BestY = BestY;
+        public double Value = Value;
+        public double X = X;
+        public double Y = Y;
 
         public Particle2D(Func<double, double, double> Function, Interval IntervalX, Interval IntervalY)
             : this(Function, IntervalX.RandomValue, IntervalY.RandomValue) { }
@@ -48,30 +54,12 @@ public class Swarm2D
             : this(X, Y, Function(X, Y)) { }
 
         public Particle2D(double X, double Y, double Value) : this(X, Y, Value, X, Y, Value) { }
-
-        public Particle2D(
-            double X,
-            double Y,
-            double Value,
-            double BestX,
-            double BestY,
-            double BestValue)
-        {
-            this.X         = X;
-            this.Y         = Y;
-            this.Value     = Value;
-            this.BestX     = BestX;
-            this.BestY     = BestY;
-            this.BestValue = BestValue;
-        }
     }
 
-    private static readonly Random sf_Random = new();
+    private static readonly Random __Random = new();
 
     /// <summary>Размер роя</summary>
-    private readonly int f_ParticleCount;
-
-    public Swarm2D(int ParticleCount = 100) { f_ParticleCount = ParticleCount; }
+    private readonly int _ParticleCount = ParticleCount;
 
     public void Minimize(
         Func<double, double, double> func,
@@ -86,8 +74,8 @@ public class Swarm2D
     {
         Minimize(
             func,
-            new Interval(minX, maxX),
-            new Interval(minY, maxY),
+            new(minX, maxX),
+            new(minY, maxY),
             IterationCount,
             out X,
             out Y,
@@ -103,7 +91,7 @@ public class Swarm2D
         out double Y,
         out double Value)
     {
-        var swarm = new Particle2D[f_ParticleCount].Initialize(i => new Particle2D(func, IntervalX, IntervalY));
+        var swarm = new Particle2D[_ParticleCount].Initialize(i => new(func, IntervalX, IntervalY));
         var start = swarm.GetMin(p => p.Value);
         X     = start.X;
         Y     = start.Y;
@@ -112,16 +100,16 @@ public class Swarm2D
         for (var iteration = 0; iteration < IterationCount; iteration++)
             foreach (var p in swarm)
             {
-                var r1 = sf_Random.NextDouble();
-                var r2 = sf_Random.NextDouble();
+                var r1 = __Random.NextDouble();
+                var r2 = __Random.NextDouble();
 
-                var newVx = (w * p.X) + (c1 * r1 * (p.BestX - p.X)) + (c2 * r2 * (X - p.X));
+                var newVx = w * p.X + c1 * r1 * (p.BestX - p.X) + c2 * r2 * (X - p.X);
                 IntervalX.Normalize(ref newVx);
 
-                r1 = sf_Random.NextDouble();
-                r2 = sf_Random.NextDouble();
+                r1 = __Random.NextDouble();
+                r2 = __Random.NextDouble();
 
-                var newVy = (w * p.Y) + (c1 * r1 * (p.BestY - p.Y)) + (c2 * r2 * (Y - p.Y));
+                var newVy = w * p.Y + c1 * r1 * (p.BestY - p.Y) + c2 * r2 * (Y - p.Y);
                 IntervalY.Normalize(ref newVy);
 
                 var newX = IntervalX.Normalize(p.X + newVx);
@@ -157,8 +145,8 @@ public class Swarm2D
     {
         Maximize(
             func,
-            new Interval(minX, maxX),
-            new Interval(minY, maxY),
+            new(minX, maxX),
+            new(minY, maxY),
             IterationCount,
             out X,
             out Y,
@@ -174,7 +162,7 @@ public class Swarm2D
         out double Y,
         out double Value)
     {
-        var swarm = new Particle2D[f_ParticleCount].Initialize(i => new Particle2D(func, IntervalX, IntervalY));
+        var swarm = new Particle2D[_ParticleCount].Initialize(i => new(func, IntervalX, IntervalY));
         var start = swarm.GetMax(p => p.Value);
         X     = start.X;
         Y     = start.Y;
@@ -183,16 +171,16 @@ public class Swarm2D
         for (var iteration = 0; iteration < IterationCount; iteration++)
             foreach (var p in swarm)
             {
-                var r1 = sf_Random.NextDouble();
-                var r2 = sf_Random.NextDouble();
+                var r1 = __Random.NextDouble();
+                var r2 = __Random.NextDouble();
 
-                var newVx = (w * p.X) + (c1 * r1 * (p.BestX - p.X)) + (c2 * r2 * (X - p.X));
+                var newVx = w * p.X + c1 * r1 * (p.BestX - p.X) + c2 * r2 * (X - p.X);
                 IntervalX.Normalize(ref newVx);
 
-                r1 = sf_Random.NextDouble();
-                r2 = sf_Random.NextDouble();
+                r1 = __Random.NextDouble();
+                r2 = __Random.NextDouble();
 
-                var newVy = (w * p.Y) + (c1 * r1 * (p.BestY - p.Y)) + (c2 * r2 * (Y - p.Y));
+                var newVy = w * p.Y + c1 * r1 * (p.BestY - p.Y) + c2 * r2 * (Y - p.Y);
                 IntervalY.Normalize(ref newVy);
 
                 var newX = IntervalX.Normalize(p.X + newVx);
@@ -216,18 +204,18 @@ public class Swarm2D
     }
 }
 
-public class Swarm1D
+public class Swarm1D(int ParticleCount = 100)
 {
     private const double w = 0.729;    // inertia weight. see http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=00870279
     private const double c1 = 1.49445; // cognitive/local weight
     private const double c2 = 1.49445; // social/global weight
 
-    private class Particle1D
+    private class Particle1D(double X, double Value, double BestX, double BestValue)
     {
-        public double BestValue;
-        public double BestX;
-        public double Value;
-        public double X;
+        public double BestValue = BestValue;
+        public double BestX = BestX;
+        public double Value = Value;
+        public double X = X;
 
         public Particle1D(Func<double, double> Function, Interval IntervalX)
             : this(Function, IntervalX.RandomValue) { }
@@ -236,21 +224,9 @@ public class Swarm1D
             : this(X, Function(X)) { }
 
         public Particle1D(double X, double Value) : this(X, Value, X, Value) { }
-
-        public Particle1D(double X, double Value, double BestX, double BestValue)
-        {
-            this.X         = X;
-            this.Value     = Value;
-            this.BestX     = BestX;
-            this.BestValue = BestValue;
-        }
     }
 
-    private static readonly Random sf_Random = new();
-
-    private readonly int f_ParticleCount;
-
-    public Swarm1D(int ParticleCount = 100) { f_ParticleCount = ParticleCount; }
+    private static readonly Random __Random = new();
 
     public void Minimize(
         Func<double, double> func,
@@ -260,7 +236,7 @@ public class Swarm1D
         out double X,
         out double Value)
     {
-        Minimize(func, new Interval(minX, maxX), IterationCount, out X, out Value);
+        Minimize(func, new(minX, maxX), IterationCount, out X, out Value);
     }
 
     public void Minimize(
@@ -270,7 +246,7 @@ public class Swarm1D
         out double X,
         out double Value)
     {
-        var swarm = new Particle1D[f_ParticleCount].Initialize(i => new Particle1D(func, IntervalX));
+        var swarm = new Particle1D[ParticleCount].Initialize(i => new(func, IntervalX));
         var start = swarm.GetMin(p => p.Value);
         X     = start.X;
         Value = start.Value;
@@ -278,10 +254,10 @@ public class Swarm1D
         for (var iteration = 0; iteration < IterationCount; iteration++)
             foreach (var p in swarm)
             {
-                var r1 = sf_Random.NextDouble();
-                var r2 = sf_Random.NextDouble();
+                var r1 = __Random.NextDouble();
+                var r2 = __Random.NextDouble();
 
-                var newVx = (w * p.X) + (c1 * r1 * (p.BestX - p.X)) + (c2 * r2 * (X - p.X));
+                var newVx = w * p.X + c1 * r1 * (p.BestX - p.X) + c2 * r2 * (X - p.X);
                 IntervalX.Normalize(ref newVx);
 
                 var newX = IntervalX.Normalize(p.X + newVx);
@@ -308,7 +284,7 @@ public class Swarm1D
         out double X,
         out double Value)
     {
-        Maximize(func, new Interval(minX, maxX), IterationCount, out X, out Value);
+        Maximize(func, new(minX, maxX), IterationCount, out X, out Value);
     }
 
     public void Maximize(
@@ -318,7 +294,7 @@ public class Swarm1D
         out double X,
         out double Value)
     {
-        var swarm = new Particle1D[f_ParticleCount].Initialize(i => new Particle1D(func, IntervalX));
+        var swarm = new Particle1D[ParticleCount].Initialize(i => new(func, IntervalX));
         var start = swarm.GetMax(p => p.Value);
         X     = start.X;
         Value = start.Value;
@@ -326,10 +302,10 @@ public class Swarm1D
         for (var iteration = 0; iteration < IterationCount; iteration++)
             foreach (var p in swarm)
             {
-                var r1 = sf_Random.NextDouble();
-                var r2 = sf_Random.NextDouble();
+                var r1 = __Random.NextDouble();
+                var r2 = __Random.NextDouble();
 
-                var newVx = (w * p.X) + (c1 * r1 * (p.BestX - p.X)) + (c2 * r2 * (X - p.X));
+                var newVx = w * p.X + c1 * r1 * (p.BestX - p.X) + c2 * r2 * (X - p.X);
                 IntervalX.Normalize(ref newVx);
 
                 var newX = IntervalX.Normalize(p.X + newVx);
@@ -349,18 +325,18 @@ public class Swarm1D
     }
 }
 
-public class Swarm
+public class Swarm(int ParticleCount = 100)
 {
     private const double w = 0.729;    // inertia weight. see http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=00870279
     private const double c1 = 1.49445; // cognitive/local weight
     private const double c2 = 1.49445; // social/global weight
 
-    private class Particle
+    private class Particle(double[] X, double Value, double[] BestX, double BestValue)
     {
-        public double BestValue;
-        public double[] BestX;
-        public double Value;
-        public double[] X;
+        public double BestValue = BestValue;
+        public double[] BestX = BestX;
+        public double Value = Value;
+        public double[] X = X;
 
         public Particle(Func<double[], double> Function, Interval[] IntervalX)
             : this(Function, IntervalX.Select(i => i.RandomValue).ToArray()) { }
@@ -369,21 +345,9 @@ public class Swarm
             : this(X, Function(X)) { }
 
         public Particle(double[] X, double Value) : this(X, Value, X, Value) { }
-
-        public Particle(double[] X, double Value, double[] BestX, double BestValue)
-        {
-            this.X         = X;
-            this.Value     = Value;
-            this.BestX     = BestX;
-            this.BestValue = BestValue;
-        }
     }
 
-    private static readonly Random sf_Random = new();
-
-    private readonly int f_ParticleCount;
-
-    public Swarm(int ParticleCount = 100) { f_ParticleCount = ParticleCount; }
+    private static readonly Random __Random = new();
 
     public void Minimize(
         Func<double[], double> func,
@@ -410,7 +374,7 @@ public class Swarm
     {
         var IntervalVx = new Interval[IntervalX.Length].Initialize(i => IntervalX[i]);
 
-        var swarm = new Particle[f_ParticleCount].Initialize(i => new Particle(func, IntervalX));
+        var swarm = new Particle[ParticleCount].Initialize(i => new(func, IntervalX));
         var start = swarm.GetMin(p => p.Value);
         X     = start.X;
         Value = start.Value;
@@ -418,13 +382,13 @@ public class Swarm
         for (var iteration = 0; iteration < IterationCount; iteration++)
             foreach (var p in swarm)
             {
-                var r1 = sf_Random.NextDouble();
-                var r2 = sf_Random.NextDouble();
+                var r1 = __Random.NextDouble();
+                var r2 = __Random.NextDouble();
 
                 var newVx = p.X.Zip(p.BestX, (x, BestX) => new { x, BestX })
                    .Zip(X, (v, GlobalBestX) => new { v.x, v.BestX, GlobalBestX })
                    .Zip(IntervalVx, (v, I) => new { v.x, v.BestX, v.GlobalBestX, I })
-                   .Select(v => new { value = (w * v.x) + (c1 * r1 * (v.BestX - v.x)) + (c2 * r2 * (v.GlobalBestX - v.x)), v.I })
+                   .Select(v => new { value = w * v.x + c1 * r1 * (v.BestX - v.x) + c2 * r2 * (v.GlobalBestX - v.x), v.I })
                    .Select(v => v.I.Normalize(v.value))
                    .ToArray();
 
@@ -471,7 +435,7 @@ public class Swarm
     {
         var IntervalVx = new Interval[IntervalX.Length].Initialize(i => IntervalX[i]);
 
-        var swarm = new Particle[f_ParticleCount].Initialize(i => new Particle(func, IntervalX));
+        var swarm = new Particle[ParticleCount].Initialize(i => new(func, IntervalX));
         var start = swarm.GetMax(p => p.Value);
         X     = start.X;
         Value = start.Value;
@@ -479,13 +443,13 @@ public class Swarm
         for (var iteration = 0; iteration < IterationCount; iteration++)
             foreach (var p in swarm)
             {
-                var r1 = sf_Random.NextDouble();
-                var r2 = sf_Random.NextDouble();
+                var r1 = __Random.NextDouble();
+                var r2 = __Random.NextDouble();
 
                 var newVx = p.X.Zip(p.BestX, (x, BestX) => new { x, BestX })
                    .Zip(X, (v, GlobalBestX) => new { v.x, v.BestX, GlobalBestX })
                    .Zip(IntervalVx, (v, I) => new { v.x, v.BestX, v.GlobalBestX, I })
-                   .Select(v => new { value = (w * v.x) + (c1 * r1 * (v.BestX - v.x)) + (c2 * r2 * (v.GlobalBestX - v.x)), v.I })
+                   .Select(v => new { value = w * v.x + c1 * r1 * (v.BestX - v.x) + c2 * r2 * (v.GlobalBestX - v.x), v.I })
                    .Select(v => v.I.Normalize(v.value))
                    .ToArray();
 

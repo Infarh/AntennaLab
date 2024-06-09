@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using MathCore;
 using static System.Math;
 
 namespace ArrayFactor.Service.Shapes;
@@ -27,7 +28,7 @@ internal class Arc : Shape
 
     protected override Geometry DefiningGeometry => GetArcGeometry();
 
-    protected override void OnRender(DrawingContext d) => d.DrawGeometry(null, new Pen(Stroke, StrokeThickness), GetArcGeometry());
+    protected override void OnRender(DrawingContext d) => d.DrawGeometry(null, new(Stroke, StrokeThickness), GetArcGeometry());
 
     private Geometry GetArcGeometry()
     {
@@ -51,5 +52,5 @@ internal class Arc : Shape
         return geometry;
     }
 
-    private Point PointAt(double angle) => new((RenderSize.Width - StrokeThickness) / 2 * (1 + Cos(angle * (PI / 180))), (RenderSize.Height - StrokeThickness) / 2 * (1 - Sin(angle * (PI / 180))));
+    private Point PointAt(double angle) => new((RenderSize.Width - StrokeThickness) / 2 * (1 + Cos(angle * Consts.ToRad)), (RenderSize.Height - StrokeThickness) / 2 * (1 - Sin(angle * Consts.ToRad)));
 }

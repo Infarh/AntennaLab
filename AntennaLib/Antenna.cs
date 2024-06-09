@@ -14,10 +14,10 @@ public abstract class Antenna : ViewModel, IAntenna
     /// <param name="Phi">Угол азимута</param>
     /// <param name="f">Частота</param>
     /// <returns>Значение диаграммы направленности в указанном направлении</returns>
-    public Complex Pattern(double Theta, double Phi, double f) => Pattern(new SpaceAngle(Theta, Phi), f);
+    public Complex Pattern(double Theta, double Phi, double f) => Pattern(new(Theta, Phi), f);
 
     /// <summary>Диаграмма направленности</summary>
-    /// <param name="Direction">пространственное направление</param>
+    /// <param name="Direction">Пространственное направление</param>
     /// <param name="f">Частота</param>
     /// <returns>Значение диаграммы направленности в указанном направлении</returns>
     public abstract Complex Pattern(SpaceAngle Direction, double f);
@@ -30,25 +30,25 @@ public abstract class Antenna : ViewModel, IAntenna
     /// <summary>Получение функции диаграммы направленности в зависимости от меридионального угла</summary>
     /// <param name="Phi">Фиксируемый азимутальный</param>
     /// <returns>Значение диаграммы направленности в меридиональных углах</returns>
-    public Func<double, double, Complex> GetPatternOfTheta(double Phi = 0) => (Theta, f) => Pattern(new SpaceAngle(Theta, Phi), f);
+    public Func<double, double, Complex> GetPatternOfTheta(double Phi = 0) => (Theta, f) => Pattern(new(Theta, Phi), f);
 
     /// <summary>Получение функции диаграммы направленности в зависимости от меридионального угла на частоте</summary>
     /// <param name="f">Частота</param>
     /// <param name="Phi">Азимутальный угол</param>
     /// <returns>Значение диаграммы направленности в меридиональных углах на частоте f</returns>
-    public Func<double, Complex> GetPatternOfThetaOnFreq(double f, double Phi = 0) => Theta => Pattern(new SpaceAngle(Theta, Phi), f);
+    public Func<double, Complex> GetPatternOfThetaOnFreq(double f, double Phi = 0) => Theta => Pattern(new(Theta, Phi), f);
 
 
     /// <summary>Получение функции диаграммы направленности в зависимости от угла места на частоте</summary>
     /// <param name="Theta">Угол места</param>
     /// <returns>Значение диаграммы направленности в меридиональных углах на частоте f</returns>
-    public Func<double, double, Complex> GetPatternOfPhi(double Theta = 0) => (Phi, f) => Pattern(new SpaceAngle(Theta, Phi), f);
+    public Func<double, double, Complex> GetPatternOfPhi(double Theta = 0) => (Phi, f) => Pattern(new(Theta, Phi), f);
 
     /// <summary>Получение функции диаграммы направленности в зависимости от угла места на частоте</summary>
     /// <param name="f">Частота</param>
     /// <param name="Theta">Угол места</param>
     /// <returns>Значение диаграммы направленности в меридиональных углах на частоте f</returns>
-    public Func<double, Complex> GetPatternOfPhiOnFreq(double f, double Theta = 0) => Phi => Pattern(new SpaceAngle(Theta, Phi), f);
+    public Func<double, Complex> GetPatternOfPhiOnFreq(double f, double Theta = 0) => Phi => Pattern(new(Theta, Phi), f);
 
     /// <summary>Метод получения тела выражения функции диаграммы направленности для переопределения в классах-наследниках</summary>
     /// <param name="a">Выражение параметра угла</param>

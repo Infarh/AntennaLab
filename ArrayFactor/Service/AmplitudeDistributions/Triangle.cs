@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ArrayFactor.Service.AmplitudeDistributions;
+﻿namespace ArrayFactor.Service.AmplitudeDistributions;
 
 /// <summary>Треугольное распределение</summary>
 public class Triangle : Distribution

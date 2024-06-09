@@ -1,14 +1,12 @@
-﻿using System;
-using MathCore.Values;
+﻿using MathCore.Values;
 // ReSharper disable EventNeverSubscribedTo.Global
 
 namespace ArrayFactor;
 
 public class ProgressInfo : Progress<double>
 {
-    private DateTime _LastTime = DateTime.Now;
-    private const int c_AverageSpeedCount = 100;
-    private AverageValue _AverageSpeed = new(c_AverageSpeedCount);
+    private const int __AverageSpeedCount = 100;
+    private readonly AverageValue _AverageSpeed = new(__AverageSpeedCount);
 
     public double Value { get; private set; }
 
@@ -17,8 +15,8 @@ public class ProgressInfo : Progress<double>
     public bool InProgress { get; private set; }
     public event EventHandler? InProgressChanged;
 
-    public bool Complited { get; private set; }
-    public event EventHandler? ComplitedChanged;
+    public bool Completed { get; private set; }
+    public event EventHandler? CompletedChanged;
 
     public DateTime Started { get; private set; }
     public event EventHandler? StartedChanged;
@@ -49,25 +47,24 @@ public class ProgressInfo : Progress<double>
             {
                 InProgress = false;
                 InProgressChanged?.Invoke(this, EventArgs.Empty);
-                Complited = true;
-                ComplitedChanged?.Invoke(this, EventArgs.Empty);
+                Completed = true;
+                CompletedChanged?.Invoke(this, EventArgs.Empty);
             }
         }
         else if (value is > 0 and < 1)
         {
-            Complited = false;
-            ComplitedChanged?.Invoke(this, EventArgs.Empty);
+            Completed = false;
+            CompletedChanged?.Invoke(this, EventArgs.Empty);
             InProgress = true;
             InProgressChanged?.Invoke(this, EventArgs.Empty);
             Started = now;
             StartedChanged?.Invoke(this, EventArgs.Empty);
-            _LastTime = now;
             _AverageSpeed.Reset();
         }
+
         Value = value;
         ValueChanged?.Invoke(this, EventArgs.Empty);
 
-        _LastTime = now;
         var elapsed = now - Started;
         Elapsed = elapsed;
         ElapsedChanged?.Invoke(this, EventArgs.Empty);

@@ -4,25 +4,18 @@ using MathCore;
 
 namespace ConsolePolygon;
 
-internal class Model
+internal class Model(double Lambda = 30 * 0.01, int N = 32, double Theta0Max = 0)
 {
-    public double Lambda0 { get; set; }
+    public double Lambda0 { get; set; } = Lambda;
     public double f0 { get => Consts.SpeedOfLight / Lambda0; set => Lambda0 = Consts.SpeedOfLight / value; }
     public double k0 => Consts.pi2 / Lambda0;
-    public int N { get; set; }
+    public int N { get; set; } = N;
 
-    public double ThetaMax { get; set; }
+    public double ThetaMax { get; set; } = Theta0Max;
     public double d0 => Lambda0 / (1 + Math.Abs(Math.Sin(ThetaMax)));
     public double L => d0 * (N - 1);
     public double Theta07_deg => 51 * Lambda0 / L / 2;
     public double Theta07_rad => 0.89012 * Lambda0 / L / 2;
-
-    public Model(double Lambda = 30 * 0.01, int N = 32, double Theta0Max = 0)
-    {
-        Lambda0  = Lambda;
-        this.N   = N;
-        ThetaMax = Theta0Max;
-    }
 
     public AntennaArray GetArray() => new LinearAntennaArray(N, d0);
 

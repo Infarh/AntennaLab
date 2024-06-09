@@ -11,10 +11,7 @@ public static class AntennaExtensions
         var th = Min(th1, th2);
         th2 = Max(th1, th2);
         dth = Abs(dth);
-        do
-        {
-            yield return th;
-        } while ((th += dth) < th2);
+        do yield return th; while ((th += dth) < th2);
         yield return th2;
     }
 
@@ -72,7 +69,7 @@ public static class AntennaExtensions
         {
             var pattern_value = new PatternValue(th, antenna.Pattern(th, phi, f));
             result[i] = pattern_value;
-            Progress?.Report(new PatternCalculationTaskProgressInfo((double)i / len, pattern_value));
+            Progress?.Report(new((double)i / len, pattern_value));
         }
         Cancel.ThrowIfCancellationRequested();
         return result;

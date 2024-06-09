@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MathCore.Vectors;
+﻿using MathCore.Vectors;
 using MathCore.WPF.ViewModels;
 
 namespace ArrayFactor.Service.AmplitudeDistributions;
@@ -22,7 +19,7 @@ public abstract class Distribution : ViewModel
 
     private static IEnumerable<double> GetX(double dx, double x1, double x2)
     {
-        if (dx.Equals(0d)) throw new ArgumentException(@"Шаг должен быть отличен от нуля", nameof(dx));
+        if (dx.Equals(0d)) throw new ArgumentException("Шаг должен быть отличен от нуля", nameof(dx));
         if (x1.Equals(x2)) throw new InvalidOperationException("Интервал нулевой длины");
         var x = Math.Min(x1, x2);
         dx = Math.Abs(dx);
@@ -44,15 +41,9 @@ public abstract class Distribution : ViewModel
        .ToArray();
 }
 
-public readonly struct DistributionValue
+public readonly struct DistributionValue(double x, double a)
 {
-    public double X { get; }
-    public double A { get; }
+    public double X { get; } = x;
+    public double A { get; } = a;
     public double Adb => 20 * Math.Log10(Math.Abs(A));
-
-    public DistributionValue(double x, double a)
-    {
-        X = x;
-        A = a;
-    }
 }

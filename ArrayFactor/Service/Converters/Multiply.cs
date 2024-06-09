@@ -1,18 +1,15 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
 
 namespace ArrayFactor.Service.Converters;
 
 [ValueConversion(typeof(double), typeof(double))]
-internal class Multiply : MarkupExtension, IValueConverter
+internal class Multiply(double k) : MarkupExtension, IValueConverter
 {
-    public double K { get; set; }
+    public Multiply() : this(1) { }
 
-    public Multiply() => K = 1;
-
-    public Multiply(double k) => K = k;
+    public double K { get; set; } = k;
 
     public override object? ProvideValue(IServiceProvider sp) => this;
 

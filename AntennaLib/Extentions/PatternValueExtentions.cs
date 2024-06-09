@@ -20,7 +20,7 @@ public static class PatternValueExtensions
             out var right_sll, out var right_sll_index,
             out var ssl, out var left_mean_sll, out var right_mean_sll, out var mean_sll
         );
-        return new AnalysePatternResult(max, max_index, max_angle, d0,
+        return new(max, max_index, max_angle, d0,
             th07_left_index, th07_right_index, th07_left, th07_right,
             th0_left_index, th0_right_index, th0_left, th0_right,
             left_ssl, left_sll_index, right_sll, right_sll_index,
@@ -39,9 +39,9 @@ public static class PatternValueExtensions
     /// <param name="th0_left_index">Индекс левой границы луча по "нулю" ДН</param>
     /// <param name="th0_right_index">Индекс правой границы луча по "нулю" ДН</param>
     /// <param name="LeftSLL">УБЛ левой части ДН</param>
-    /// <param name="LeftSLLIndex">Индекс максимального боковоего лепестка левой части ДН</param>
+    /// <param name="LeftSLLIndex">Индекс максимального бокового лепестка левой части ДН</param>
     /// <param name="RightSLL">УБЛ правой части ДН</param>
-    /// <param name="RightSLLIndex">Индекс максимального боковоего лепестка правой части ДН</param>
+    /// <param name="RightSLLIndex">Индекс максимального бокового лепестка правой части ДН</param>
     /// <param name="SLL">Общий УБЛ ДН</param>
     /// <param name="LeftMeanSLL">Средний УБЛ левой части ДН</param>
     /// <param name="RightMeanSLL">Средний УБЛ правой части ДН</param>
@@ -334,62 +334,46 @@ public static class PatternValueExtensions
     }
 }
 
-public struct AnalysePatternResult
+public struct AnalysePatternResult(
+    double Max,
+    int MaxIndex,
+    double MaxAngle,
+    double D0,
+    int Th07LeftIndex,
+    int Th07RightIndex,
+    double Th07Left,
+    double Th07Right,
+    int Th0LeftIndex,
+    int Th0RightIndex,
+    double Th0Left,
+    double Th0Right,
+    double LeftSsl,
+    int LeftSLLIndex,
+    double RightSLL,
+    int RightSLLIndex,
+    double Ssl,
+    double LeftMeanSLL,
+    double RightMeanSLL,
+    double MeanSLL)
 {
-    public readonly double Max;
-    public readonly int MaxIndex;
-    public readonly double MaxAngle;
-    public readonly double D0;
-    public readonly int Th07LeftIndex;
-    public readonly int Th07RightIndex;
-    public readonly double Th07Left;
-    public readonly double Th07Right;
-    public readonly int Th0LeftIndex;
-    public readonly int Th0RightIndex;
-    public readonly double Th0Left;
-    public readonly double Th0Right;
-    public readonly double LeftSsl;
-    public readonly int LeftSLLIndex;
-    public readonly double RightSLL;
-    public readonly int RightSLLIndex;
-    public readonly double SSL;
-    public readonly double LeftMeanSLL;
-    public readonly double RightMeanSLL;
-    public readonly double MeanSLL;
-
-    public AnalysePatternResult
-    (
-        double Max, int MaxIndex, double MaxAngle, double D0,
-        int Th07LeftIndex, int Th07RightIndex, double Th07Left, double Th07Right,
-        int Th0LeftIndex, int Th0RightIndex, double Th0Left, double Th0Right,
-        double LeftSsl,
-        int LeftSLLIndex,
-        double RightSLL,
-        int RightSLLIndex,
-        double Ssl,
-        double LeftMeanSLL,
-        double RightMeanSLL,
-        double MeanSLL)
-    {
-        this.Max            = Max;
-        this.MaxIndex       = MaxIndex;
-        this.MaxAngle       = MaxAngle;
-        this.D0             = D0;
-        this.Th07LeftIndex  = Th07LeftIndex;
-        this.Th07RightIndex = Th07RightIndex;
-        this.Th07Left       = Th07Left;
-        this.Th07Right      = Th07Right;
-        this.Th0LeftIndex   = Th0LeftIndex;
-        this.Th0RightIndex  = Th0RightIndex;
-        this.Th0Left        = Th0Left;
-        this.Th0Right       = Th0Right;
-        this.LeftSsl        = LeftSsl;
-        this.LeftSLLIndex   = LeftSLLIndex;
-        this.RightSLL       = RightSLL;
-        this.RightSLLIndex  = RightSLLIndex;
-        this.SSL            = Ssl;
-        this.LeftMeanSLL    = LeftMeanSLL;
-        this.RightMeanSLL   = RightMeanSLL;
-        this.MeanSLL        = MeanSLL;
-    }
+    public readonly double Max = Max;
+    public readonly int MaxIndex = MaxIndex;
+    public readonly double MaxAngle = MaxAngle;
+    public readonly double D0 = D0;
+    public readonly int Th07LeftIndex = Th07LeftIndex;
+    public readonly int Th07RightIndex = Th07RightIndex;
+    public readonly double Th07Left = Th07Left;
+    public readonly double Th07Right = Th07Right;
+    public readonly int Th0LeftIndex = Th0LeftIndex;
+    public readonly int Th0RightIndex = Th0RightIndex;
+    public readonly double Th0Left = Th0Left;
+    public readonly double Th0Right = Th0Right;
+    public readonly double LeftSsl = LeftSsl;
+    public readonly int LeftSLLIndex = LeftSLLIndex;
+    public readonly double RightSLL = RightSLL;
+    public readonly int RightSLLIndex = RightSLLIndex;
+    public readonly double SSL = Ssl;
+    public readonly double LeftMeanSLL = LeftMeanSLL;
+    public readonly double RightMeanSLL = RightMeanSLL;
+    public readonly double MeanSLL = MeanSLL;
 }
