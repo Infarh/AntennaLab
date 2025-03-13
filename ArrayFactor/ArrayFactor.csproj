@@ -1,14 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net9.0-windows</TargetFramework>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>img\Antenna.ico</ApplicationIcon>
     <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ExcludeFilesFromDeployment Include="cs\**;de\**;es\**;fr\**;it\**;ja\**;ko\**;pl\**;pt-BR\**;tr\**;zh-Hans\**;zh-Hant\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="img\Radar.png" />
@@ -23,14 +27,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathCore" Version="0.0.91.2" />
-    <PackageReference Include="MathCore.WPF" Version="0.0.45" />
+    <PackageReference Include="MathCore" Version="0.0.93.1" />
+    <PackageReference Include="MathCore.WPF" Version="0.0.48.1" />
     <PackageReference Include="OxyPlot.Contrib.Wpf" Version="2.1.2" />
-    <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
+    <PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />
   </ItemGroup>  
 
   <ItemGroup>
     <ProjectReference Include="..\AntennaLib\AntennaLib.csproj" />
   </ItemGroup>
+
+  <Target Name="RemoveUnwantedCultures" AfterTargets="Publish">
+    <ItemGroup>
+      <UnwantedCultures Include="cs;de;es;fr;it;ja;ko;pl;pt-BR;tr;zh-Hans;zh-Hant" />
+    </ItemGroup>
+    <Exec Command="for %%c in (@(UnwantedCultures)) do rmdir /s /q $(PublishDir)%%c" />
+  </Target>
 
 </Project>
