@@ -160,7 +160,7 @@ public class AntennaItem : Antenna
             angle_empty = empty = false;
         }
 
-        if (!empty && angle_empty) result.Append("]");
+        if (!empty && angle_empty) result.Append(']');
 
         return _K == 0 
             ? empty 

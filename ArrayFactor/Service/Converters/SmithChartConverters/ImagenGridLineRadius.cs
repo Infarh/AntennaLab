@@ -9,7 +9,7 @@ internal class ImagenGridLineRadius : MarkupExtension, IValueConverter
 {
     public override object? ProvideValue(IServiceProvider sp) => this;
 
-    public object? Convert(object? v, Type t, object? p, CultureInfo c) => 1 / (double)v;
+    public object? Convert(object? v, Type t, object? p, CultureInfo c) => 1 / (double)v!;
 
-    public object? ConvertBack(object? v, Type t, object? p, CultureInfo c) => 1 / (double)v;
+    public object? ConvertBack(object? v, Type t, object? p, CultureInfo c) => 1 / (double)v!;
 }
