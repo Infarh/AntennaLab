@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+
 using MathCore;
 using MathCore.Values;
 using MathCore.Vectors;
@@ -24,11 +25,11 @@ public class AntennaArray : Antenna, IList<AntennaItem>
     /// <returns>Антенная решётка с линейно размещёнными в пространстве антенными элементами</returns>
     public static AntennaArray CreateLinearArray(Antenna[] antennas, double step, Func<Vector3D, Complex>? A = null)
     {
-        var n   = antennas.Length;
+        var n = antennas.Length;
         var l05 = step * (n - 1) / 2;
         A ??= _ => 1;
         var items = antennas.Select((a, i) => new { a, v = new Vector3D(i * step - l05), o = new SpaceAngle() })
-           .Select(a => new { a.a, a.v, a.o, A           = A(a.v) })
+           .Select(a => new { a.a, a.v, a.o, A = A(a.v) })
            .Select(a => new AntennaItem(a.a, a.v, a.o, a.A))
            .ToArray();
 
@@ -42,13 +43,13 @@ public class AntennaArray : Antenna, IList<AntennaItem>
     /// <returns>Антенная решётка с размещением антенных элементов в плоскости XOY</returns>
     public static AntennaArray CreateFlatArray(Antenna[,] antennas, double dx, double dy)
     {
-        var nx    = antennas.GetLength(0);
-        var ny    = antennas.GetLength(1);
-        var lx05  = dx * (nx - 1);
-        var ly05  = dy * (ny - 1);
+        var nx = antennas.GetLength(0);
+        var ny = antennas.GetLength(1);
+        var lx05 = dx * (nx - 1);
+        var ly05 = dy * (ny - 1);
         var items = new AntennaItem[nx * ny];
-        for(int i = 0, ii = 0; i < nx; i++)
-            for(var j = 0; j < ny; j++)
+        for (int i = 0, ii = 0; i < nx; i++)
+            for (var j = 0; j < ny; j++)
                 items[ii++] = new(antennas[i, j], new(i * dx - lx05, j * dy - ly05), new(), 1);
         return new(items);
     }
@@ -79,7 +80,7 @@ public class AntennaArray : Antenna, IList<AntennaItem>
     /// <summary>Размер апертуры по оси OY</summary>
     public double L_y => _Items
         .Aggregate(
-            new MinMaxValue(), 
+            new MinMaxValue(),
             (I, i) =>
             {
                 I.AddValue(i.Location.Y);
@@ -94,7 +95,7 @@ public class AntennaArray : Antenna, IList<AntennaItem>
             {
                 I.AddValue(i.Location.Z);
                 return I;
-            }, 
+            },
             I => I.Interval.Length);
 
     /// <summary>Инициализация новой антенной решётки</summary>
@@ -114,7 +115,7 @@ public class AntennaArray : Antenna, IList<AntennaItem>
 
     public void SaveToFile(string FileName)
     {
-        var       info   = new FileInfo(FileName);
+        var info = new FileInfo(FileName);
         using var writer = info.CreateText();
         var title = new[]
         {
@@ -132,17 +133,17 @@ public class AntennaArray : Antenna, IList<AntennaItem>
         var elements = this as IEnumerable<AntennaItem>;
         elements.Select((e, i) => new { i, e.Location, Direction = e.Direction.InDeg, e.K, e.Element })
            .Select(e => new
-            {
-                e.i,
-                e.Location.X,
-                e.Location.Y,
-                e.Location.Z,
-                e.Direction.Theta,
-                e.Direction.Phi,
-                A       = e.K.Abs.In_dB(),
-                Phase   = e.K.Arg.ToDeg(),
-                Element = e.Element.GetType().Name
-            })
+           {
+               e.i,
+               e.Location.X,
+               e.Location.Y,
+               e.Location.Z,
+               e.Direction.Theta,
+               e.Direction.Phi,
+               A = e.K.Abs.In_dB(),
+               Phase = e.K.Arg.ToDeg(),
+               Element = e.Element.GetType().Name
+           })
            .Select(e => new object[] { e.i, e.X, e.Y, e.Z, e.Theta, e.Phi, e.A, e.Phase, e.Element })
            .Select(e => e.ToSeparatedStr("\t"))
            .Foreach(writer.WriteLine);
@@ -157,13 +158,13 @@ public class AntennaArray : Antenna, IList<AntennaItem>
     /// <param name="item">Объект, добавляемый в интерфейс <see cref="T:System.Collections.Generic.ICollection`1"/>.</param><exception cref="T:System.NotSupportedException">Объект <see cref="T:System.Collections.Generic.ICollection`1"/> доступен только для чтения.</exception>
     public virtual void Add(AntennaItem? item)
     {
-        if(ReferenceEquals(item?.Element, this))
+        if (ReferenceEquals(item?.Element, this))
             throw new ArgumentException(@"Произведена попытка добавить саму антенную решётку к себе в список антенных элементов", nameof(item));
 
         var new_items = new AntennaItem[_Items.Length + 1];
         Array.Copy(_Items, new_items, _Items.Length);
-        new_items[^1] = item;
-        _Items                          = new_items;
+        new_items[^1] = item!;
+        _Items = new_items;
     }
 
     /// <summary>Удаляет все элементы из интерфейса <see cref="T:System.Collections.Generic.ICollection`1"/>.</summary>
@@ -175,8 +176,8 @@ public class AntennaArray : Antenna, IList<AntennaItem>
 
     public virtual bool Remove(AntennaItem? item)
     {
-        var new_items      = _Items.ToList();
-        var result         = new_items.Remove(item);
+        var new_items = _Items.ToList();
+        var result = new_items.Remove(item!);
         if (result) _Items = [.. new_items];
         return result;
     }
@@ -191,7 +192,7 @@ public class AntennaArray : Antenna, IList<AntennaItem>
     /// <param name="index">Индекс (с нуля), по которому следует вставить параметр <paramref name="item"/>.</param><param name="item">Объект, вставляемый в <see cref="T:System.Collections.Generic.IList`1"/>.</param><exception cref="T:System.ArgumentOutOfRangeException">Значение параметра <paramref name="index"/> не является допустимым индексом в <see cref="T:System.Collections.Generic.IList`1"/>.</exception><exception cref="T:System.NotSupportedException">Объект <see cref="T:System.Collections.Generic.IList`1"/> доступен только для чтения.</exception>
     public void Insert(int index, AntennaItem? item)
     {
-        if(ReferenceEquals(item.Element, this) || Array.Exists(_Items, i => ReferenceEquals(i, item)))
+        if (ReferenceEquals(item!.Element, this) || Array.Exists(_Items, i => ReferenceEquals(i, item)))
             throw new InvalidOperationException();
         var items = _Items.ToList();
         items.Insert(index, item);
@@ -222,10 +223,10 @@ public class AntennaArray : Antenna, IList<AntennaItem>
     {
         collection = collection.ForeachLazy(i =>
         {
-            if(ReferenceEquals(i.Element, this))
+            if (ReferenceEquals(i.Element, this))
                 throw new ArgumentException(@"Произведена попытка добавить саму антенную решётку к себе в список антенных элементов", nameof(collection));
         });
-        var to_add    = collection.ToArray();
+        var to_add = collection.ToArray();
         var new_items = new AntennaItem[_Items.Length + to_add.Length];
         Array.Copy(_Items, new_items, _Items.Length);
         Array.Copy(to_add, 0, new_items, _Items.Length, new_items.Length);
@@ -239,7 +240,7 @@ public class AntennaArray : Antenna, IList<AntennaItem>
     public override Expression GetPatternExpressionBody(Expression a, Expression f) =>
         this
            .Select(i => i.GetPatternExpressionBody(a, f))
-           .Aggregate((x, y) => x is null ? y : Add(x, y));
+           .Aggregate((x, y) => x is null ? y : Add(x, y!))!;
 
     #endregion
 }

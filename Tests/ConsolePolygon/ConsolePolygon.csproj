@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathCore" Version="0.0.93.1" />
+    <PackageReference Include="MathCore" Version="0.0.93.2" />
   </ItemGroup>
 
   <ItemGroup>

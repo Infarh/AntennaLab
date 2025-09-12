@@ -14,7 +14,7 @@ internal class Add : MarkupExtension, IValueConverter
 
     public override object? ProvideValue(IServiceProvider sp) => this;
 
-    public object? Convert(object? v, Type t, object? p, CultureInfo c) => (double)v + B;
+    public object? Convert(object? v, Type t, object? p, CultureInfo c) => (double)v! + B;
 
-    public object? ConvertBack(object? v, Type t, object? p, CultureInfo c) => (double)v - B;
+    public object? ConvertBack(object? v, Type t, object? p, CultureInfo c) => (double)v! - B;
 }

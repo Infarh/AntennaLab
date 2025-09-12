@@ -69,7 +69,7 @@ internal class MainWindowModel : ViewModel
     private Distribution? _Distribution;
 
     /// <summary>Функция амплитудного распределения</summary>
-    private Func<double, double, double> _A;
+    private Func<double, double, double> _A = null!;
 
     /// <summary>Шаг расчёта ДН решётки</summary>
     private double _dθ = 1;
@@ -114,10 +114,10 @@ internal class MainWindowModel : ViewModel
     private double _BeamRightAdge07 = double.NaN;
 
     /// <summary>Массив значений ДН антенной решётки</summary>
-    private PatternValue[] _BeamData;
+    private PatternValue[] _BeamData = null!;
 
     /// <summary>Массив значений ДН элемента антенной решётки</summary>
-    private PatternValue[] _Beam0Data;
+    private PatternValue[] _Beam0Data = null!;
 
     /// <summary>Источник признаков отмены асинхронной операции расчёта ДН антенной решётки</summary>
     private CancellationTokenSource? _ComputePatternCancellationTokenSource;
@@ -166,7 +166,7 @@ internal class MainWindowModel : ViewModel
             if (_Distribution != null) _Distribution.PropertyChanged -= OnDistributionPropertyChanged;
             _Distribution = value;
             if (_Distribution != null) _Distribution.PropertyChanged += OnDistributionPropertyChanged;
-            _A = (x, y) => _Distribution.Value(x, y, 0);
+            _A = (x, y) => _Distribution!.Value(x, y, 0);
             OnPropertyChanged();
         }
     }
@@ -219,10 +219,10 @@ internal class MainWindowModel : ViewModel
     public double BeamRightAdge07 { get => _BeamRightAdge07; private set => Set(ref _BeamRightAdge07, value); }
 
     /// <summary>Массив значений ДН решётки</summary>
-    public PatternValue[] BeamData { get => _BeamData; private set => Set(ref _BeamData, value, b => b != null); }
+    public PatternValue[] BeamData { get => _BeamData; private set => Set(ref _BeamData!, value, b => b != null); }
 
     /// <summary>Массив значений ДН антенного элемента</summary>
-    public PatternValue[] Beam0Data { get => _Beam0Data; private set => Set(ref _Beam0Data, value); }
+    public PatternValue[] Beam0Data { get => _Beam0Data; private set => Set(ref _Beam0Data!, value); }
 
     /// <summary>Азимутальный угол расчёта ДН</summary>
     [ChangedHandler(nameof(SetDestribution))]

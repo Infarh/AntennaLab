@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+
 using MathCore;
 using MathCore.Extensions.Expressions;
 using MathCore.Vectors;
@@ -28,11 +29,11 @@ public class AntennaItem : Antenna
         get => _Element;
         set
         {
-            if(Equals(_Element, value)) return;
+            if (Equals(_Element, value)) return;
             {
                 if (_Element is INotifyPropertyChanged property_changed_obj)
                     property_changed_obj.PropertyChanged -= OnElementPropertyChanged;
-            }   
+            }
             _Element = value;
             {
                 if (value is INotifyPropertyChanged property_changed_obj)
@@ -42,7 +43,7 @@ public class AntennaItem : Antenna
         }
     }
 
-    private void OnElementPropertyChanged(object? sender, PropertyChangedEventArgs args) => OnPropertyChanged(nameof(Element)); 
+    private void OnElementPropertyChanged(object? sender, PropertyChangedEventArgs args) => OnPropertyChanged(nameof(Element));
 
     /// <summary>Вектор расположения антенного элемента решётки относительно её фазового центра</summary>
     public Vector3D Location { get => _Location; set => Set(ref _Location, value); }
@@ -100,10 +101,10 @@ public class AntennaItem : Antenna
         PropertyDependence_Add(nameof(Direction), nameof(Theta), nameof(ThetaDeg), nameof(Phi), nameof(PhiDeg));
         PropertyDependence_Add(nameof(K), nameof(AbsK), nameof(ArgK), nameof(ReK), nameof(ImK));
 
-        _Element  = a;
+        _Element = a;
         _Location = r;
         Direction = angle;
-        K         = k;
+        K = k;
     }
 
     /// <summary>Диаграмма направленности элемента относительно фазового центра решётки</summary>
@@ -124,17 +125,17 @@ public class AntennaItem : Antenna
     private static BinaryExpression M(Expression a, Expression b, Expression c) => M(a, M(b, c));
     private static Expression Const(object value) => Expression.Constant(value);
     private static MethodCallExpression Call(Delegate d, Expression arg) => Expression.Call(d.Method, arg);
-    private static MethodCallExpression Call<T>(T obj, MethodInfo method, params Expression[] arg) => Expression.Call(Const(obj), method, arg);
-    private static MethodCallExpression Call<T>(T obj, Delegate d, params Expression[] arg) => Expression.Call(Const(obj), d.Method, arg);
+    private static MethodCallExpression Call<T>(T obj, MethodInfo method, params Expression[] arg) => Expression.Call(Const(obj!), method, arg);
+    private static MethodCallExpression Call<T>(T obj, Delegate d, params Expression[] arg) => Expression.Call(Const(obj!), d.Method, arg);
 
     public override Expression? GetPatternExpressionBody(Expression a, Expression f)
     {
         if (_Rotator != null) a = Expression.Invoke(_Rotator.ToExpression(), a);
-        var kl                  = (-__PiC).ToExpression().Multiply(f);
-        var projection_info     = typeof(Vector3D).GetMethod(nameof(Vector3D.GetProjectionTo), [typeof(SpaceAngle)], null).NotNull();
-        var projection          = Call(Location, projection_info, a);
-        var kr                  = kl.Multiply(projection);
-        var exp                 = ((Func<double, Complex>)Complex.Exp).GetCallExpression(kr);
+        var kl = (-__PiC).ToExpression().Multiply(f);
+        var projection_info = typeof(Vector3D).GetMethod(nameof(Vector3D.GetProjectionTo), [typeof(SpaceAngle)], null).NotNull();
+        var projection = Call(Location, projection_info, a);
+        var kr = kl.Multiply(projection);
+        var exp = ((Func<double, Complex>)Complex.Exp).GetCallExpression(kr!);
         return _Element.GetPatternExpressionBody(a, f).Multiply(_K.ToExpression().Multiply(exp));
     }
 
@@ -143,15 +144,15 @@ public class AntennaItem : Antenna
     public override string ToString()
     {
         var result = new StringBuilder();
-        var empty  = true;
-        var r      = _Location;
+        var empty = true;
+        var r = _Location;
         if (r != 0)
         {
             empty = false;
             result.Append($"[loc:{r}");
         }
 
-        var a           = _Direction;
+        var a = _Direction;
         var angle_empty = true;
         if (!a.IsZero)
         {
@@ -162,10 +163,10 @@ public class AntennaItem : Antenna
 
         if (!empty && angle_empty) result.Append(']');
 
-        return _K == 0 
-            ? empty 
-                ? $"{{{Element}}}" 
-                : $"{{{Element}}}{result}" 
+        return _K == 0
+            ? empty
+                ? $"{{{Element}}}"
+                : $"{{{Element}}}{result}"
             : $"{{{Element}}}{result} x {_K}";
     }
 }
