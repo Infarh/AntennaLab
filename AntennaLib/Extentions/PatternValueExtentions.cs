@@ -3,10 +3,17 @@
 // ReSharper disable once CheckNamespace
 namespace Antennas;
 
+/// <summary>Расширяющие методы для работы с значениями диаграммы направленности</summary>
 public static class PatternValueExtensions
 {
+    /// <summary>Получить коэффициент усиления из массива значений диаграммы направленности</summary>
+    /// <param name="pattern">Коллекция значений диаграммы направленности</param>
+    /// <returns>Значение с максимальным модулем</returns>
     public static PatternValue GetGain(this IEnumerable<PatternValue> pattern) => pattern.GetMax(p => p.Value.Abs);
 
+    /// <summary>Провести полный анализ диаграммы направленности</summary>
+    /// <param name="pattern">Массив отсчётов диаграммы направленности</param>
+    /// <returns>Результат анализа диаграммы направленности</returns>
     public static AnalysePatternResult Analyse(this PatternValue[] pattern)
     {
         pattern.Analyse

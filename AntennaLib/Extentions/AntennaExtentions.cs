@@ -4,6 +4,7 @@ using static System.Math;
 // ReSharper disable once CheckNamespace
 namespace Antennas;
 
+/// <summary>Расширяющие методы для работы с антеннами</summary>
 public static class AntennaExtensions
 {
     private static IEnumerable<double> GetAngles(double th1, double th2, double dth)
@@ -15,6 +16,14 @@ public static class AntennaExtensions
         yield return th2;
     }
 
+    /// <summary>Получить диаграмму направленности антенны на фиксированном азимутальном угле</summary>
+    /// <param name="antenna">Антенна</param>
+    /// <param name="f">Частота</param>
+    /// <param name="phi">Азимутальный угол (по умолчанию 0)</param>
+    /// <param name="th1">Начальный угол места (по умолчанию -π)</param>
+    /// <param name="th2">Конечный угол места (по умолчанию π)</param>
+    /// <param name="dth">Шаг по углу места (по умолчанию 1°)</param>
+    /// <returns>Массив значений диаграммы направленности</returns>
     public static PatternValue[] GetPatternPhi
     (
         this Antenna antenna,
@@ -33,6 +42,15 @@ public static class AntennaExtensions
         return result;
     }
 
+    /// <summary>Получить диаграмму направленности антенны параллельно</summary>
+    /// <param name="antenna">Антенна</param>
+    /// <param name="f">Частота</param>
+    /// <param name="phi">Азимутальный угол (по умолчанию 0)</param>
+    /// <param name="th1">Начальный угол места (по умолчанию -π)</param>
+    /// <param name="th2">Конечный угол места (по умолчанию π)</param>
+    /// <param name="dth">Шаг по углу места (по умолчанию 1°)</param>
+    /// <param name="Cancel">Маркер отмены</param>
+    /// <returns>Массив значений диаграммы направленности</returns>
     public static PatternValue[] GetPatternValuesParallel
     (  
         this Antenna antenna,
@@ -50,6 +68,16 @@ public static class AntennaExtensions
         return parallel_query.Select(th => new PatternValue(th, antenna.Pattern(th, phi, f))).ToArray();
     }
 
+    /// <summary>Получить диаграмму направленности антенны асинхронно</summary>
+    /// <param name="antenna">Антенна</param>
+    /// <param name="f">Частота</param>
+    /// <param name="phi">Азимутальный угол (по умолчанию 0)</param>
+    /// <param name="th1">Начальный угол места (по умолчанию -π)</param>
+    /// <param name="th2">Конечный угол места (по умолчанию π)</param>
+    /// <param name="dth">Шаг по углу места (по умолчанию 1°)</param>
+    /// <param name="Progress">Объект отчёта о прогрессе</param>
+    /// <param name="Cancel">Маркер отмены</param>
+    /// <returns>Массив значений диаграммы направленности</returns>
     public static Task<PatternValue[]> GetPatternPhiAsync
     (
         this Antenna antenna,

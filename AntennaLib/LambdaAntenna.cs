@@ -5,6 +5,8 @@ using MathCore.Vectors;
 
 namespace Antennas;
 
+/// <summary>Антенна с произвольной диаграммой направленности, определяемой пользовательской функцией</summary>
+/// <param name="Beam">Функция, определяющая диаграмму направленности (Theta, Phi, f) → значение</param>
 public class LambdaAntenna(Func<double, double, double, double> Beam) : Antenna
 {
     /// <summary>Диаграмма направленности</summary>

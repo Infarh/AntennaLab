@@ -16,6 +16,10 @@ public class Vibrator(double length) : Antenna
 
     private static double GetK_l(double l) => Consts.pi2 / l;
 
+    /// <summary>Получить сопротивление излучения вибратора</summary>
+    /// <param name="Length">Длина вибратора</param>
+    /// <param name="f0">Частота</param>
+    /// <returns>Значение сопротивления излучения в Омах</returns>
     public static double GetRadiatingImpedance(double Length, double f0)
     {
         var kl     = GetK_f(f0) * Length;
@@ -27,6 +31,11 @@ public class Vibrator(double length) : Antenna
         return 60 * F.GetIntegralValue(Core, 0, Consts.pi, Consts.pi / 10000);
     }
 
+    /// <summary>Получить входной импеданс вибратора</summary>
+    /// <param name="Length">Длина вибратора</param>
+    /// <param name="rho">Волновое сопротивление</param>
+    /// <param name="f0">Частота</param>
+    /// <returns>Комплексное значение входного импеданса</returns>
     public static Complex GetInputImpedance(double Length, double rho, double f0)
     {
         var k       = GetK_f(f0);
@@ -38,10 +47,20 @@ public class Vibrator(double length) : Antenna
         return new(re, im);
     }
 
+    /// <summary>Получить распределение тока вдоль вибратора</summary>
+    /// <param name="f0">Частота</param>
+    /// <param name="Length">Длина вибратора</param>
+    /// <param name="z">Координата на оси OZ</param>
+    /// <returns>Амплитуда тока в точке z</returns>
     public static double CurrentDistribution(double f0, double Length, double z) => Sin(GetK_f(f0) * (Length - Abs(z)));
 
+    /// <summary>Получить волновое сопротивление двухпроводной линии передачи</summary>
+    /// <param name="d">Диаметр проводников</param>
+    /// <param name="D">Расстояние между центрами проводников</param>
+    /// <returns>Волновое сопротивление в Омах</returns>
     public static double GetWaveImpedance(double d, double D) => 120 * (Log(D / d) - 1);
 
+    /// <summary>Длина вибратора</summary>
     public double Length
     {
         get => length;
@@ -68,14 +87,21 @@ public class Vibrator(double length) : Antenna
         return Cos(kl.Multiply(Cos(th))).Subtract(cos_kl)
            .Divide(1d.ToExpression().Subtract(cos_kl).Multiply(Sin(th)));
     }
-        
+
+    /// <summary>Получить эффективную длину вибратора на указанной частоте</summary>
+    /// <param name="f">Частота</param>
+    /// <returns>Эффективная длина вибратора</returns>
     public double GetActiveLength(double f)
     {
         const double k   = Consts.pi / Consts.SpeedOfLight;
         var          k05 = k * f;
         return Tan(k05 * length) / k05;
     }
-        
+
+    /// <summary>Получить распределение тока на вибраторе на указанной частоте</summary>
+    /// <param name="f0">Частота</param>
+    /// <param name="z">Координата на оси OZ</param>
+    /// <returns>Амплитуда тока в точке z</returns>
     public double CurrentDistribution(double f0, double z) => CurrentDistribution(f0, length, z);
 
     public Func<double, double> CurrentDistribution(double f0) => z => CurrentDistribution(f0, z);

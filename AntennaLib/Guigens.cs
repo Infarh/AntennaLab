@@ -5,6 +5,7 @@ using MathCore.Vectors;
 
 namespace Antennas;
 
+/// <summary>Элемент Гюйгенса - антенный элемент с диаграммой направленности cos²(θ)</summary>
 public class Guigens : Antenna
 {
     /// <inheritdoc />

@@ -5,6 +5,7 @@ using MathCore.Vectors;
 
 namespace Antennas;
 
+/// <summary>Электрический диполь - простой антенный элемент с диаграммой направленности cos(θ)</summary>
 public class Dipole : Antenna
 {
     /// <inheritdoc />

@@ -9,6 +9,7 @@
     <File Path=".github/dependabot.yml" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="Tests/AntennaLib.Tests/AntennaLib.Tests.csproj" Id="22d60dcd-c929-4da3-919c-617b43bf71bd" />
     <Project Path="Tests/ConsolePolygon/ConsolePolygon.csproj" />
   </Folder>
   <Project Path="AntennaLib/AntennaLib.csproj" />

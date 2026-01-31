@@ -4,6 +4,7 @@ using MathCore.Vectors;
 
 namespace Antennas;
 
+/// <summary>Всенаправленная антенна с единичной диаграммой направленности</summary>
 public sealed class UniformAntenna : Antenna
 {
     public override Complex Pattern(SpaceAngle Direction, double f) => Complex.Real;
