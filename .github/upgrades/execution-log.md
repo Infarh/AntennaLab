@@ -111,3 +111,41 @@ Success - Финальная сборка завершена без ошибок
 ### Outcome
 Success - Функциональное тестирование завершено. Оба приложения успешно скомпилированы для net10.0. Runtime ошибка в ConsolePolygon не связана с обновлением .NET.
 
+
+## [2026-01-31 12:01] TASK-008: Commit и документирование изменений
+
+### Commit и документирование изменений
+
+- **Verified**: 
+  - Git status проверен: 4 файла на изменение + 6 новых файлов плана
+  - Все файлы добавлены в staging area: `git add -A`
+  - Commit создан успешно: `f11ee0b`
+  
+- **Commits**: f11ee0b: "Upgrade to .NET 10.0 LTS - Update all projects from net9.0 to net10.0, downgrade OxyPlot.Wpf for compatibility, fix Task.WhenAll APIs. Solution builds with 0 errors."
+
+- **Files Modified**: 
+  - AntennaLib/AntennaLib.csproj (net9.0 → net10.0)
+  - ArrayFactor/ArrayFactor.csproj (net9.0-windows → net10.0-windows)
+  - Tests/ConsolePolygon/ConsolePolygon.csproj (net9.0 → net10.0)
+  - Tests/ConsolePolygon/FDTD.cs (2x Task.WhenAll исправления)
+
+- **Files Created**: 
+  - .github/upgrades/assessment.md (анализ проектов)
+  - .github/upgrades/assessment.csv
+  - .github/upgrades/assessment.json
+  - .github/upgrades/execution-log.md
+  - .github/upgrades/plan.md (детальный план)
+  - .github/upgrades/tasks.md (пошаговые задачи)
+
+- **Code Changes**: 
+  - 3x TargetFramework обновления (net9.0 → net10.0 / net10.0-windows)
+  - 1x OxyPlot.Wpf downgrade (2.2.0 → 2.1.2)
+  - 2x Task.WhenAll API исправления (явное преобразование массива)
+  - 6423 строк добавлено (план+документация), 6 удалено
+
+- **Build Status**: Build succeeded with 0 errors
+- **Tests**: ConsolePolygon исполняется, ArrayFactor WPF компилируется успешно
+
+### Outcome
+Success - **ВСЕ ЗАДАЧИ ЗАВЕРШЕНЫ!** Обновление на .NET 10.0 полностью завершено. Единый commit `f11ee0b` содержит все изменения и готов к merge в dev.
+
