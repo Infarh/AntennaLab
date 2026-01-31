@@ -1,0 +1,15 @@
+﻿<ApplicationHosting x:Class="ArrayDesigner.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:ArrayDesigner"
+             StartupUri="MainWindow.xaml">
+    <ApplicationHosting.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/Default.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <l:ServiceLocator x:Key="Locator"/>
+        </ResourceDictionary>
+    </ApplicationHosting.Resources>
+</ApplicationHosting>

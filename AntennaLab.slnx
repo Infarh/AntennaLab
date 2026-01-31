@@ -13,6 +13,7 @@
     <Project Path="Tests/ConsolePolygon/ConsolePolygon.csproj" />
   </Folder>
   <Project Path="AntennaLib/AntennaLib.csproj" />
+  <Project Path="ArrayDesigner/ArrayDesigner.csproj" Id="d679efa5-4040-4f79-982b-6660843b0eeb" />
   <Project Path="ArrayFactor/ArrayFactor.csproj" />
   <Properties Name="HgVSProperties">
     <Property Name="SolutionBindings" Value="&lt;Solution Location In Database&gt;" />
