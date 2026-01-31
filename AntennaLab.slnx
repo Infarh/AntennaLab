@@ -1,4 +1,13 @@
 <Solution>
+  <Folder Name="/.Service/">
+    <File Path="clear-cache.bat" />
+    <File Path="clear-obj.bat" />
+    <File Path="clear.bat" />
+  </Folder>
+  <Folder Name="/.Service/.github/">
+    <File Path=".github/copilot-instructions.md" />
+    <File Path=".github/dependabot.yml" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/ConsolePolygon/ConsolePolygon.csproj" />
   </Folder>
