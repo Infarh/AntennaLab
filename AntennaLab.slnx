@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/ConsolePolygon/ConsolePolygon.csproj" />
+  </Folder>
+  <Project Path="AntennaLib/AntennaLib.csproj" />
+  <Project Path="ArrayFactor/ArrayFactor.csproj" />
+  <Properties Name="HgVSProperties">
+    <Property Name="SolutionBindings" Value="&lt;Solution Location In Database&gt;" />
+    <Property Name="SolutionIsControlled" Value="True" />
+  </Properties>
+</Solution>
