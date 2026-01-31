@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
@@ -31,7 +31,7 @@
     <PackageReference Include="MathCore" Version="0.0.93.2" />
     <PackageReference Include="MathCore.WPF" Version="0.0.48.2" />
     <PackageReference Include="OxyPlot.Contrib.Wpf" Version="2.1.2" />
-    <PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />
+    <PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
   </ItemGroup>  
 
   <ItemGroup>

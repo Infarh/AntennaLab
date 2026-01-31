@@ -80,7 +80,7 @@ internal static class FDTD
                             + ((Hy[i, j, k] - Hy[i - 1, j, k]) / tx - (Hx[i, j, k] - Hx[i, j - 1, k]) / ty);
         });
 
-        await Task.WhenAll(tEx, tEy, tEz).ConfigureAwait(false);
+        await Task.WhenAll(new[] { tEx, tEy, tEz }).ConfigureAwait(false);
     }
 
     private static async Task UpdateH
@@ -122,7 +122,7 @@ internal static class FDTD
                             * AH[i, j, k];
         });
 
-        await Task.WhenAll(tHx, tHy, tHz).ConfigureAwait(false);
+        await Task.WhenAll(new[] { tHx, tHy, tHz }).ConfigureAwait(false);
     }
 
     private static double fE1(double t, double t0, double tau)
