@@ -5,10 +5,58 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:l="clr-namespace:ArrayDesigner"
         xmlns:vm="clr-namespace:ArrayDesigner.ViewModels"
+        d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
         DataContext="{Binding MainModel, Source={StaticResource Locator}}"
         Title="{Binding Title}" 
         Width="800" Height="450">
     <Grid>
+        <DockPanel>
+            <Menu>
+                <MenuItem Header="Файл">
+                    <MenuItem Header="Выход" Command="{CloseWindow}"/>
+                </MenuItem>
+            </Menu>
+            <StatusBar>
+                <StatusBarItem Content="{Binding Status}"/>
+                <StatusBarItem HorizontalAlignment="Right">
+                    <ResizeGrip/>
+                </StatusBarItem>
+            </StatusBar>
+            <Grid Margin="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
 
+                <Border Grid.Row="0">
+                    <DockPanel HorizontalAlignment="Left">
+                        <DockPanel DockPanel.Dock="Right">
+                            <Label Content="Lx:"/>
+                            <TextBox Width="70" VerticalContentAlignment="Center" Text="0.373075"/>
+                        </DockPanel>
+                        <DockPanel DockPanel.Dock="Right">
+                            <Label Content="Ly:"/>
+                            <TextBox Width="70" VerticalContentAlignment="Center" Text="0.373075"/>
+                        </DockPanel>
+                        <DockPanel>
+                            <Label Content="Число элементов:"/>
+                            <TextBox Width="70" VerticalContentAlignment="Center" Text="30"/>
+                        </DockPanel>
+                    </DockPanel>
+                </Border>
+                <Border Grid.Row="1">
+                    <TabControl>
+                        <TabControl.Resources>
+                            <ResourceDictionary>
+                                <ResourceDictionary.MergedDictionaries>
+                                    <ResourceDictionary Source="Styles/LayoutDesignersStyles.xaml"/>
+                                </ResourceDictionary.MergedDictionaries>
+                            </ResourceDictionary>
+                        </TabControl.Resources>
+                        <TabItem Header="Макет" Content="{Binding LayoutDesigner}"/>
+                    </TabControl>
+                </Border>
+            </Grid>
+        </DockPanel>
     </Grid>
 </Window>

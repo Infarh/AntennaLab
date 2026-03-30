@@ -6,10 +6,25 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' != 'Debug'">
+    <Version>0.$([System.DateTime]::UtcNow.AddHours(3).ToString("yy.Mdd.Hmm"))</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MathCore.Hosting.WPF" Version="1.0.1" />
+    <PackageReference Include="OxyPlot.Contrib.Wpf" Version="2.1.2" />
+    <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.129" />
+    <PackageReference Include="FontAwesome6.Svg" Version="2.5.1" />
   </ItemGroup>
+
+  <Target Name="RemoveUnwantedCultures" AfterTargets="Publish">
+    <ItemGroup>
+      <UnwantedCultures Include="cs;de;es;fr;it;ja;ko;pl;pt-BR;tr;zh-Hans;zh-Hant" />
+    </ItemGroup>
+    <Exec Command="for %%c in (@(UnwantedCultures)) do rmdir /s /q $(PublishDir)%%c" />
+  </Target>
 
 </Project>

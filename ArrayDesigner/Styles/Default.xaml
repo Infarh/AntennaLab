@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:fa="http://schemas.fontawesome.com/icons/svg">
 
     <Style TargetType="Menu">
         <Setter Property="DockPanel.Dock" Value="Top"/>
@@ -8,6 +9,152 @@
     <Style TargetType="StatusBar">
         <Setter Property="DockPanel.Dock" Value="Bottom"/>
     </Style>
-    
-    
+
+    <Style TargetType="ButtonBase">
+        <Setter Property="Background" Value="WhiteSmoke"/>
+    </Style>
+
+    <Style TargetType="Button" BasedOn="{StaticResource {x:Type ButtonBase}}">
+        <Setter Property="Content" Value="{Binding Command.Name, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="ToolTip" Value="{Binding Command.Description, RelativeSource={RelativeSource Self}}"/>
+        <Style.Triggers>
+            <Trigger Property="IsDefault" Value="True">
+                <Setter Property="Content" Value="Ok"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Command" Value="{Binding CommitCommand}"/>
+            </Trigger>
+            <Trigger Property="IsCancel" Value="True">
+                <Setter Property="Content" Value="Cancel"/>
+                <Setter Property="Command" Value="{Binding CancelCommand}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ButtonBase}}">
+
+    </Style>
+
+    <Style TargetType="RepeatButton" BasedOn="{StaticResource {x:Type ButtonBase}}">
+
+    </Style>
+
+    <Style TargetType="GridSplitter">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Panel.ZIndex" Value="100"/>
+        <Style.Triggers>
+            <Trigger Property="HorizontalAlignment" Value="Left">
+                <Setter Property="VerticalAlignment" Value="Stretch"/>
+                <Setter Property="Width" Value="3"/>
+                <Setter Property="Margin" Value="-1.5,0"/>
+            </Trigger>
+            <Trigger Property="HorizontalAlignment" Value="Right">
+                <Setter Property="VerticalAlignment" Value="Stretch"/>
+                <Setter Property="Width" Value="3"/>
+                <Setter Property="Margin" Value="-1.5,0"/>
+            </Trigger>
+            <Trigger Property="VerticalAlignment" Value="Top">
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="Height" Value="3"/>
+                <Setter Property="Margin" Value="0,-1.5"/>
+            </Trigger>
+            <Trigger Property="VerticalAlignment" Value="Bottom">
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="Height" Value="3"/>
+                <Setter Property="Margin" Value="0,-1.5"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="LightGray"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="ToolBarTray">
+        <Setter Property="DockPanel.Dock" Value="Top"/>
+    </Style>
+
+    <Style TargetType="MenuItem">
+        <Setter Property="Header" Value="{Binding Command.Name, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="ToolTip" Value="{Binding Command.Description, RelativeSource={RelativeSource Self}}"/>
+    </Style>
+
+    <Style TargetType="{x:Type fa:ImageAwesome}">
+        <Style.Resources>
+            <DropShadowEffect x:Key="Shadow" ShadowDepth="1" BlurRadius="2" Color="Black"/>
+            <SolidColorBrush x:Key="GreenBrush" Color="Green"/>
+            <SolidColorBrush x:Key="RedBrush" Color="Red"/>
+            <SolidColorBrush x:Key="OrangeBrush" Color="Orange"/>
+            <SolidColorBrush x:Key="BlueBrush" Color="DodgerBlue"/>
+            <SolidColorBrush x:Key="GrayBrush" Color="Gray"/>
+        </Style.Resources>
+        <Setter Property="Effect" Value="{StaticResource Shadow}"/>
+
+        <Style.Triggers>
+            <!-- Успех -->
+            <Trigger Property="Icon" Value="Solid_Check">
+                <Setter Property="PrimaryColor" Value="{StaticResource GreenBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Regular_CircleCheck">
+                <Setter Property="PrimaryColor" Value="{StaticResource GreenBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_FloppyDisk">
+                <Setter Property="PrimaryColor" Value="{StaticResource GreenBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_Plus">
+                <Setter Property="PrimaryColor" Value="{StaticResource GreenBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_CirclePlus">
+                <Setter Property="PrimaryColor" Value="{StaticResource GreenBrush}"/>
+            </Trigger>
+
+            <!-- Ошибка/Удаление -->
+            <Trigger Property="Icon" Value="Solid_Xmark">
+                <Setter Property="PrimaryColor" Value="{StaticResource RedBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_CircleXmark">
+                <Setter Property="PrimaryColor" Value="{StaticResource RedBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_Trash">
+                <Setter Property="PrimaryColor" Value="{StaticResource RedBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_TrashCan">
+                <Setter Property="PrimaryColor" Value="{StaticResource RedBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_Minus">
+                <Setter Property="PrimaryColor" Value="{StaticResource RedBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_CircleMinus">
+                <Setter Property="PrimaryColor" Value="{StaticResource RedBrush}"/>
+            </Trigger>
+
+            <!-- Предупреждение -->
+            <Trigger Property="Icon" Value="Solid_TriangleExclamation">
+                <Setter Property="PrimaryColor" Value="{StaticResource OrangeBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_CircleExclamation">
+                <Setter Property="PrimaryColor" Value="{StaticResource OrangeBrush}"/>
+            </Trigger>
+
+            <!-- Информация/Редактирование -->
+            <Trigger Property="Icon" Value="Solid_Info">
+                <Setter Property="PrimaryColor" Value="{StaticResource BlueBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_CircleInfo">
+                <Setter Property="PrimaryColor" Value="{StaticResource BlueBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_PenToSquare">
+                <Setter Property="PrimaryColor" Value="{StaticResource BlueBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_Pen">
+                <Setter Property="PrimaryColor" Value="{StaticResource BlueBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_Gear">
+                <Setter Property="PrimaryColor" Value="{StaticResource GrayBrush}"/>
+            </Trigger>
+            <Trigger Property="Icon" Value="Solid_MagnifyingGlass">
+                <Setter Property="PrimaryColor" Value="{StaticResource GrayBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
 </ResourceDictionary>
