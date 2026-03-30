@@ -1,6 +1,4 @@
-﻿File: README.MD
-````````
-# AntennaLab
+﻿# AntennaLab
 
 `AntennaLab` — репозиторий для расчёта и визуального анализа диаграмм направленности антенных решёток. Основу решения составляют два проекта:
 
@@ -140,14 +138,6 @@ dotnet test .\Tests\AntennaLib.Tests\AntennaLib.Tests.csproj
 - прототипирования алгоритмов анализа ФАР
 - дальнейшего развития вычислительного ядра и пользовательского интерфейса
 
-````````
-
-This is the description of what the code block changes:
-Уточняю раздел про отладку, чтобы явно отразить пользовательскую формулировку и корректное имя исключения .NET.
-
-This is the code block that represents the suggested code change:
-
-````````
 ## Особенности отладки
 
 Во время отладки следует игнорировать `OperationCanceledException` (в обсуждениях может встречаться написание `OperationCancelledException`).
