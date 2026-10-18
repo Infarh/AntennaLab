@@ -6,7 +6,7 @@ using MathCore.Vectors;
 namespace Antennas;
 
 /// <summary>Элемент Гюйгенса - антенный элемент с диаграммой направленности cos²(θ)</summary>
-public class Guigens : Antenna
+public class Huygens : Antenna
 {
     /// <inheritdoc />
     public override Complex Pattern(SpaceAngle Direction, double f)
@@ -25,3 +25,7 @@ public class Guigens : Antenna
     /// <inheritdoc />
     public override string ToString() => "Элемент Гюйгенса";
 }
+
+/// <summary>Устаревшее имя элемента Гюйгенса</summary>
+[Obsolete("Используйте Huygens")]
+public sealed class Guigens : Huygens;

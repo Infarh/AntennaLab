@@ -1,8 +1,9 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Markup;
 
 using Antennas;
+using Antennas.Calculation;
 
 using ArrayFactor.Service.AmplitudeDistributions;
 
@@ -25,12 +26,6 @@ internal class MainWindowModel : ViewModel
     /* ------------------------------------------------------------------------------------------------ */
 
     #region Константы
-
-    /// <summary>Значение числа Пи</summary>
-    private const double c_Pi = pi;
-
-    /// <summary>Значение числа Пи/2</summary>
-    private const double c_Pi05 = pi05;
 
     /// <summary>Константа мультипликативного преобразования углового значения из градусов в радианы</summary>
     private const double c_ToRad = Geometry.ToRad;
@@ -77,8 +72,8 @@ internal class MainWindowModel : ViewModel
     /// <summary>Шаг расчёта амплитудного распределения</summary>
     private double _dx = 0.01;
 
-    /// <summary>Усиление антенной решётки - максимуМ ДН</summary>
-    private double _Gain;
+    /// <summary>Максимум ДН антенной решётки в дБ (20·log10)</summary>
+    private double _MaxFieldDb;
 
     /// <summary>Угловое положение максимума ДН</summary>
     private double _MaxPos = double.NaN;
@@ -122,8 +117,11 @@ internal class MainWindowModel : ViewModel
     /// <summary>Источник признаков отмены асинхронной операции расчёта ДН антенной решётки</summary>
     private CancellationTokenSource? _ComputePatternCancellationTokenSource;
 
-    /// <summary>Информатор прогрессе вычисления полного КНД трёхмерной ДН</summary>
-    private readonly IProgress<double?> _PatternProcessProgressReporter;
+    /// <summary>Номер актуального запроса расчёта ДН</summary>
+    private int _ComputePatternVersion;
+
+    /// <summary>Информатор прогресса расчёта тепловой карты</summary>
+    private readonly IProgress<double>? _PatternProcessProgressReporter;
 
     /// <summary>Массив значений тепловой карты трёхмерной ДН</summary>
     private double[,]? _PatternData;
@@ -147,15 +145,12 @@ internal class MainWindowModel : ViewModel
     /// <summary>Прогресс вычисления полного КНД</summary>
     public double? PatternComplete { get => _PatternComplete; private set => Set(ref _PatternComplete, value, v => v is null or >= 0 and <= 1); }
 
-    /// <summary>Полный КНД прространственной ДН</summary>
-    public double D0_Total { get => Get<double>(); private set => Set(value); }
-
     /// <summary>Шаг вычисления ДН</summary>
     [ChangedHandler(nameof(ComputePatternAsync))]
     public double dθ { get => _dθ; set => Set(ref _dθ, value, θ => θ is >= 0.1 and < 5); }
 
     /// <summary>Выбранное амплитудное распределение</summary>
-    [ChangedHandler(nameof(SetDestribution))]
+    [ChangedHandler(nameof(SetDistribution))]
     public Distribution? Distribution
     {
         get => _Distribution;
@@ -172,7 +167,6 @@ internal class MainWindowModel : ViewModel
     }
 
     /// <summary>Расчитанные дначения амплитудного распределения</summary>
-    [ChangedHandler(nameof(ComputePatternAsync))]
     public IEnumerable<DataPoint> DistributionData
     {
         get
@@ -182,11 +176,11 @@ internal class MainWindowModel : ViewModel
         }
     }
 
-    /// <summary>Усиление антенны</summary>
-    public double Gain { get => _Gain; private set => Set(ref _Gain, value); }
+    /// <summary>Максимум ДН в дБ</summary>
+    public double MaxFieldDb { get => _MaxFieldDb; private set => Set(ref _MaxFieldDb, value); }
 
     /// <summary>Положение максимума ДН</summary>
-    public double MaxPos { get => _MaxPos; private set => Set(ref _MaxPos, value, v => v is double.NaN or >= -180 and <= 180); }
+    public double MaxPos { get => _MaxPos; private set => Set(ref _MaxPos, value, v => double.IsNaN(v) || v is >= -180 and <= 180); }
 
     /// <summary>КНД</summary>
     public double D0 { get => _D0; private set => Set(ref _D0, value); }
@@ -225,15 +219,27 @@ internal class MainWindowModel : ViewModel
     public PatternValue[] Beam0Data { get => _Beam0Data; private set => Set(ref _Beam0Data!, value); }
 
     /// <summary>Азимутальный угол расчёта ДН</summary>
-    [ChangedHandler(nameof(SetDestribution))]
-    public double PhiView { get => _PhiView; set => Set(ref _PhiView, value, v => v is >= 0 and <= 90); }
+    public double PhiView
+    {
+        get => _PhiView;
+        set
+        {
+            if (!Set(ref _PhiView, value, v => v is >= 0 and <= 90)) return;
+            OnPropertyChanged(nameof(DistributionData));
+            ComputePatternAsync();
+        }
+    }
 
     /// <summary>Установленное значение угла отклонения луча решётки</summary>
-    [ChangedHandler(nameof(SetDestribution))]
+    [ChangedHandler(nameof(SetDistribution))]
     public double θ0 { get => _θ0; set => Set(ref _θ0, value); }
 
+    /// <summary>Установленное значение азимута отклонения луча решётки</summary>
+    [ChangedHandler(nameof(SetDistribution))]
+    public double φ0 { get => _φ0; set => Set(ref _φ0, value); }
+
     /// <summary>Частота</summary>
-    [ChangedHandler(nameof(SetDestribution))]
+    [ChangedHandler(nameof(SetDistribution))]
     public double f0
     {
         get => _f0;
@@ -254,7 +260,7 @@ internal class MainWindowModel : ViewModel
     }
 
     /// <summary></summary>
-    [ChangedHandler(nameof(SetDestribution))]
+    [ChangedHandler(nameof(SetDistribution))]
     public int Nx
     {
         get => _AntennaArray.Nx;
@@ -268,7 +274,7 @@ internal class MainWindowModel : ViewModel
     }
 
     /// <summary>Число элементов решётки вдоль оси OY</summary>
-    [ChangedHandler(nameof(SetDestribution))]
+    [ChangedHandler(nameof(SetDistribution))]
     public int Ny
     {
         get => _AntennaArray.Ny;
@@ -282,7 +288,7 @@ internal class MainWindowModel : ViewModel
     }
 
     /// <summary>Шаг между элементами решётки вдоль оси OX</summary>
-    [ChangedHandler(nameof(SetDestribution))]
+    [ChangedHandler(nameof(SetDistribution))]
     public double dx
     {
         get => _AntennaArray.dx * 100;
@@ -297,7 +303,7 @@ internal class MainWindowModel : ViewModel
     }
 
     /// <summary>Шаг между элементами решётки вдоль оси OY</summary>
-    [ChangedHandler(nameof(SetDestribution))]
+    [ChangedHandler(nameof(SetDistribution))]
     public double dy
     {
         get => _AntennaArray.dy * 100;
@@ -329,11 +335,26 @@ internal class MainWindowModel : ViewModel
 
     /// <summary>Сектор сканирования вдоль оси OX</summary>
     [DependsOn(nameof(f0)), DependsOn(nameof(dx))]
-    public double θmax_x => Abs(Asin(_λ0 / dx / 100 - 1)).ToDeg();
+    public double θmax_x => GetScanSector(_λ0, dx);
 
     /// <summary>Сектор сканирования вдоль оси OY</summary>
     [DependsOn(nameof(f0)), DependsOn(nameof(dy))]
-    public double θmax_y => Abs(Asin(_λ0 / dy / 100 - 1)).ToDeg();
+    public double θmax_y => GetScanSector(_λ0, dy);
+
+    /// <summary>Вычислить предельный угол сканирования до появления дифракционного максимума</summary>
+    /// <param name="WaveLength">Длина волны в сантиметрах</param>
+    /// <param name="Step">Шаг между элементами в сантиметрах</param>
+    /// <returns>Предельный угол сканирования в градусах</returns>
+    private static double GetScanSector(double WaveLength, double Step)
+    {
+        var q = WaveLength / Step;
+        return q switch
+        {
+            >= 2 => 90,
+            >= 1 => Asin(q - 1).ToDeg(),
+            _ => 0
+        };
+    }
 
     /// <summary>Элементарный излучатель</summary>
     [AffectsThe(nameof(AntennaArray))]
@@ -371,10 +392,9 @@ internal class MainWindowModel : ViewModel
     /// <summary>Инициализация нового экземпляра <see cref="MainWindowModel"/></summary>
     public MainWindowModel()
     {
+        _PatternProcessProgressReporter = new Progress<double>(OnPatternProgressReport);
         _NormX = GetXRange().AsParallel().AsOrdered();
         Distribution = new Uniform();
-        D0_Total = double.NaN;
-        _PatternProcessProgressReporter = new Progress<double?>(OnD0ProgressReport);
         Nx++;
     }
 
@@ -384,72 +404,14 @@ internal class MainWindowModel : ViewModel
 
     #region Методы
 
-    private async Task ComputeBeamPatternHeatMapAsync(CancellationToken cancel)
-    {
-        PatternData = null;
-        PatternData = await Task.Run(() => ComputeBeamPatternHeatMap(_PatternProcessProgressReporter, cancel), cancel).ConfigureAwait(true);
-    }
-
-    private double[,] ComputeBeamPatternHeatMap(IProgress<double?>? progress = null, CancellationToken cancel = default)
-    {
-        const double th_max = 90;
-        const double dth = 0.5;
-        const int N = 2 * (int)(th_max / dth);
-        var data = new double[N, N];
-
-        Antenna antenna = _AntennaArray;
-
-        var f0 = _f0 * c_GHz;
-        progress?.Report(0);
-        var max = double.NegativeInfinity;
-
-        for (var i = 0; i < N; i++)
-        {
-            for (var j = 0; j < N; j++)
-            {
-                var angle = new Complex(N / 2 - i, j - N / 2);
-                var th = angle.Abs * dth;
-                if (th > 90)
-                {
-                    data[i, j] = double.NaN;
-                    continue;
-                }
-
-                var f = antenna.Pattern(th * ToRad, angle.Arg, f0).Power.In_dB_byPower();
-                (data[i, j], max) = (f, Max(f, max));
-            }
-
-            cancel.ThrowIfCancellationRequested();
-            progress?.Report((double)i / N);
-        }
-
-        const double min = -80;
-        for (var (i, is_nan) = (0, true); i < N; i++, is_nan = true)
-            for (var j = 0; j < N; j++)
-            {
-                var value = data[i, j];
-                if (!is_nan && value is double.NaN)
-                    continue;
-
-                if (is_nan && value is double.NaN)
-                    is_nan = false;
-
-                data[i, j] = Max(value - max, min);
-            }
-
-        progress?.Report(cancel.IsCancellationRequested ? 0 : 1);
-        cancel.ThrowIfCancellationRequested();
-        return data;
-    }
-
-    /// <summary>Метод изменения значения прогресса вычисления полного КНД</summary>
+    /// <summary>Метод изменения значения прогресса расчёта тепловой карты</summary>
     /// <param name="progress">Значение прогресса от 0 до 1 включительно</param>
-    private void OnD0ProgressReport(double? progress) => PatternComplete = progress;
+    private void OnPatternProgressReport(double progress) => PatternComplete = progress;
 
     /// <summary>Обработчик событий внутри объекта амплитудного распределения, вызывающий перерасчёт значений амплитудного распределения</summary>
     /// <param name="sender">Источник события - экземпляр амплитудного распределения</param>
     /// <param name="args">Аргумент события, несущий имя изменившегося свойства</param>
-    private void OnDistributionPropertyChanged(object? sender, PropertyChangedEventArgs args) => SetDestribution();
+    private void OnDistributionPropertyChanged(object? sender, PropertyChangedEventArgs args) => SetDistribution();
 
     /// <summary>Получить пречисление значений аргумента для расчёта функции амплитудного распределения</summary>
     /// <returns></returns>
@@ -462,161 +424,78 @@ internal class MainWindowModel : ViewModel
         yield return 0.5;
     }
 
-    /// <summary>Метод асинхронного вычисления массива значений ДН антенной решётки</summary>
-    /// <param name="Cancel">Признак отмены асинхронной операции</param>
-    /// <returns>Асинхронная задача вычисления значений ДН антенной решётки</returns>
-    private Task<PatternValue[]> GetBeam0DataAsync(CancellationToken Cancel)
-    {
-        const double th_min = -180 * c_ToRad;
-        const double th_max = 180 * c_ToRad;
-        return Task.Run(() => _AntennaArray.Element.GetPatternValuesParallel(_f0 * c_GHz, _PhiView * c_ToRad, th_min, th_max, _dθ * ToRad, Cancel), Cancel);
-    }
+    /// <summary>Запустить асинхронный расчёт диаграммы направленности</summary>
+    private void ComputePatternAsync() => _ = ComputePatternCoreAsync();
 
-    /// <summary>Метод асинхронного вычисления массива значений ДН элементарного излучателя антенной решётки</summary>
-    /// <param name="Cancel">Признак отмены асинхронной операции</param>
-    /// <returns>Асинхронная задача вычисления значений ДН элементарного излучателя антенной решётки</returns>
-    private Task<PatternValue[]> GetBeamDataAsync(CancellationToken Cancel)
+    /// <summary>Асинхронно рассчитать диаграмму направленности по неизменяемому снимку входных данных</summary>
+    private async Task ComputePatternCoreAsync()
     {
-        const double th_min = -180 * c_ToRad;
-        const double th_max = 180 * c_ToRad;
-        return Task.Run(() => _AntennaArray.GetPatternValuesParallel(_f0 * c_GHz, _PhiView * c_ToRad, th_min, th_max, _dθ * ToRad, Cancel), Cancel);
-    }
+        var request_id = ++_ComputePatternVersion;
 
-    /// <summary>Расчитать диаграмму направленности антенны (асинхронно)</summary>
-    private async void ComputePatternAsync()
-    {
-        _ComputePatternCancellationTokenSource?.Cancel();
-        _ComputePatternCancellationTokenSource = new();
-        var cancel = _ComputePatternCancellationTokenSource.Token;
+        var old_source = _ComputePatternCancellationTokenSource;
+        old_source?.Cancel();
+        old_source?.Dispose();
+
+        var source = new CancellationTokenSource();
+        _ComputePatternCancellationTokenSource = source;
+        var cancel = source.Token;
 
         try
         {
-            //var compute_d0_taks = ComputeD0Async(_AntennaArray.Pattern, _f0 * c_GHz, _D0ProgressReporter, cancel);
-            var beam_task = GetBeamDataAsync(cancel);
-            var beam0_task = GetBeam0DataAsync(cancel);
-            var beam_heatmap_task = ComputeBeamPatternHeatMapAsync(cancel);
-            if (cancel.IsCancellationRequested) return;
+            // снимок формируется в UI-потоке, фоновый расчёт не читает поля модели
+            var array = new RectangularAntennaArray(
+                _AntennaArray.Nx, _AntennaArray.Ny, _AntennaArray.dx, _AntennaArray.dy,
+                _AntennaArray.Element, _AntennaArray.Distribution);
 
-            var beam_data_points = await beam_task.ConfigureAwait(true);
-            var analyse_pattern_task = AnalysePatternAsync(beam_data_points, cancel);
-            if (cancel.IsCancellationRequested) return;
+            var request = new PatternRequest(
+                array, _AntennaArray.Element, _f0 * c_GHz, _PhiView * c_ToRad,
+                -180 * c_ToRad, 180 * c_ToRad, _dθ * ToRad);
 
-            var beam_0_data_points = await beam0_task.ConfigureAwait(true);
-            if (cancel.IsCancellationRequested is true or true) return;
+            var result = await Task.Run(
+                () => PatternCalculator.Calculate(request, _PatternProcessProgressReporter, cancel),
+                cancel).ConfigureAwait(true);
 
-            var beam0 = beam_0_data_points.ToArray();
-            if (cancel.IsCancellationRequested) return;
+            if (cancel.IsCancellationRequested || request_id != _ComputePatternVersion) return;
 
-            BeamData = beam_data_points;
-            if (cancel.IsCancellationRequested) return;
-
-            Beam0Data = beam0;
-            if (cancel.IsCancellationRequested) return;
-
-            await Task.WhenAll(analyse_pattern_task /*, compute_d0_taks*/, beam_heatmap_task).ConfigureAwait(false);
-        }
-        catch (TaskCanceledException)
-        {
-            //Debug.WriteLine(e);
+            BeamData = result.ArrayPattern;
+            Beam0Data = result.ElementPattern;
+            PatternData = result.HeatMap;
+            ApplyAnalysis(result.Analysis);
         }
         catch (OperationCanceledException) { }
-    }
-
-    /// <summary>Расчитать полный КНД трёхмерной ДН антенной решётки</summary>
-    /// <param name="F">Функция ДН решётки</param>
-    /// <param name="f">Частота вычисления ДН решётки</param>
-    /// <param name="Progress">Информатор об изменении прогресса вычисления КНД</param>
-    /// <param name="Cancel">Признак отмены асинхронной операции</param>
-    /// <returns>Задача вычисления полного КНД решётки</returns>
-    private async Task ComputeD0Async(Func<double, double, double, Complex> F, double f, IProgress<double?>? Progress, CancellationToken Cancel)
-    {
-        try
-        {
-            const double th1 = pi05neg;
-            const double th2 = pi05;
-            const double phi1 = 0;
-            const double phi2 = pi2;
-            const double da = 1 * ToRad;
-            //const double Dphi = phi2 - phi1;
-            const int N_phi = (int)((phi2 - phi1) / da) + 1;
-            const int M_th = (int)((th2 - th1) / da) + 1;
-            var pattern_data = new double[N_phi, M_th];
-
-            var D0 = await Task.Run(
-                    () =>
-                    {
-                        Progress?.Report(null);
-
-                        var d0 = 0d;
-                        var max = double.NegativeInfinity;
-
-                        for (var i = 0; i < N_phi; i++)
-                        {
-                            var phi = i * da + phi1;
-                            for (var j = 0; j < M_th; j++)
-                            {
-                                var th = j * da + th1;
-                                Cancel.ThrowIfCancellationRequested();
-                                var v = F(th, phi, f).Power;
-                                pattern_data[i, j] = v;
-                                if (v > max) max = v;
-                                var d1 = v * Cos(th);
-                                d0 += d1;
-                            }
-
-                            Progress?.Report((double)i / N_phi);
-                        }
-
-                        Cancel.ThrowIfCancellationRequested();
-                        Progress?.Report(1d);
-                        return 4 * PI * max * da / d0;
-                    },
-                    Cancel)
-               .ConfigureAwait(true);
-            Cancel.ThrowIfCancellationRequested();
-            D0_Total = D0.In_dB_byPower();
-
-            PatternData = await Task.Run(
-                    () =>
-                    {
-                        var max = pattern_data.Max2D();
-                        for (var i = 0; i < N_phi; i++)
-                            for (var j = 0; j < M_th; j++)
-                                pattern_data[i, j] = (pattern_data[i, j] / max).In_dB_byPower();
-                        return pattern_data;
-                    },
-                    Cancel)
-               .ConfigureAwait(true);
-        }
-        catch (OperationCanceledException e)
+        catch (Exception e)
         {
             Debug.WriteLine(e);
-            throw;
+        }
+        finally
+        {
+            if (ReferenceEquals(_ComputePatternCancellationTokenSource, source))
+            {
+                _ComputePatternCancellationTokenSource = null;
+                source.Dispose();
+            }
         }
     }
 
-    /// <summary>Асинхронный прцоцесс анализа ДН антенной решётки</summary>
-    /// <param name="pattern">Массив значений расчитанной ДН</param>
-    /// <param name="Cancel">Признак отмены асинхронной операции</param>
-    /// <returns>Задача асинхронного анализа ДН антенной решётки</returns>
-    private async Task AnalysePatternAsync(PatternValue[] pattern, CancellationToken Cancel)
+    /// <summary>Применить результаты анализа ДН к свойствам модели</summary>
+    /// <param name="result">Результат анализа ДН</param>
+    private void ApplyAnalysis(AnalysePatternResult result)
     {
-        var result = await Task.Run(pattern.Analyse, Cancel).ConfigureAwait(true);
-        MaxPos = result.MaxIndex;
-        var gain = result.Max.In_dB();
-        Gain = gain;
-        D0 = result.D0.In_dB();
+        MaxPos = result.MaxAngle.ToDeg();
+        MaxFieldDb = result.Max.In_dB();
+        D0 = result.D0.In_dB_byPower();
+
         var ssl = result.SSL.In_dB();
         SSL = ssl;
-        SSL_Value = ssl - gain;
-        var maean_ssl = result.MeanSLL.In_dB();
-        MeanSSL = maean_ssl;
-        MeanSSL_Value = MeanSSL - gain;
+        SSL_Value = ssl - MaxFieldDb;
+
+        var mean_ssl = result.MeanSLL.In_dB();
+        MeanSSL = mean_ssl;
+        MeanSSL_Value = mean_ssl - MaxFieldDb;
 
         BeamPos = result.MaxAngle.ToDeg();
         BeamWidth07 = (result.Th07Right - result.Th07Left).ToDeg();
         BeamWidth0 = (result.Th0Right - result.Th0Left).ToDeg();
-
         BeamLeftAdge07 = result.Th07Left.ToDeg();
         BeamRightAdge07 = result.Th07Right.ToDeg();
     }
@@ -627,7 +506,7 @@ internal class MainWindowModel : ViewModel
     private void OnElementaryAntennaChanged(object? sender, PropertyChangedEventArgs args) => OnPropertyChanged(nameof(ElementaryAntenna));
 
     /// <summary>Метод установки амплитудного распределения</summary>
-    private void SetDestribution()
+    private void SetDistribution()
     {
         var phase = GetPhaseDistribution(_θ0 * c_ToRad, _φ0 * c_ToRad, _f0 * c_GHz);
         var lx = Lx;
@@ -656,6 +535,7 @@ internal class MainWindowModel : ViewModel
         }
 
         OnPropertyChanged(nameof(DistributionData));
+        ComputePatternAsync();
     }
 
     /// <summary>Получение функции фазового распределения апертуры для заданной частоты</summary>

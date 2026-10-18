@@ -38,8 +38,8 @@ public class ExpressionTests
 
     /// <summary>Выражение элемента Гюйгенса должно компилироваться и совпадать с Pattern</summary>
     [TestMethod]
-    public void Guigens_Expression_MatchesPattern() =>
-        AssertExpressionMatchesPattern(new Guigens(), 0, 0.5, 1.2, 2.5);
+    public void Huygens_Expression_MatchesPattern() =>
+        AssertExpressionMatchesPattern(new Huygens(), 0, 0.5, 1.2, 2.5);
 
     /// <summary>Выражение вибратора должно компилироваться и совпадать с Pattern</summary>
     [TestMethod]

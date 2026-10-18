@@ -1,4 +1,4 @@
-﻿using MathCore;
+using MathCore;
 
 namespace ConsolePolygon;
 
@@ -92,7 +92,7 @@ public class Swarm2D(int ParticleCount = 100)
         out double Value)
     {
         var swarm = new Particle2D[_ParticleCount].Initialize(i => new(func, IntervalX, IntervalY));
-        var start = swarm.GetMin(p => p.Value);
+        var start = swarm.GetMin(p => p.Value)!;
         X     = start.X;
         Y     = start.Y;
         Value = start.Value;
@@ -163,7 +163,7 @@ public class Swarm2D(int ParticleCount = 100)
         out double Value)
     {
         var swarm = new Particle2D[_ParticleCount].Initialize(i => new(func, IntervalX, IntervalY));
-        var start = swarm.GetMax(p => p.Value);
+        var start = swarm.GetMax(p => p.Value)!;
         X     = start.X;
         Y     = start.Y;
         Value = start.Value;
@@ -247,7 +247,7 @@ public class Swarm1D(int ParticleCount = 100)
         out double Value)
     {
         var swarm = new Particle1D[ParticleCount].Initialize(i => new(func, IntervalX));
-        var start = swarm.GetMin(p => p.Value);
+        var start = swarm.GetMin(p => p.Value)!;
         X     = start.X;
         Value = start.Value;
 
@@ -295,7 +295,7 @@ public class Swarm1D(int ParticleCount = 100)
         out double Value)
     {
         var swarm = new Particle1D[ParticleCount].Initialize(i => new(func, IntervalX));
-        var start = swarm.GetMax(p => p.Value);
+        var start = swarm.GetMax(p => p.Value)!;
         X     = start.X;
         Value = start.Value;
 
@@ -375,7 +375,7 @@ public class Swarm(int ParticleCount = 100)
         var IntervalVx = new Interval[IntervalX.Length].Initialize(i => IntervalX[i]);
 
         var swarm = new Particle[ParticleCount].Initialize(i => new(func, IntervalX));
-        var start = swarm.GetMin(p => p.Value);
+        var start = swarm.GetMin(p => p.Value)!;
         X     = start.X;
         Value = start.Value;
 
@@ -436,7 +436,7 @@ public class Swarm(int ParticleCount = 100)
         var IntervalVx = new Interval[IntervalX.Length].Initialize(i => IntervalX[i]);
 
         var swarm = new Particle[ParticleCount].Initialize(i => new(func, IntervalX));
-        var start = swarm.GetMax(p => p.Value);
+        var start = swarm.GetMax(p => p.Value)!;
         X     = start.X;
         Value = start.Value;
 

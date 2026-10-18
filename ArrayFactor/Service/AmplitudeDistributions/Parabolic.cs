@@ -1,7 +1,7 @@
 ﻿namespace ArrayFactor.Service.AmplitudeDistributions;
 
-/// <summary>Чебышевское распределение</summary>
-public class Chebishew : Distribution
+/// <summary>Параболическое амплитудное распределение с пьедесталом</summary>
+public class Parabolic : Distribution
 {
     private double _Dx = 0.7;
     private double _Dy = 0.7;
@@ -13,4 +13,6 @@ public class Chebishew : Distribution
 
     /// <inheritdoc />
     public override double Value(double x, double y, double z) => A(x, _Dx) * A(y, _Dy);
+
+    public override string ToString() => "Параболическое";
 }

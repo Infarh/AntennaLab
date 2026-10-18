@@ -13,7 +13,7 @@ internal class UserDistribution : Distribution
     private MathExpression? _DistributionExpression;
     private readonly ObservableCollection<ExpressionVariable> _Variables = [];
 
-    public string? DestributionExpression { get => Get<string>(); set => Set(value); }
+    public string? DistributionExpression { get => Get<string>(); set => Set(value); }
 
     public DistributionValue[] DistributionPhi0 => GetDistribution();
     public DistributionValue[] DistributionPhi90 => GetDistribution(Math.PI / 2);
@@ -22,8 +22,8 @@ internal class UserDistribution : Distribution
 
     public UserDistribution()
     {
-        PropertyChanged_AddHandler(nameof(DestributionExpression), CreateExpression);
-        PropertyDependence_Add(nameof(DestributionExpression), nameof(DistributionPhi0), nameof(DistributionPhi90));
+        PropertyChanged_AddHandler(nameof(DistributionExpression), CreateExpression);
+        PropertyDependence_Add(nameof(DistributionExpression), nameof(DistributionPhi0), nameof(DistributionPhi90));
 
         Variables                    =  new(_Variables);
         _Variables.CollectionChanged += OnVariablesCollectionChanged;
@@ -31,9 +31,20 @@ internal class UserDistribution : Distribution
 
     private void OnVariablesCollectionChanged(object? Sender, NotifyCollectionChangedEventArgs E)
     {
-        if (E.Action != NotifyCollectionChangedAction.Add || E.NewItems is null) return;
+        if (E.OldItems is not null)
+            foreach (var v in E.OldItems.OfType<ExpressionVariable>())
+                v.PropertyChanged -= OnVariablePropertyChanged;
+
+        if (E.Action == NotifyCollectionChangedAction.Reset) return;
+
+        if (E.NewItems is null) return;
         foreach (var v in E.NewItems.OfType<ExpressionVariable>().Where(v => v.Name is not "x" and not "y"))
             v.PropertyChanged += OnVariablePropertyChanged;
+    }
+
+    private void UnsubscribeVariables()
+    {
+        foreach (var v in _Variables) v.PropertyChanged -= OnVariablePropertyChanged;
     }
 
     private void OnVariablePropertyChanged(object? Sender, PropertyChangedEventArgs E)
@@ -44,11 +55,22 @@ internal class UserDistribution : Distribution
 
     private void CreateExpression()
     {
-        var             expr_str = DestributionExpression;
-        MathExpression? expr;
-        _DistributionExpression = expr = expr_str is { Length: > 0 } ? __Parser.Parse(expr_str) : null;
-        _Variables.Clear();
-        expr?.Variable.Where(v => v.Name is not "x" and not "y").AddTo(_Variables);
+        var expression_text = DistributionExpression;
+        try
+        {
+            var expression = expression_text is { Length: > 0 } ? __Parser.Parse(expression_text) : null;
+            UnsubscribeVariables();
+            _DistributionExpression = expression;
+            _Variables.Clear();
+            expression?.Variable.Where(v => v.Name is not "x" and not "y").AddTo(_Variables);
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            UnsubscribeVariables();
+            _DistributionExpression = null;
+            _Variables.Clear();
+        }
     }
 
     /// <inheritdoc />

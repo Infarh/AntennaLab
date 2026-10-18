@@ -38,6 +38,10 @@
     <ProjectReference Include="..\AntennaLib\AntennaLib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="ArrayFactor.Tests" />
+  </ItemGroup>
+
   <Target Name="RemoveUnwantedCultures" AfterTargets="Publish">
     <ItemGroup>
       <UnwantedCultures Include="cs;de;es;fr;it;ja;ko;pl;pt-BR;tr;zh-Hans;zh-Hant" />

@@ -1,4 +1,4 @@
-﻿using MathCore;
+using MathCore;
 using MathCore.Vectors;
 using Task = System.Threading.Tasks.Task;
 
@@ -22,7 +22,11 @@ public static class BeamPatternExtensions
 
         public double AngleOfMaximum => Samples[MaximumIndex].Argument;
 
-        public Complex ValueOfMaxMaximum => Samples[MaximumIndex].Value;
+        public Complex MaximumValue => Samples[MaximumIndex].Value;
+
+        /// <summary>Устаревшее имя свойства <see cref="MaximumValue"/></summary>
+        [Obsolete("Используйте MaximumValue")]
+        public Complex ValueOfMaxMaximum => MaximumValue;
 
         public (double, Complex) Maximum => Samples[MaximumIndex];
 
@@ -30,7 +34,7 @@ public static class BeamPatternExtensions
 
         public double BeamCenterAngle => (Samples[Right07Index].Argument + Samples[Left07Index].Argument) / 2;
 
-        public double Simetry
+        public double Symmetry
         {
             get
             {
@@ -38,6 +42,10 @@ public static class BeamPatternExtensions
                 return result * result;
             }
         }
+
+        /// <summary>Устаревшее имя свойства <see cref="Symmetry"/></summary>
+        [Obsolete("Используйте Symmetry")]
+        public double Simetry => Symmetry;
 
         public (double, Complex) LeftSideLobe => Samples[LeftSLLIndex];
 
@@ -183,16 +191,16 @@ public static class BeamPatternExtensions
 
     public static Func<double, Complex> ToPhiPattern(Func<SpaceAngle, Complex> f, double Theta) => Phi => f(new(Theta, Phi));
 
-    public static double GetDirectivity(this Func<SpaceAngle, Complex> F, Action<double>? Complite = null) =>
-        GetDirectivity((th, phi) => F(new(th, phi)), Complite);
+    public static double GetDirectivity(this Func<SpaceAngle, Complex> F, Action<double>? Complete = null) =>
+        GetDirectivity((th, phi) => F(new(th, phi)), Complete);
 
-    public static double GetDirectivity(this Func<double, double, Complex> F, Action<double>? Complite = null)
+    public static double GetDirectivity(this Func<double, double, Complex> F, Action<double>? Complete = null)
     {
         var i_p = 0;
         var N_p = 360;
         var N_t = 360;
 
-        var f = Complite != null
+        var f = Complete != null
             ? (Func<double, double>)(p =>
             {
                 i_p++;
@@ -201,7 +209,7 @@ public static class BeamPatternExtensions
                     var I0 = F(t, p).Power * Math.Sin(t);
                     return I0;
                 }, 0, Consts.pi, Consts.pi / N_t);
-                Complite.Invoke((double)i_p / (N_p + 1));
+                Complete.Invoke((double)i_p / (N_p + 1));
                 return I1;
             })
             : p => FuncExtensions.GetIntegralValue(t => F(t, p).Power * Math.Sin(t), 0, Consts.pi, Consts.pi / N_t);
@@ -209,24 +217,24 @@ public static class BeamPatternExtensions
         return 2 * Consts.pi2 / f.GetIntegralValue(0, Consts.pi2, Consts.pi2 / N_p);
     }
 
-    public static double GetDirectivityBuffered(this Func<SpaceAngle, Complex> F, Action<double>? Complite = null) =>
-        GetDirectivityBuffered((th, phi) => F(new(th, phi)), Complite);
+    public static double GetDirectivityBuffered(this Func<SpaceAngle, Complex> F, Action<double>? Complete = null) =>
+        GetDirectivityBuffered((th, phi) => F(new(th, phi)), Complete);
 
-    public static double GetDirectivityBuffered(this Func<double, double, Complex> F, Action<double>? Complite = null)
+    public static double GetDirectivityBuffered(this Func<double, double, Complex> F, Action<double>? Complete = null)
     {
         var i_p    = 0;
         var N_p    = 360;
         var N_t    = 360;
         var buffer = new Dictionary<double, Dictionary<double, double>>(360);
 
-        var f = Complite != null
+        var f = Complete != null
             ? (Func<double, double>)(p =>
             {
                 var b = buffer.GetValueOrAddNew(p, () => new(360));
                 i_p++;
                 Func<double, double> f0 = t => b.GetValueOrAddNew(t, th => F(th, p).Power * Math.Sin(th));
                 var                  I1 = f0.GetIntegralValue(0, Consts.pi, Consts.pi / N_t);
-                Complite.Invoke((double)i_p / (N_p + 1));
+                Complete.Invoke((double)i_p / (N_p + 1));
                 return I1;
             })
             : p =>
