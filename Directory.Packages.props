@@ -5,16 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageVersion Include="MathCore" Version="0.0.94.3" />
-    <PackageVersion Include="MathCore.WPF" Version="0.0.49" />
-    <PackageVersion Include="MathCore.Hosting.WPF" Version="1.0.1" />
+    <PackageVersion Include="MathCore" Version="0.1.0" />
+    <PackageVersion Include="MathCore.WPF" Version="0.0.50" />
+    <PackageVersion Include="MathCore.Hosting.WPF" Version="1.0.2" />
     <PackageVersion Include="OxyPlot.Wpf" Version="2.2.0" />
     <PackageVersion Include="OxyPlot.Contrib.Wpf" Version="2.1.2" />
-    <PackageVersion Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.129" />
     <PackageVersion Include="FontAwesome6.Svg" Version="2.5.1" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-    <PackageVersion Include="MSTest.TestAdapter" Version="4.0.2" />
-    <PackageVersion Include="MSTest.TestFramework" Version="4.0.2" />
   </ItemGroup>
 
 </Project>

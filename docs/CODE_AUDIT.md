@@ -1228,7 +1228,24 @@ dotnet list AntennaLab.slnx package --vulnerable --include-transitive
 | D-51 | ✅ | README обновлён: `BeamPatternExtensions` исправлен, добавлен `PatternCalculator` |
 | D-52 | ✅ | README больше не описывает `OperationCanceledException` как штатное поведение отладки |
 
-### 12.4. Что осталось за рамками
+### 12.4. Обновление пакетов
+
+| Пакет | Было | Стало |
+|---|---|---|
+| `MathCore` | 0.0.94.3 | **0.1.0** |
+| `MathCore.WPF` | 0.0.49 | **0.0.50** |
+| `MathCore.Hosting.WPF` | 1.0.1 | **1.0.2** |
+| `Microsoft.NET.Test.Sdk` | 18.0.1 | **18.11.0** |
+| `MSTest.Sdk` / `MSTest.TestAdapter` / `MSTest.TestFramework` | 4.0.1 / 4.0.2 | **4.5.1** |
+| `OxyPlot.Wpf` | 2.2.0 | 2.2.0 (актуальная) |
+| `OxyPlot.Contrib.Wpf` | 2.1.2 | 2.1.2 (актуальная) |
+| `FontAwesome6.Svg` | 2.5.1 | 2.5.1 (актуальная) |
+
+`DotNetProjects.Extended.Wpf.Toolkit` удалён из централизованного списка, так как больше не используется. `MicrosoftNETTestSdkVersion` задан в `Directory.Build.props`, чтобы `MSTest.Sdk 4.5.1` использовал актуальный `Microsoft.NET.Test.Sdk 18.11.0`. В `ArrayDesigner` добавлены явные ссылки на `MathCore` и `MathCore.WPF`, чтобы не зависеть от транзитивных версий `MathCore.Hosting.WPF`.
+
+После обновления: сборка Debug/Release — 0 предупреждений и 0 ошибок, 122 теста пройдены, `ConsolePolygon` завершается с кодом 0, `ArrayFactor` запускается, уязвимых пакетов не найдено.
+
+### 12.5. Что осталось за рамками
 
 - `ArrayDesigner` остаётся прототипом: привязка геометрии к `AntennaLib` не реализована.
 - `Antenna.xml` не подключён к загрузчику конфигураций.

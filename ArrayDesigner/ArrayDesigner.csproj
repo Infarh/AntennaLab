@@ -14,6 +14,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MathCore" />
+    <PackageReference Include="MathCore.WPF" />
     <PackageReference Include="MathCore.Hosting.WPF" />
     <PackageReference Include="FontAwesome6.Svg" />
   </ItemGroup>
