@@ -8,7 +8,11 @@
     <UseWPF>true</UseWPF>
     <ApplicationIcon>img\Antenna.ico</ApplicationIcon>
     <ImplicitUsings>true</ImplicitUsings>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SatelliteResourceLanguages>en;ru</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' != 'Debug'">
+    <Version>1.$([System.DateTime]::UtcNow.AddHours(3).ToString("yy.Mdd.Hmm"))</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -41,12 +45,5 @@
   <ItemGroup>
     <InternalsVisibleTo Include="ArrayFactor.Tests" />
   </ItemGroup>
-
-  <Target Name="RemoveUnwantedCultures" AfterTargets="Publish">
-    <ItemGroup>
-      <UnwantedCultures Include="cs;de;es;fr;it;ja;ko;pl;pt-BR;tr;zh-Hans;zh-Hant" />
-    </ItemGroup>
-    <Exec Command="for %%c in (@(UnwantedCultures)) do rmdir /s /q $(PublishDir)%%c" />
-  </Target>
 
 </Project>
