@@ -22,7 +22,10 @@ public static class AntennaExtensions
 
         var min = Min(th1, th2);
         var max = Max(th1, th2);
-        var count = (int)Ceiling((max - min) / dth) + 1;
+        var count_d = Ceiling((max - min) / dth) + 1;
+        if (count_d > int.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(dth), "Заданный шаг порождает слишком большое число отсчётов");
+        var count = (int)count_d;
         var result = new double[count];
         for (var i = 0; i < count; i++)
             result[i] = Min(min + i * dth, max);
