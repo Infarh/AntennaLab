@@ -62,9 +62,7 @@ public class AntennaItem : Antenna
         {
             if (_Direction.Equals(value)) return;
             _Direction = value;
-            _Rotator = value.Theta == 0 && value.Phi == 0
-                ? null
-                : value.GetRotatorPhiTheta();
+            _Rotator = value.IsZero ? null : value.GetRotatorPhiTheta();
             OnPropertyChanged();
         }
     }
