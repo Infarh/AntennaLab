@@ -48,17 +48,23 @@ public static class PatternCalculator
     public static double[,] CalculateHeatMap(PatternRequest Request, IProgress<double>? Progress = null, CancellationToken Cancel = default)
     {
         ArgumentNullException.ThrowIfNull(Request);
+        if (Request.HeatMapSize <= 0)
+            throw new ArgumentOutOfRangeException(nameof(Request), "Размер тепловой карты должен быть положительным");
+        if (!double.IsFinite(Request.HeatMapAngleStepDeg) || Request.HeatMapAngleStepDeg <= 0)
+            throw new ArgumentOutOfRangeException(nameof(Request), "Шаг тепловой карты должен быть положительным конечным числом");
 
         var size = Request.HeatMapSize;
         var angle_step = Request.HeatMapAngleStepDeg;
         var data = new double[size, size];
-        var max = double.NegativeInfinity;
+        var row_max = new double[size];
         var half = size / 2d;
+        var completed_rows = 0;
 
         Progress?.Report(0);
 
-        for (var i = 0; i < size; i++)
+        Parallel.For(0, size, new ParallelOptions { CancellationToken = Cancel }, i =>
         {
+            var local_max = double.NegativeInfinity;
             for (var j = 0; j < size; j++)
             {
                 var angle = new Complex(half - i, j - half);
@@ -72,13 +78,15 @@ public static class PatternCalculator
                 var value = Request.Antenna.Pattern(theta_deg * Consts.ToRad, angle.Arg, Request.Frequency)
                    .Power.In_dB_byPower();
                 data[i, j] = value;
-                max = Max(value, max);
+                local_max = Max(value, local_max);
             }
 
-            Cancel.ThrowIfCancellationRequested();
-            Progress?.Report((i + 1d) / size);
-        }
+            row_max[i] = local_max;
+            var done = Interlocked.Increment(ref completed_rows);
+            Progress?.Report((double)done / size);
+        });
 
+        var max = row_max.Max();
         if (double.IsInfinity(max)) return data;
 
         for (var i = 0; i < size; i++)
