@@ -9,6 +9,12 @@ namespace Antennas;
 /// <summary>Антенна</summary>
 public abstract class Antenna : ViewModel, IAntenna
 {
+    /// <summary>Привести выражение типа <see cref="double"/> к типу <see cref="Complex"/></summary>
+    /// <param name="Value">Исходное выражение</param>
+    /// <returns>Выражение типа <see cref="Complex"/></returns>
+    protected static Expression AsComplex(Expression Value) =>
+        Value.Type == typeof(Complex) ? Value : Expression.Convert(Value, typeof(Complex));
+
     /// <summary>Диаграмма направленности</summary>
     /// <param name="Theta">Угол места</param>
     /// <param name="Phi">Угол азимута</param>

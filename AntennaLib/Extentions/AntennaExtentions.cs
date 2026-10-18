@@ -7,13 +7,27 @@ namespace Antennas;
 /// <summary>Расширяющие методы для работы с антеннами</summary>
 public static class AntennaExtensions
 {
-    private static IEnumerable<double> GetAngles(double th1, double th2, double dth)
+    /// <summary>Сформировать равномерную сетку углов, гарантированно включающую конечный угол</summary>
+    /// <param name="th1">Первый угол</param>
+    /// <param name="th2">Второй угол</param>
+    /// <param name="dth">Шаг сетки</param>
+    /// <returns>Массив углов</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Если шаг не положителен или не конечен</exception>
+    private static double[] GetAngles(double th1, double th2, double dth)
     {
-        var th = Min(th1, th2);
-        th2 = Max(th1, th2);
-        dth = Abs(dth);
-        do yield return th; while ((th += dth) < th2);
-        yield return th2;
+        if (!double.IsFinite(th1) || !double.IsFinite(th2))
+            throw new ArgumentOutOfRangeException(nameof(th1), "Границы диапазона углов должны быть конечными");
+        if (!double.IsFinite(dth) || dth <= 0)
+            throw new ArgumentOutOfRangeException(nameof(dth), "Шаг по углу должен быть положительным конечным числом");
+
+        var min = Min(th1, th2);
+        var max = Max(th1, th2);
+        var count = (int)Ceiling((max - min) / dth) + 1;
+        var result = new double[count];
+        for (var i = 0; i < count; i++)
+            result[i] = Min(min + i * dth, max);
+        result[^1] = max;
+        return result;
     }
 
     /// <summary>Получить диаграмму направленности антенны на фиксированном азимутальном угле</summary>
@@ -34,11 +48,12 @@ public static class AntennaExtensions
         double dth = 1 * Consts.ToRad
     )
     {
-        var th = Min(th1, th2);
-        dth = Abs(dth);
-        var result = new PatternValue[(int)((Max(th1, th2) - Min(th1, th2)) / dth) + 1];
-        for (var i = 0; i < result.Length; i++, th += dth)
-            result[i] = new(th, antenna.Pattern(th, phi, f));
+        ArgumentNullException.ThrowIfNull(antenna);
+
+        var angles = GetAngles(th1, th2, dth);
+        var result = new PatternValue[angles.Length];
+        for (var i = 0; i < angles.Length; i++)
+            result[i] = new(angles[i], antenna.Pattern(angles[i], phi, f));
         return result;
     }
 
@@ -62,8 +77,11 @@ public static class AntennaExtensions
         CancellationToken Cancel = default
     )
     {
-        var parallel_query = GetAngles(th1, th2, dth).AsParallel().AsOrdered();
-        if (Cancel != default)
+        ArgumentNullException.ThrowIfNull(antenna);
+
+        var angles = GetAngles(th1, th2, dth);
+        var parallel_query = angles.AsParallel().AsOrdered();
+        if (Cancel.CanBeCanceled)
             parallel_query = parallel_query.WithCancellation(Cancel);
         return parallel_query.Select(th => new PatternValue(th, antenna.Pattern(th, phi, f))).ToArray();
     }
@@ -88,18 +106,22 @@ public static class AntennaExtensions
         double dth = 1 * Consts.ToRad,
         IProgress<PatternCalculationTaskProgressInfo>? Progress = null,
         CancellationToken Cancel = default
-    ) => Task.Run(() =>
-    {                 
-        var th = Min(th1, th2);
-        dth = Abs(dth);
-        var result = new PatternValue[(int)((Max(th1, th2) - Min(th1, th2)) / dth) + 1];
-        for (int i = 0, len = result.Length; i < len && !Cancel.IsCancellationRequested; i++, th += dth)
+    )
+    {
+        ArgumentNullException.ThrowIfNull(antenna);
+
+        return Task.Run(() =>
         {
-            var pattern_value = new PatternValue(th, antenna.Pattern(th, phi, f));
-            result[i] = pattern_value;
-            Progress?.Report(new((double)i / len, pattern_value));
-        }
-        Cancel.ThrowIfCancellationRequested();
-        return result;
-    }, Cancel);
+            var angles = GetAngles(th1, th2, dth);
+            var result = new PatternValue[angles.Length];
+            for (var i = 0; i < angles.Length; i++)
+            {
+                Cancel.ThrowIfCancellationRequested();
+                var pattern_value = new PatternValue(angles[i], antenna.Pattern(angles[i], phi, f));
+                result[i] = pattern_value;
+                Progress?.Report(new((i + 1d) / angles.Length, pattern_value));
+            }
+            return result;
+        }, Cancel);
+    }
 }

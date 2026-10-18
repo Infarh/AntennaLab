@@ -8,9 +8,11 @@ using static MathCore.Extensions.Expressions.MathExpression;
 namespace Antennas;
 
 /// <summary>Симметричный вибратор расположенный вдоль оси OZ</summary>
-public class Vibrator(double length) : Antenna
+public class Vibrator : Antenna
 {
     private const double __k = Consts.pi2 / Consts.SpeedOfLight;
+
+    private double _Length;
 
     private static double GetK_f(double f) => __k * f;
 
@@ -63,29 +65,32 @@ public class Vibrator(double length) : Antenna
     /// <summary>Длина вибратора</summary>
     public double Length
     {
-        get => length;
-        set => Set(ref length, value);
+        get => _Length;
+        set => Set(ref _Length, value);
     }
+
+    /// <summary>Инициализация вибратора указанной длины</summary>
+    /// <param name="Length">Длина вибратора в метрах</param>
+    public Vibrator(double Length) => _Length = Length;
 
     public Vibrator() : this(1) { }
 
     public override Complex Pattern(SpaceAngle Direction, double f)
     {
         var th     = Direction.ThetaRad;
-        var kl     = __k * f * length;
+        var kl     = __k * f * _Length;
         var cos_kl = Cos(kl);
-        return th.Equals(0) ? 0 : (Cos(kl * Cos(th)) - cos_kl) / /*(1 - cos_kl) /*/ Sin(th);
+        return th.Equals(0) ? 0 : (Cos(kl * Cos(th)) - cos_kl) / Sin(th);
     }
 
     public override Expression GetPatternExpressionBody(Expression a, Expression f)
     {
         var th = a.GetProperty(nameof(SpaceAngle.ThetaRad));
-        var kl = __k.ToExpression()
-           .Multiply(f)
-           .Multiply(this.ToExpression().GetField(nameof(length)));
+        var length = Expression.Property(Expression.Constant(this), nameof(Length));
+        var kl = Expression.Multiply(Expression.Multiply(Expression.Constant(__k), f), length);
         var cos_kl = Cos(kl);
-        return Cos(kl.Multiply(Cos(th))).Subtract(cos_kl)
-           .Divide(1d.ToExpression().Subtract(cos_kl).Multiply(Sin(th)));
+        var numerator = Expression.Subtract(Cos(Expression.Multiply(kl, Cos(th))), cos_kl);
+        return AsComplex(Expression.Divide(numerator, Sin(th)));
     }
 
     /// <summary>Получить эффективную длину вибратора на указанной частоте</summary>
@@ -95,14 +100,14 @@ public class Vibrator(double length) : Antenna
     {
         const double k   = Consts.pi / Consts.SpeedOfLight;
         var          k05 = k * f;
-        return Tan(k05 * length) / k05;
+        return Tan(k05 * _Length) / k05;
     }
 
     /// <summary>Получить распределение тока на вибраторе на указанной частоте</summary>
     /// <param name="f0">Частота</param>
     /// <param name="z">Координата на оси OZ</param>
     /// <returns>Амплитуда тока в точке z</returns>
-    public double CurrentDistribution(double f0, double z) => CurrentDistribution(f0, length, z);
+    public double CurrentDistribution(double f0, double z) => CurrentDistribution(f0, _Length, z);
 
     public Func<double, double> CurrentDistribution(double f0) => z => CurrentDistribution(f0, z);
 

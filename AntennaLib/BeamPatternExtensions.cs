@@ -57,99 +57,126 @@ public static class BeamPatternExtensions
         double AngleMin = -Consts.pi, double AngleMax = Consts.pi,
         double Accuracy = 1e-2)
     {
+        ArgumentNullException.ThrowIfNull(f);
+        if (!double.IsFinite(Accuracy) || Accuracy <= 0)
+            throw new ArgumentOutOfRangeException(nameof(Accuracy), "Точность должна быть положительным конечным числом");
+        if (!double.IsFinite(AngleMin) || !double.IsFinite(AngleMax) || AngleMax <= AngleMin)
+            throw new ArgumentException("Границы диапазона углов заданы неверно");
+
         var ff = f.SamplingAdaptive_OneWay(fv => fv.Power, AngleMin, AngleMax, Accuracy).ToArray();
+        if (ff.Length == 0) throw new InvalidOperationException("Не удалось получить отсчёты диаграммы направленности");
 
-        var max_pos = ff.GetMaxIndex(fv => fv.Value.Power);
+        var max_pos = 0;
+        for (var i = 1; i < ff.Length; i++)
+            if (ff[i].Value.Power > ff[max_pos].Value.Power)
+                max_pos = i;
 
-        var max2  = ff[max_pos].Value.Power;
-        var ff_2  = Array.ConvertAll(ff, v => v.Value.Power / max2);
-        var ff_db = Array.ConvertAll(ff_2, v => v.In_dB_byPower());
+        var max_power = ff[max_pos].Value.Power;
+        var ff_2 = new double[ff.Length];
+        for (var i = 0; i < ff.Length; i++)
+            ff_2[i] = max_power > 0 ? ff[i].Value.Power / max_power : double.NaN;
 
-        var index_07_left  = 0;
-        var index_07_right = 0;
-        var length         = ff.Length;
-        for(int i = 0, i_left = max_pos, i_right = max_pos; i < length && (index_07_left == 0 || index_07_right == 0); i++)
-        {
-            if(index_07_left == 0)
-            {
-                i_left--;
-                if(i_left <= 0) index_07_left = 0;
-                else
-                {
-                    var left = ff_db[i_left];
-                    if(left < -3)
-                        index_07_left = -3 - left < ff_db[i_left + 1] + 3 ? i_left : i_left + 1;
-                }
-            }
+        var index_07_left = FindHalfPowerIndex(ff_2, max_pos, -1);
+        var index_07_right = FindHalfPowerIndex(ff_2, max_pos, +1);
 
-            if(index_07_right == 0)
-            {
-                i_right++;
-                if(i_right >= length - 1) index_07_right = length - 1;
-                else
-                {
-                    var right = ff_db[i_right];
-                    if(right < -3)
-                        index_07_right = -3 - right < ff_db[i_right - 1] + 3 ? i_right : i_right + 1;
-                }
-            }
-        }
-
-        var max_angle  = ff[max_pos].Argument;
+        var max_angle = ff[max_pos].Argument;
         var beam_width = ff[index_07_right].Argument - ff[index_07_left].Argument;
 
-        var sll_left_average   = 0d;
-        var sll_left_max_index = 0;
-        var sll_left_max       = double.NegativeInfinity;
-        var index              = index_07_left;
-        while(ff[index].Argument > max_angle - beam_width && index >= 0) index--;
-        for(var i = index; i >= 0; i--)
-        {
-            var fv = ff_2[i];
-            sll_left_average += fv;
-            if(fv <= sll_left_max) continue;
-            sll_left_max       = fv;
-            sll_left_max_index = i;
-        }
-        sll_left_average /= index;
-
-        var sll_right_average   = 0d;
-        var sll_right_max_index = 0;
-        var sll_right_max       = double.NegativeInfinity;
-        index = index_07_right;
-        while(ff[index].Argument > max_angle + beam_width && index < length) index++;
-        for(var i = index; i < length; i++)
-        {
-            var fv = ff_2[i];
-            sll_right_average += fv;
-            if(fv <= sll_right_max) continue;
-            sll_right_max       = fv;
-            sll_right_max_index = i;
-        }
-        sll_right_average /= length - index;
+        var left = CalculateSideLobe(ff_2, ff, 0, index_07_left - 1, max_angle - beam_width, -1);
+        var right = CalculateSideLobe(ff_2, ff, index_07_right + 1, ff.Length - 1, max_angle + beam_width, +1);
 
         return new(
             ff, max_pos,
             index_07_left, index_07_right,
-            sll_left_max_index, sll_right_max_index,
-            sll_left_average, sll_right_average,
-            GetDirectivity(ff, max_pos),
+            left.Index, right.Index,
+            left.Average, right.Average,
+            GetDirectivity(ff),
             Accuracy
         );
     }
 
-    private static double GetDirectivity(FuncExtensions.SamplingResult<Complex>.Result[] ff, double max_pos)
+    private static int FindHalfPowerIndex(double[] normalized_power, int max_index, int direction)
     {
-        var d    = 0d;
-        var last = ff[0].Value.Power * Math.Cos(ff[0].Argument - max_pos);
-        for(var i = 1; i < ff.Length; i++)
+        const double half_power = 0.5;
+        var index = max_index;
+        while (index + direction >= 0 && index + direction < normalized_power.Length &&
+               normalized_power[index + direction] > half_power)
+            index += direction;
+        return index;
+    }
+
+    private static (int Index, double Average) CalculateSideLobe(
+        double[] normalized_power,
+        FuncExtensions.SamplingResult<Complex>.Result[] samples,
+        int start,
+        int end,
+        double angle_limit,
+        int direction)
+    {
+        var fallback_index = Math.Clamp(direction < 0 ? start : end, 0, samples.Length - 1);
+        if (start < 0 || end >= samples.Length || start > end) return (fallback_index, double.NaN);
+
+        var index = direction < 0 ? end : start;
+        while (index >= start && index <= end &&
+               (direction < 0 ? samples[index].Argument > angle_limit : samples[index].Argument < angle_limit))
+            index += direction;
+
+        if (index < start || index > end) return (fallback_index, double.NaN);
+
+        var max_value = double.NegativeInfinity;
+        var max_index = index;
+        var sum = 0d;
+        var count = 0;
+        for (var i = index; direction < 0 ? i >= start : i <= end; i += direction)
         {
-            var f = ff[i].Value.Power * Math.Cos(ff[i].Argument - max_pos);
-            d    += (ff[i].Argument - ff[i - 1].Argument) * (f + last) / 2;
-            last =  f;
+            var value = normalized_power[i];
+            if (double.IsNaN(value)) continue;
+            sum += value;
+            count++;
+            if (value > max_value)
+            {
+                max_value = value;
+                max_index = i;
+            }
         }
-        var a = ff[^1].Argument - ff[0].Argument;
-        return a * a / d;
+
+        return (max_index, count > 0 ? sum / count : double.NaN);
+    }
+
+    private static double GetDirectivity(FuncExtensions.SamplingResult<Complex>.Result[] ff)
+    {
+        if (ff.Length < 2) return double.NaN;
+
+        var first = 0;
+        while (first < ff.Length && ff[first].Argument < -Consts.pi05) first++;
+        var last = ff.Length - 1;
+        while (last >= first && ff[last].Argument > Consts.pi05) last--;
+        if (first >= ff.Length || last <= first) return double.NaN;
+
+        var reference = first;
+        for (var i = first + 1; i <= last; i++)
+            if (ff[i].Value.Power > ff[reference].Value.Power)
+                reference = i;
+
+        var max_angle = ff[reference].Argument;
+        var max_power = ff[reference].Value.Power;
+
+        var integral = 0d;
+        var last_v = ff[first].Value.Power;
+        var last_a = ff[first].Argument;
+        var last_cos = Math.Cos(last_a - max_angle);
+        for (var i = first + 1; i <= last; i++)
+        {
+            var v = ff[i].Value.Power;
+            var a = ff[i].Argument;
+            var cos = Math.Cos(a - max_angle);
+            integral += (v * cos + last_v * last_cos) / 2 * (a - last_a);
+            last_v = v;
+            last_a = a;
+            last_cos = cos;
+        }
+
+        return integral > 0 ? max_power * 2 / integral : double.NaN;
     }
 
     public static Func<double, Complex> ToThetaPattern(Func<SpaceAngle, Complex> f, double Phi) => Theta => f(new(Theta, Phi));

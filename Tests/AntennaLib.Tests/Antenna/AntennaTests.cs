@@ -91,19 +91,14 @@ public class AntennaTests
         // Arrange
         var antenna = new Antennas.Dipole();
 
-        // Act & Assert
-        try
-        {
-            var expression = antenna.GetPatternExpression();
-            Assert.IsNotNull(expression, "Метод должен вернуть выражение");
-            Assert.HasCount(2, expression.Parameters, "Выражение должно иметь 2 параметра");
-        }
-        catch (ArgumentException)
-        {
-            // Некоторые антенны могут возвращать выражения с неправильным типом возврата
-            // Это приемлемое поведение для этого теста
-            //Assert.IsTrue(true, "Метод выбросил исключение - это допустимо");
-        }
+        // Act
+        var expression = antenna.GetPatternExpression();
+        var compiled = expression.Compile();
+
+        // Assert
+        Assert.IsNotNull(expression, "Метод должен вернуть выражение");
+        Assert.HasCount(2, expression.Parameters, "Выражение должно иметь 2 параметра");
+        Assert.AreEqual(0.5, compiled(new SpaceAngle(Math.PI / 3, 0), 1e9).Re, 1e-10);
     }
 
     /// <summary>Проверка String representation</summary>

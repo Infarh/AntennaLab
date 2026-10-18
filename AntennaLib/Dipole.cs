@@ -12,7 +12,8 @@ public class Dipole : Antenna
     public override Complex Pattern(SpaceAngle Direction, double f) => Math.Cos(Direction.ThetaRad);
 
     /// <inheritdoc />
-    public override Expression GetPatternExpressionBody(Expression a, Expression f) => MathExpression.Cos(a.GetProperty(nameof(SpaceAngle.ThetaRad)));
+    public override Expression GetPatternExpressionBody(Expression a, Expression f) =>
+        AsComplex(MathExpression.Cos(a.GetProperty(nameof(SpaceAngle.ThetaRad))));
 
     /// <inheritdoc />
     public override string ToString() => "Диполь";

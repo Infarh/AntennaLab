@@ -16,13 +16,13 @@ public readonly struct PatternValue(double angle, Complex v)
     public double AngleDeg => Angle * Consts.ToDeg;
     
     /// <summary>Угол в радианах (синоним Angle)</summary>
-    public double AngleRad => Angle * Consts.ToRad;
+    public double AngleRad => Angle;
     
     /// <summary>Значение диаграммы направленности в дБ</summary>
     public double ValueIndB => Value.Abs.In_dB();
     
     /// <summary>Значение диаграммы направленности в дБ по мощности</summary>
-    public double ValueIndBP => Value.Abs.In_dB_byPower();
+    public double ValueIndBP => Value.Power.In_dB_byPower();
     
     /// <summary>Модуль значения диаграммы направленности</summary>
     public double ValueAbs => Value.Abs;

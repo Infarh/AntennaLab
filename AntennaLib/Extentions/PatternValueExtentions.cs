@@ -72,7 +72,7 @@ public static class PatternValueExtensions
     )
     {
         if (pattern is null) throw new ArgumentNullException(nameof(pattern));
-        if (pattern.Length == 0) throw new InvalidOperationException("Диагамма не содержит значений");
+        if (pattern.Length == 0) throw new InvalidOperationException("Диаграмма не содержит значений");
         var len = pattern.Length;
         //var center = pattern.Where(v => v.Angle >= Consts.pi05neg && v.Angle <= Consts.pi05).ToArray();
         //var pattern_max = center.GetMax(v => v.Value.Abs, out max_index);
@@ -93,9 +93,23 @@ public static class PatternValueExtensions
             else
                 th_pi05_index = i;
 
+        if (max_index < 0)
+        {
+            max       = double.NegativeInfinity;
+            max_index = 0;
+            for (var i = 0; i < len; i++)
+            {
+                var v = pattern[i].Value.Abs;
+                if (v <= max) continue;
+                max       = v;
+                max_index = i;
+                max_angle = pattern[i].Angle;
+            }
+        }
+
         var last_v     = pattern[th_pi05_index].Value.Power;
         var last_a     = pattern[th_pi05_index].Angle;
-        var last_cos_a = Math.Cos(last_a);
+        var last_cos_a = Math.Cos(last_a - max_angle);
         var integral   = 0d;
         for (var i = th_pi05_index + 1; i < len && pattern[i].Angle <= Consts.pi05; i++)
         {
@@ -107,7 +121,7 @@ public static class PatternValueExtensions
             last_a     =  a;
             last_cos_a =  cos_a;
         }
-        D0 = max * max * 2 / integral;
+        D0 = integral > 0 ? max * max * 2 / integral : double.NaN;
 
         pattern.FindBeamWidth07(len, max_index, max, out th07_left_index, out th07_right_index, out th07_left, out th07_right);
 
@@ -142,6 +156,15 @@ public static class PatternValueExtensions
         out double th07_right
     )
     {
+        if (max <= 0 || len == 0)
+        {
+            th07_left_index = th07_right_index = 0;
+            th07_left = th07_right = double.NaN;
+            return;
+        }
+
+        max_index = Math.Clamp(max_index, 0, len - 1);
+
         #region Определение левой границы луча
 
         th07_left_index = max_index - 1;
@@ -167,7 +190,11 @@ public static class PatternValueExtensions
         #endregion
     }
 
-    private static double UnMap(double y, double x1, double x2, double y1, double y2) => (y - y1) * (x2 - x1) / (y2 - y1) + x1;
+    private static double UnMap(double y, double x1, double x2, double y1, double y2)
+    {
+        var dy = y2 - y1;
+        return Math.Abs(dy) < double.Epsilon ? x1 : (y - y1) * (x2 - x1) / dy + x1;
+    }
 
     private static void FindBeamWidth0
     (
@@ -185,7 +212,7 @@ public static class PatternValueExtensions
         #region Поиск левой границы луча по "нулю"
 
         th0_left_index = th07_left_index - 1;
-        if (th0_left_index <= 0) th0_left = double.NaN;
+        if (th07_left_index < 0 || th07_left_index >= len || th0_left_index <= 0) th0_left = double.NaN;
         else
         {
             var last_v = pattern[th07_left_index].Value.Abs;
@@ -211,7 +238,7 @@ public static class PatternValueExtensions
         #region Поиск правой границы луча по "нулю"
 
         th0_right_index = th07_right_index + 1;
-        if (th0_right_index >= len) th0_right = double.NaN;
+        if (th07_right_index < 0 || th07_right_index >= len || th0_right_index >= len) th0_right = double.NaN;
         else
         {
             var last_v = pattern[th07_right_index].Value.Abs;
@@ -312,32 +339,34 @@ public static class PatternValueExtensions
             ? (th0_right_index < len - 1 ? Math.Max(LeftSLL, RightSLL) : LeftSLL)
             : (th0_right_index < len - 1 ? RightSLL : double.NaN);
 
-        if (th0_left_index > start + 1)
-        {
-            var left_ubl_angle = pattern[th0_left_index].Angle - pattern[start].Angle;
+        var has_left = th0_left_index > start + 1;
+        var has_right = th0_right_index < len - 1;
+        var left_ubl_angle = has_left ? pattern[th0_left_index].Angle - pattern[start].Angle : double.NaN;
+        var right_ubl_angle = has_right ? pattern[len - 1].Angle - pattern[th0_right_index].Angle : double.NaN;
 
-            if (th0_right_index < len - 1)
-            {
-                var right_ubl_angle = pattern[len - 1].Angle - pattern[th0_right_index].Angle;
-
-                MeanSLL      =  (LeftMeanSLL + RightMeanSLL) / (left_ubl_angle + right_ubl_angle);
-                LeftMeanSLL  /= left_ubl_angle;
-                RightMeanSLL /= right_ubl_angle;
-            }
-            else
-            {
-                LeftMeanSLL /= left_ubl_angle;
-                MeanSLL     =  LeftMeanSLL;
-            }
-        }
-        else if (th0_right_index < len - 1)
-        {
-            var right_ubl_angle = pattern[len - 1].Angle - pattern[th0_right_index].Angle;
-            RightMeanSLL /= right_ubl_angle;
-            MeanSLL      =  RightMeanSLL;
-        }
+        if (has_left && Math.Abs(left_ubl_angle) > double.Epsilon)
+            LeftMeanSLL /= left_ubl_angle;
         else
-            MeanSLL = double.NaN;
+        {
+            LeftMeanSLL = double.NaN;
+            has_left = false;
+        }
+
+        if (has_right && Math.Abs(right_ubl_angle) > double.Epsilon)
+            RightMeanSLL /= right_ubl_angle;
+        else
+        {
+            RightMeanSLL = double.NaN;
+            has_right = false;
+        }
+
+        MeanSLL = (has_left, has_right) switch
+        {
+            (true, true) => (LeftMeanSLL * left_ubl_angle + RightMeanSLL * right_ubl_angle) / (left_ubl_angle + right_ubl_angle),
+            (true, false) => LeftMeanSLL,
+            (false, true) => RightMeanSLL,
+            _ => double.NaN
+        };
     }
 }
 

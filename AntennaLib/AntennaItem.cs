@@ -14,7 +14,7 @@ public class AntennaItem : Antenna
 {
     private const double __PiC = Consts.pi2 / Consts.SpeedOfLight;
 
-    private string _Name = null!;
+    private string _Name = string.Empty;
     private SpaceAngle _Direction;
     private Vector3D _Location;
     private Antenna _Element;
@@ -82,7 +82,7 @@ public class AntennaItem : Antenna
 
     public double AbsK { get => K.Abs; set => K = Complex.Exp(value, ArgK); }
 
-    public double ArgK { get => K.Abs; set => K = Complex.Exp(AbsK, value); }
+    public double ArgK { get => K.Arg; set => K = Complex.Exp(AbsK, value); }
 
     public double ReK { get => K.Re; set => K = new(value, ImK); }
 
@@ -131,12 +131,17 @@ public class AntennaItem : Antenna
     public override Expression? GetPatternExpressionBody(Expression a, Expression f)
     {
         if (_Rotator != null) a = Expression.Invoke(_Rotator.ToExpression(), a);
-        var kl = (-__PiC).ToExpression().Multiply(f);
+
+        var kl = Expression.Multiply(Expression.Constant(-__PiC), f);
         var projection_info = typeof(Vector3D).GetMethod(nameof(Vector3D.GetProjectionTo), [typeof(SpaceAngle)], null).NotNull();
-        var projection = Call(Location, projection_info, a);
-        var kr = kl.Multiply(projection);
-        var exp = ((Func<double, Complex>)Complex.Exp).GetCallExpression(kr!);
-        return _Element.GetPatternExpressionBody(a, f).Multiply(_K.ToExpression().Multiply(exp));
+        var projection = Expression.Call(Expression.Constant(Location, typeof(Vector3D)), projection_info, a);
+        var kr = Expression.Multiply(kl, projection);
+        var exp = ((Func<double, Complex>)Complex.Exp).GetCallExpression(kr);
+
+        var element = _Element.GetPatternExpressionBody(a, f)
+            ?? throw new InvalidOperationException($"Элемент {_Element.GetType().Name} не поддерживает построение выражения ДН");
+
+        return Expression.Multiply(Expression.Multiply(_K.ToExpression(), element), exp);
     }
 
     #endregion

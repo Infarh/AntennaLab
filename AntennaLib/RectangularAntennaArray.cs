@@ -157,6 +157,9 @@ public class RectangularAntennaArray : AntennaArray
 
     private void RefreshGeometry()
     {
+        if (Count != _Nx * _Ny)
+            throw new InvalidOperationException("Геометрия прямоугольной решётки не может быть перестроена: число элементов изменено в обход конфигурации");
+
         var Nx = _Nx;
         var Ny = _Ny;
         var dx = _dx;

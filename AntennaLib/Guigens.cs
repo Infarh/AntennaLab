@@ -16,8 +16,11 @@ public class Guigens : Antenna
     }
 
     /// <inheritdoc />
-    public override Expression GetPatternExpressionBody(Expression a, Expression f) => 
-        MathExpression.Cos(a.GetProperty(nameof(SpaceAngle.ThetaRad)).Divide(2.ToExpression())).Power(2.ToExpression());
+    public override Expression GetPatternExpressionBody(Expression a, Expression f)
+    {
+        var cos = MathExpression.Cos(a.GetProperty(nameof(SpaceAngle.ThetaRad)));
+        return AsComplex(Expression.Multiply(cos, cos));
+    }
 
     /// <inheritdoc />
     public override string ToString() => "Элемент Гюйгенса";

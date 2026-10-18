@@ -15,6 +15,17 @@ public class LambdaAntenna(Func<double, double, double, double> Beam) : Antenna
     /// <returns>Значение диаграммы направленности в указанном направлении</returns>
     public override Complex Pattern(SpaceAngle Direction, double f) => Beam(Direction.ThetaRad, Direction.PhiRad, f);
 
-    public override Expression GetPatternExpressionBody(Expression a, Expression f) =>
-        Beam.GetCallExpression(a.GetProperty(nameof(SpaceAngle.ThetaRad)), a.GetProperty(nameof(SpaceAngle.PhiRad)), f);
+    public override Expression GetPatternExpressionBody(Expression a, Expression f)
+    {
+        var arguments = new Expression[]
+        {
+            a.GetProperty(nameof(SpaceAngle.ThetaRad)),
+            a.GetProperty(nameof(SpaceAngle.PhiRad)),
+            f
+        };
+        var call = Beam.Target is null
+            ? Expression.Call(Beam.Method, arguments)
+            : Expression.Call(Expression.Constant(Beam.Target), Beam.Method, arguments);
+        return AsComplex(call);
+    }
 }

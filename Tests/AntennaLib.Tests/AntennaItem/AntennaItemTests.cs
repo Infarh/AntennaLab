@@ -160,6 +160,17 @@ public class AntennaItemTests
         
         // Assert
         Assert.AreEqual(abs_value, item.AbsK, 1e-10);
+        Assert.AreEqual(angle, item.ArgK, 1e-10);
+    }
+
+    /// <summary>Проверка, что ArgK возвращает аргумент, а не модуль</summary>
+    [TestMethod]
+    public void ArgK_ReturnsArgument_NotModulus()
+    {
+        var item = new Antennas.AntennaItem { K = new Complex(1, 1) };
+
+        Assert.AreEqual(Math.PI / 4, item.ArgK, 1e-10);
+        Assert.AreEqual(Math.Sqrt(2), item.AbsK, 1e-10);
     }
 
     /// <summary>Проверка метода Pattern</summary>

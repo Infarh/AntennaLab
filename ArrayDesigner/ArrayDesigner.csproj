@@ -14,10 +14,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MathCore.Hosting.WPF" Version="1.0.1" />
-    <PackageReference Include="OxyPlot.Contrib.Wpf" Version="2.1.2" />
-    <PackageReference Include="DotNetProjects.Extended.Wpf.Toolkit" Version="5.0.129" />
-    <PackageReference Include="FontAwesome6.Svg" Version="2.5.1" />
+    <PackageReference Include="MathCore.Hosting.WPF" />
+    <PackageReference Include="FontAwesome6.Svg" />
   </ItemGroup>
 
   <Target Name="RemoveUnwantedCultures" AfterTargets="Publish">
