@@ -391,7 +391,6 @@ internal class MainWindowModel : ViewModel
     {
         _NormX = GetXRange().AsParallel().AsOrdered();
         Distribution = new Uniform();
-        Nx++;
     }
 
     #endregion
