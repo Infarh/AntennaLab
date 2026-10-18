@@ -1168,7 +1168,7 @@ dotnet list AntennaLab.slnx package --vulnerable --include-transitive
 | Проверка | Результат |
 |---|---|
 | `dotnet build AntennaLab.slnx -c Debug` | 0 ошибок, 0 предупреждений |
-| `dotnet test AntennaLab.slnx` | 121 из 121 тестов пройдено |
+| `dotnet test AntennaLab.slnx` | 122 из 122 тестов пройдено |
 | `dotnet run --project Tests/ConsolePolygon` | завершается с кодом 0, без исключений |
 | `ArrayFactor` | запускается, расчётный конвейер заполняет `BeamData`/`Beam0Data` |
 
@@ -1243,4 +1243,5 @@ dotnet list AntennaLab.slnx package --vulnerable --include-transitive
 Приоритет рефакторинга: **P0 (D-01, D-02, D-03) → P1 (D-04…D-11) → выделение вычислительного
 сервиса → чистка UI и тесты**. После выполнения этапов 0–3 проект можно считать пригодным для
 дальнейшего развития без риска регрессий в численных результатах.
+
 

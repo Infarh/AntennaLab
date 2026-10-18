@@ -77,4 +77,13 @@ public class ExpressionTests
 
         AssertExpressionMatchesPattern(array, -0.5, 0, 0.5);
     }
+
+    /// <summary>Выражение прямоугольной решётки должно компилироваться и совпадать с Pattern</summary>
+    [TestMethod]
+    public void RectangularAntennaArray_Expression_MatchesPattern()
+    {
+        var array = new RectangularAntennaArray(2, 2, 0.15, 0.15, new UniformAntenna(), (_, _) => Complex.Real);
+
+        AssertExpressionMatchesPattern(array, -0.5, 0, 0.5);
+    }
 }
