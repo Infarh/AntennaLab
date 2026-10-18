@@ -120,9 +120,6 @@ internal class MainWindowModel : ViewModel
     /// <summary>Номер актуального запроса расчёта ДН</summary>
     private int _ComputePatternVersion;
 
-    /// <summary>Информатор прогресса расчёта тепловой карты</summary>
-    private readonly IProgress<double>? _PatternProcessProgressReporter;
-
     /// <summary>Массив значений тепловой карты трёхмерной ДН</summary>
     private double[,]? _PatternData;
 
@@ -392,7 +389,6 @@ internal class MainWindowModel : ViewModel
     /// <summary>Инициализация нового экземпляра <see cref="MainWindowModel"/></summary>
     public MainWindowModel()
     {
-        _PatternProcessProgressReporter = new Progress<double>(OnPatternProgressReport);
         _NormX = GetXRange().AsParallel().AsOrdered();
         Distribution = new Uniform();
         Nx++;
@@ -403,10 +399,6 @@ internal class MainWindowModel : ViewModel
     /* ------------------------------------------------------------------------------------------------ */
 
     #region Методы
-
-    /// <summary>Метод изменения значения прогресса расчёта тепловой карты</summary>
-    /// <param name="progress">Значение прогресса от 0 до 1 включительно</param>
-    private void OnPatternProgressReport(double progress) => PatternComplete = progress;
 
     /// <summary>Обработчик событий внутри объекта амплитудного распределения, вызывающий перерасчёт значений амплитудного распределения</summary>
     /// <param name="sender">Источник события - экземпляр амплитудного распределения</param>
@@ -451,8 +443,13 @@ internal class MainWindowModel : ViewModel
                 array, _AntennaArray.Element, _f0 * c_GHz, _PhiView * c_ToRad,
                 -180 * c_ToRad, 180 * c_ToRad, _dθ * ToRad);
 
+            var progress = new Progress<double>(value =>
+            {
+                if (request_id == _ComputePatternVersion) PatternComplete = value;
+            });
+
             var result = await Task.Run(
-                () => PatternCalculator.Calculate(request, _PatternProcessProgressReporter, cancel),
+                () => PatternCalculator.Calculate(request, progress, cancel),
                 cancel).ConfigureAwait(true);
 
             if (cancel.IsCancellationRequested || request_id != _ComputePatternVersion) return;

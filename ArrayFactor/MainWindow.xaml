@@ -239,36 +239,11 @@
                                                         </Rectangle.RenderTransform>
                                                     </Rectangle>
                                                     <StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="КНД в дБ в плоскости сечения ДН">
-                                                        <!--<StackPanel.Style>
-                                                            <Style TargetType="StackPanel">
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding PatternComplite}" Value="1">
-                                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </StackPanel.Style>-->
                                                         <TextBlock Text="D" />
                                                         <TextBlock Text="φ" FontSize="9" VerticalAlignment="Bottom" />
                                                         <TextBlock Text="=" />
                                                         <TextBlock Text="{Binding D0, StringFormat='{}{0:0.##}дБ', FallbackValue='-.-'}" />
                                                     </StackPanel>
-                                                    <!--<StackPanel Orientation="Horizontal" Margin="0,2" ToolTip="КНД в дБ в плоскости сечения ДН">
-                                                        <StackPanel.Style>
-                                                            <Style TargetType="StackPanel">
-                                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding PatternComplite}" Value="1">
-                                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </StackPanel.Style>
-                                                        <TextBlock Text="D" />
-                                                        <TextBlock Text="0" FontSize="9" VerticalAlignment="Bottom" />
-                                                        <TextBlock Text="=" />
-                                                        <TextBlock Text="{Binding D0_Total, StringFormat='{}{0:0.##}дБ', FallbackValue='-.-'}" />
-                                                    </StackPanel>-->
                                                 </Grid>
                                                 <StackPanel Orientation="Horizontal" ToolTip="Ширина луча по уровню 0">
                                                     <TextBlock Text="2θ" />
