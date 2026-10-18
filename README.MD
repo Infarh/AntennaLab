@@ -114,6 +114,19 @@ dotnet run --project .\ArrayFactor\ArrayFactor.csproj
 dotnet test AntennaLab.slnx
 ```
 
+## Публикация
+
+Скрипты публикации находятся в каталоге `ArrayFactor`:
+
+| Скрипт | Результат |
+|---|---|
+| `Publish-small.bat` | framework-dependent сборка в `!release\AntennaLab-Small` |
+| `Publish-full-x64.bat` | self-contained single-file `win-x64` в `!release\AntennaLab-Full-x64` |
+| `Publish-full-x32.bat` | self-contained single-file `win-x86` в `!release\AntennaLab-Full-x32` |
+| `Publish.bat` | все три сборки с единой версией |
+
+После публикации рядом с каталогами создаются архивы `AntennaLab-Small.zip`, `AntennaLab-Full-x64.zip` и `AntennaLab-Full-x32.zip`. В Release-конфигурации версия формируется динамически как `1.yy.Mdd.Hmm` по московскому времени.
+
 ## Типовой сценарий работы
 
 1. Открыть `ArrayFactor`
