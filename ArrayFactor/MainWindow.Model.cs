@@ -33,6 +33,9 @@ internal class MainWindowModel : ViewModel
     /// <summary>Гигагерцы x10^9</summary>
     private const double c_GHz = 1e9;
 
+    /// <summary>Задержка объединения быстрых изменений параметров перед запуском расчёта, мс</summary>
+    private const int c_ComputeDelay = 100;
+
     #endregion
 
     /* ------------------------------------------------------------------------------------------------ */
@@ -120,11 +123,14 @@ internal class MainWindowModel : ViewModel
     /// <summary>Номер актуального запроса расчёта ДН</summary>
     private int _ComputePatternVersion;
 
+    /// <summary>Пустая тепловая карта, отображаемая до завершения первого расчёта</summary>
+    private static readonly double[,] __EmptyHeatMap = { { double.NaN, double.NaN }, { double.NaN, double.NaN } };
+
     /// <summary>Массив значений тепловой карты трёхмерной ДН</summary>
-    private double[,]? _PatternData;
+    private double[,] _PatternData = __EmptyHeatMap;
 
     /// <summary>Значение прогресса вычисления полного КНД трёхмерной ДН антенной решётки</summary>
-    private double? _PatternComplete;
+    private double _PatternComplete;
 
     #endregion
 
@@ -137,10 +143,10 @@ internal class MainWindowModel : ViewModel
     public RectangularAntennaArray AntennaArray => _AntennaArray;
 
     /// <summary>Массив данных с картой ДН</summary>
-    public double[,]? PatternData { get => _PatternData; set => Set(ref _PatternData, value); }
+    public double[,] PatternData { get => _PatternData; set => Set(ref _PatternData!, value); }
 
     /// <summary>Прогресс вычисления полного КНД</summary>
-    public double? PatternComplete { get => _PatternComplete; private set => Set(ref _PatternComplete, value, v => v is null or >= 0 and <= 1); }
+    public double PatternComplete { get => _PatternComplete; private set => Set(ref _PatternComplete, value, v => v is >= 0 and <= 1); }
 
     /// <summary>Шаг вычисления ДН</summary>
     [ChangedHandler(nameof(ComputePatternAsync))]
@@ -423,9 +429,8 @@ internal class MainWindowModel : ViewModel
     {
         var request_id = ++_ComputePatternVersion;
 
-        var old_source = _ComputePatternCancellationTokenSource;
-        old_source?.Cancel();
-        old_source?.Dispose();
+        // отменяем только запущенный расчёт: источник освобождает владеющий им вызов
+        _ComputePatternCancellationTokenSource?.Cancel();
 
         var source = new CancellationTokenSource();
         _ComputePatternCancellationTokenSource = source;
@@ -433,6 +438,12 @@ internal class MainWindowModel : ViewModel
 
         try
         {
+            // пауза склеивает серию быстрых изменений параметров в один расчёт
+            await Task.Delay(c_ComputeDelay).ConfigureAwait(true);
+            if (request_id != _ComputePatternVersion) return;
+
+            PatternComplete = 0;
+
             // снимок формируется в UI-потоке, фоновый расчёт не читает поля модели
             var array = new RectangularAntennaArray(
                 _AntennaArray.Nx, _AntennaArray.Ny, _AntennaArray.dx, _AntennaArray.dy,
@@ -457,6 +468,7 @@ internal class MainWindowModel : ViewModel
             Beam0Data = result.ElementPattern;
             PatternData = result.HeatMap;
             ApplyAnalysis(result.Analysis);
+            PatternComplete = 1;
         }
         catch (OperationCanceledException) { }
         catch (Exception e)
@@ -466,10 +478,9 @@ internal class MainWindowModel : ViewModel
         finally
         {
             if (ReferenceEquals(_ComputePatternCancellationTokenSource, source))
-            {
                 _ComputePatternCancellationTokenSource = null;
-                source.Dispose();
-            }
+
+            source.Dispose();
         }
     }
 
