@@ -390,6 +390,15 @@
                                             <DataTemplate DataType="{x:Type ad:Triangle}">
                                                 <TextBlock Text="Треугольное" />
                                             </DataTemplate>
+                                            <DataTemplate DataType="{x:Type ad:Chebyshev}">
+                                                <TextBlock Text="Чебышевское" />
+                                            </DataTemplate>
+                                            <DataTemplate DataType="{x:Type ad:Taylor}">
+                                                <TextBlock Text="Тейлоровское" />
+                                            </DataTemplate>
+                                            <DataTemplate DataType="{x:Type ad:Gaussian}">
+                                                <TextBlock Text="Гауссово" />
+                                            </DataTemplate>
                                         </ComboBox.Resources>
                                         <ComboBox.ItemsSource>
                                             <x:Array Type="{x:Type ad:Distribution}">
@@ -397,6 +406,9 @@
                                                 <ad:CosOnDelta Dx="0.7" Nx="2" Dy="0.7" Ny="2" />
                                                 <ad:Parabolic Dx="0.7" Dy="0.7" />
                                                 <ad:Triangle />
+                                                <ad:Chebyshev SLL="30" />
+                                                <ad:Taylor SLL="30" />
+                                                <ad:Gaussian Dx="0.1" Dy="0.1" />
                                             </x:Array>
                                         </ComboBox.ItemsSource>
                                     </ComboBox>
@@ -518,6 +530,42 @@
                                                 </StackPanel>
                                             </StackPanel>
                                         </GroupBox>-->
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type ad:Chebyshev}">
+                                            <GroupBox Header="Уровень боковых лепестков" Margin="0,0,0,4" HorizontalAlignment="Left">
+                                                <DockPanel Margin="3,0">
+                                                    <TextBlock Text="УБЛ" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                                    <TextBlock Text="дБ" DockPanel.Dock="Right" VerticalAlignment="Center" Margin="5,0,0,0" />
+                                                    <ScrollBar DockPanel.Dock="Right" Minimum="13.3" Maximum="60" Value="{Binding SLL}" SmallChange="0.5" LargeChange="5" />
+                                                    <TextBox Text="{Binding SLL}" />
+                                                </DockPanel>
+                                            </GroupBox>
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type ad:Taylor}">
+                                            <GroupBox Header="Уровень боковых лепестков" Margin="0,0,0,4" HorizontalAlignment="Left">
+                                                <DockPanel Margin="3,0">
+                                                    <TextBlock Text="УБЛ" VerticalAlignment="Center" Margin="0,0,5,0" />
+                                                    <TextBlock Text="дБ" DockPanel.Dock="Right" VerticalAlignment="Center" Margin="5,0,0,0" />
+                                                    <ScrollBar DockPanel.Dock="Right" Minimum="13.3" Maximum="60" Value="{Binding SLL}" SmallChange="0.5" LargeChange="5" />
+                                                    <TextBox Text="{Binding SLL}" />
+                                                </DockPanel>
+                                            </GroupBox>
+                                        </DataTemplate>
+                                        <DataTemplate DataType="{x:Type ad:Gaussian}">
+                                            <GroupBox Header="Уровень на краю апертуры" Margin="0,0,0,4" HorizontalAlignment="Left">
+                                                <UniformGrid Columns="2">
+                                                    <DockPanel Margin="3,0,0,0">
+                                                        <TextBlock Text="Δx" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                        <ScrollBar DockPanel.Dock="Right" Minimum="0" Maximum="1" Value="{Binding Dx}" SmallChange="0.01" LargeChange="0.1" />
+                                                        <TextBox Text="{Binding Dx}"/>
+                                                    </DockPanel>
+                                                    <DockPanel Margin="3,0,0,0">
+                                                        <TextBlock Text="Δy" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                        <ScrollBar DockPanel.Dock="Right" Minimum="0" Maximum="1" Value="{Binding Dy}" SmallChange="0.01" LargeChange="0.1" />
+                                                        <TextBox Text="{Binding Dy}" />
+                                                    </DockPanel>
+                                                </UniformGrid>
+                                            </GroupBox>
                                         </DataTemplate>
                                     </DockPanel.Resources>
                                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">

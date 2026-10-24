@@ -44,6 +44,82 @@ public class ModelParameterTests
         Assert.AreEqual(1.0, distribution.Value(0, 0, 0), 1e-12);
     }
 
+    /// <summary>Чебышевское распределение должно быть максимальным в центре и спадать к краям апертуры</summary>
+    [TestMethod]
+    public void Chebyshev_HasMaximumAtCenter()
+    {
+        var distribution = new Chebyshev { SLL = 30 };
+
+        Assert.AreEqual(1.0, distribution.Value(0, 0, 0), 1e-12);
+        Assert.IsTrue(distribution.Value(0.5, 0, 0) is > 0 and < 0.2);
+        Assert.AreEqual(distribution.Value(0.5, 0, 0), distribution.Value(0, 0.5, 0), 1e-12);
+    }
+
+    /// <summary>Рост подавления боковых лепестков должен уменьшать уровень поля на краю апертуры</summary>
+    [TestMethod]
+    public void Chebyshev_HigherSLL_ReducesEdgeLevel()
+    {
+        var low = new Chebyshev { SLL = 20 };
+        var high = new Chebyshev { SLL = 40 };
+
+        Assert.IsTrue(high.Value(0.5, 0, 0) < low.Value(0.5, 0, 0));
+    }
+
+    /// <summary>К моменту уведомления об изменении уровня лепестков распределение должно быть уже пересчитано</summary>
+    [TestMethod]
+    public void Chebyshev_PropertyChanged_ObservesUpdatedTaper()
+    {
+        var distribution = new Chebyshev { SLL = 20 };
+        var observed = double.NaN;
+
+        distribution.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(Chebyshev.SLL)) observed = distribution.Value(0.5, 0, 0);
+        };
+
+        distribution.SLL = 40;
+
+        Assert.AreEqual(distribution.Value(0.5, 0, 0), observed, 1e-12);
+    }
+
+    /// <summary>Распределение Тейлора должно быть максимальным в центре и спадать к краям апертуры</summary>
+    [TestMethod]
+    public void Taylor_HasMaximumAtCenter()
+    {
+        var distribution = new Taylor { SLL = 30 };
+
+        Assert.AreEqual(1.0, distribution.Value(0, 0, 0), 1e-12);
+        Assert.IsTrue(distribution.Value(0.5, 0, 0) is > 0 and < 0.2);
+    }
+
+    /// <summary>К моменту уведомления об изменении уровня лепестков распределение Тейлора должно быть пересчитано</summary>
+    [TestMethod]
+    public void Taylor_PropertyChanged_ObservesUpdatedTaper()
+    {
+        var distribution = new Taylor { SLL = 20 };
+        var observed = double.NaN;
+
+        distribution.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(Taylor.SLL)) observed = distribution.Value(0.5, 0, 0);
+        };
+
+        distribution.SLL = 40;
+
+        Assert.AreEqual(distribution.Value(0.5, 0, 0), observed, 1e-12);
+    }
+
+    /// <summary>Гауссово распределение должно обеспечивать заданный уровень поля на краю апертуры</summary>
+    [TestMethod]
+    public void Gaussian_EdgeLevelMatchesParameter()
+    {
+        var distribution = new Gaussian { Dx = 0.2, Dy = 0.3 };
+
+        Assert.AreEqual(1.0, distribution.Value(0, 0, 0), 1e-12);
+        Assert.AreEqual(0.2, distribution.Value(0.5, 0, 0), 1e-12);
+        Assert.AreEqual(0.3, distribution.Value(0, 0.5, 0), 1e-12);
+    }
+
     /// <summary>Ошибочное выражение пользовательского распределения не должно бросать исключений</summary>
     [TestMethod]
     public void UserDistribution_InvalidExpression_ReturnsNaN()
